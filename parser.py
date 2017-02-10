@@ -411,4 +411,18 @@ class ExpressionParser(object):
         p[0] = Cast(Type(p[2], dimensions=p[3]), p[5])
 
 
+class NameParser(object):
 
+    def p_name(self, p):
+        '''name : simple_name
+                | qualified_name'''
+        p[0] = nf.node(p[1],"name")
+
+    def p_simple_name(self, p):
+        '''simple_name : NAME'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node(node_leaf,"simple-name")
+
+    def p_qualified_name(self, p):
+        '''qualified_name : name '.' simple_name'''
+        p[0] = nf.node(p[1],p[2],p[3],"qualified_name")
