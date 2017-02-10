@@ -425,7 +425,8 @@ class NameParser(object):
 
     def p_qualified_name(self, p):
         '''qualified_name : name '.' simple_name'''
-        p[0] = nf.node_three_child(p[1],p[2],p[3],"qualified_name")
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_three_child(p[1], node_leaf, p[3],"qualified_name")
 
 class LiteralParser(object):
 
@@ -438,3 +439,365 @@ class LiteralParser(object):
                    | NULL'''
         node_leaf = nf.node(p[1])
         p[0] = nf.node_one_child(node_leaf,"literal")
+
+class TypeParser(object):
+
+    def p_modifiers_opt(self, p):
+        '''modifiers_opt : modifiers'''
+        p[0] = nf.node_one_child(p[1], "modifiers_opt")
+
+    def p_modifiers_opt2(self, p):
+        '''modifiers_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "modifiers_opt")
+
+    def p_modifiers(self, p):
+        '''modifiers : modifier
+                     | modifiers modifier'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"modifiers")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "modifiers")
+
+    def p_modifier(self, p):
+        '''modifier : PUBLIC
+                    | PROTECTED
+                    | PRIVATE
+                    | STATIC
+                    | ABSTRACT
+                    | FINAL
+                    | NATIVE
+                    | SYNCHRONIZED
+                    | TRANSIENT
+                    | VOLATILE
+                    | STRICTFP
+                    | annotation'''
+        if p[1] != "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" | "transient" | "volatile" | "strictfp":
+            p[0] = nf.node_one_child(p[1], "modifier")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_one_child(node_leaf, "modifier")
+
+    def p_type(self, p):
+        '''type : primitive_type
+                | reference_type'''
+        p[0] = nf.node_one_child(p[1], "type")
+
+    def p_primitive_type(self, p):
+        '''primitive_type : BOOLEAN
+                          | VOID
+                          | BYTE
+                          | SHORT
+                          | INT
+                          | LONG
+                          | CHAR
+                          | FLOAT
+                          | DOUBLE'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf, "primitive_type")
+
+    def p_reference_type(self, p):
+        '''reference_type : class_or_interface_type
+                          | array_type'''
+        p[0] = nf.node_one_child(p[1], "reference_type")
+
+    def p_class_or_interface_type(self, p):
+        '''class_or_interface_type : class_or_interface
+                                   | generic_type'''
+        p[0] = nf.node_one_child(p[1], "class_or_interface_type")
+
+    def p_class_type(self, p):
+        '''class_type : class_or_interface_type'''
+        p[0] = nf.node_one_child(p[1], "class_type")
+
+    def p_class_or_interface(self, p):
+        '''class_or_interface : name
+                              | generic_type '.' name'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "class_or_interface")
+        else:
+            p[0] = nf.node_three_child(p[1],p[2],p[3],"class_or_interface")
+
+    def p_generic_type(self, p):
+        '''generic_type : class_or_interface type_arguments'''
+        p[0] = nf.node_two_child(p[1],p[2],"generic_type")
+
+    def p_generic_type2(self, p):
+        '''generic_type : class_or_interface '<' '>' '''
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "generic_type")
+
+#    def p_array_type(self, p):
+#        '''array_type : primitive_type dims
+#                      | name dims
+#                      | array_type_with_type_arguments_name dims
+#                      | generic_type dims'''
+#        p[0] = p[1] + '[' + p[2] + ']'
+#
+#    def p_array_type_with_type_arguments_name(self, p):
+#        '''array_type_with_type_arguments_name : generic_type '.' name'''
+#        p[0] = p[1] + '.' + p[3]
+
+    def p_array_type(self, p):
+        '''array_type : primitive_type dims
+                      | name dims'''
+        p[0] = nf.node_two_child(p[1], p[2], "array_type")
+
+    def p_array_type2(self, p):
+        '''array_type : generic_type dims'''
+        p[0] = nf.node_two_child(p[1], p[2], "array_type")
+
+    def p_array_type3(self, p):
+        '''array_type : generic_type '.' name dims'''
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_three_child(p[1], node_leaf, p[3], "array_type")
+
+    def p_type_arguments(self, p):
+        '''type_arguments : '<' type_argument_list1'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "type_arguments")
+
+    def p_type_argument_list1(self, p):
+        '''type_argument_list1 : type_argument1
+                               | type_argument_list ',' type_argument1'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_argument_list1")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_argument_list1")
+
+    def p_type_argument_list(self, p):
+        '''type_argument_list : type_argument
+                              | type_argument_list ',' type_argument'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_argument_list")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_argument_list")
+
+    def p_type_argument(self, p):
+        '''type_argument : reference_type
+                         | wildcard'''
+        p[0] = nf.node_one_child(p[1], "type_argument")
+
+    def p_type_argument1(self, p):
+        '''type_argument1 : reference_type1
+                          | wildcard1'''
+        p[0] = nf.node_one_child(p[1], "type_argument1")
+
+    def p_reference_type1(self, p):
+        '''reference_type1 : reference_type '>'
+                           | class_or_interface '<' type_argument_list2'''
+        if len(p) == 3:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_two_child(p[1], node_leaf, "reference_type1")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "reference_type1")
+
+    def p_type_argument_list2(self, p):
+        '''type_argument_list2 : type_argument2
+                               | type_argument_list ',' type_argument2'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_argument_list2")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_argument_list2")
+
+    def p_type_argument2(self, p):
+        '''type_argument2 : reference_type2
+                          | wildcard2'''
+        p[0] = nf.node_one_child(p[1], "type_argument2")
+
+    def p_reference_type2(self, p):
+        '''reference_type2 : reference_type RSHIFT
+                           | class_or_interface '<' type_argument_list3'''
+        if len(p) == 3:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_two_child(p[1], node_leaf, "reference_type2")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "reference_type2")
+
+    def p_type_argument_list3(self, p):
+        '''type_argument_list3 : type_argument3
+                               | type_argument_list ',' type_argument3'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_argument_list3")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_argument_list3")
+
+    def p_type_argument3(self, p):
+        '''type_argument3 : reference_type3
+                          | wildcard3'''
+        p[0] = nf.node_one_child(p[1], "type_argument3")
+
+    def p_reference_type3(self, p):
+        '''reference_type3 : reference_type RRSHIFT'''
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_two_child(p[1], node_leaf, "reference_type3")
+
+    def p_wildcard(self, p):
+        '''wildcard : '?'
+                    | '?' wildcard_bounds'''
+        if len(p) == 2:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_one_child(node_leaf, "wildcard")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard")
+
+    def p_wildcard_bounds(self, p):
+        '''wildcard_bounds : EXTENDS reference_type
+                           | SUPER reference_type'''
+        if p[1] == 'extends':
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds")
+
+    def p_wildcard1(self, p):
+        '''wildcard1 : '?' '>'
+                     | '?' wildcard_bounds1'''
+        if p[2] == '>':
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[2])
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "wildcard1")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard1")
+
+    def p_wildcard_bounds1(self, p):
+        '''wildcard_bounds1 : EXTENDS reference_type1
+                            | SUPER reference_type1'''
+        if p[1] == 'extends':
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds1")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds1")
+
+    def p_wildcard2(self, p):
+        '''wildcard2 : '?' RSHIFT
+                     | '?' wildcard_bounds2'''
+        if p[2] == '>>':
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[2])
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "wildcard2")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard2")
+
+    def p_wildcard_bounds2(self, p):
+        '''wildcard_bounds2 : EXTENDS reference_type2
+                            | SUPER reference_type2'''
+        if p[1] == 'extends':
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds2")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds2")
+
+    def p_wildcard3(self, p):
+        '''wildcard3 : '?' RRSHIFT
+                     | '?' wildcard_bounds3'''
+        if p[2] == '>>>':
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[2])
+            p[0] = nf.node_two_child(node_leaf, node_leaf2, "wildcard3")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard3")
+
+    def p_wildcard_bounds3(self, p):
+        '''wildcard_bounds3 : EXTENDS reference_type3
+                            | SUPER reference_type3'''
+        if p[1] == 'extends':
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds3")
+        else:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds3")
+
+    def p_type_parameter_header(self, p):
+        '''type_parameter_header : NAME'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf, "type_parameter_header")
+
+    def p_type_parameters(self, p):
+        '''type_parameters : '<' type_parameter_list1'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[1], "type_parameters")
+
+    def p_type_parameter_list(self, p):
+        '''type_parameter_list : type_parameter
+                               | type_parameter_list ',' type_parameter'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_parameter_list")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_parameter_list")
+
+    def p_type_parameter(self, p):
+        '''type_parameter : type_parameter_header
+                          | type_parameter_header EXTENDS reference_type
+                          | type_parameter_header EXTENDS reference_type additional_bound_list'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_parameter")
+        elif len(p) == 4:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_parameter")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_four_child(p[1], node_leaf, p[3], p[4], "type_parameter")
+
+    def p_additional_bound_list(self, p):
+        '''additional_bound_list : additional_bound
+                                 | additional_bound_list additional_bound'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "additional_bound_list")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "additional_bound_list")
+
+    def p_additional_bound(self, p):
+        '''additional_bound : '&' reference_type'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "additional_bound")
+
+    def p_type_parameter_list1(self, p):
+        '''type_parameter_list1 : type_parameter1
+                                | type_parameter_list ',' type_parameter1'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_parameter_list1")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_parameter_list1")
+
+    def p_type_parameter1(self, p):
+        '''type_parameter1 : type_parameter_header '>'
+                           | type_parameter_header EXTENDS reference_type1
+                           | type_parameter_header EXTENDS reference_type additional_bound_list1'''
+        if len(p) == 3:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_two_child(p[1], node_leaf, "type_parameter1")
+        elif len(p) == 4:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "type_parameter1")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_four_child(p[1], node_leaf, p[3], p[4], "type_parameter1")
+
+    def p_additional_bound_list1(self, p):
+        '''additional_bound_list1 : additional_bound1
+                                  | additional_bound_list additional_bound1'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "additional_bound_list1")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "additional_bound_list1")
+
+    def p_additional_bound1(self, p):
+        '''additional_bound1 : '&' reference_type1'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "additional_bound1")
