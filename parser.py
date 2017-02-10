@@ -416,13 +416,25 @@ class NameParser(object):
     def p_name(self, p):
         '''name : simple_name
                 | qualified_name'''
-        p[0] = nf.node(p[1],"name")
+        p[0] = nf.node_one_child(p[1],"name")
 
     def p_simple_name(self, p):
         '''simple_name : NAME'''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node(node_leaf,"simple-name")
+        p[0] = nf.node_one_child(node_leaf,"simple-name")
 
     def p_qualified_name(self, p):
         '''qualified_name : name '.' simple_name'''
-        p[0] = nf.node(p[1],p[2],p[3],"qualified_name")
+        p[0] = nf.node_three_child(p[1],p[2],p[3],"qualified_name")
+
+class LiteralParser(object):
+
+    def p_literal(self, p):
+        '''literal : NUM
+                   | CHAR_LITERAL
+                   | STRING_LITERAL
+                   | TRUE
+                   | FALSE
+                   | NULL'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf,"literal")
