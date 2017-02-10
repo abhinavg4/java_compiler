@@ -5,7 +5,7 @@ import ply.yacc as yacc
 import node_file
 
 lexer = lex.lex(module=lexRule)
-parse = yacc.yacc(module=parser.ExpressionParser())
+parse = yacc.yacc(module=parser.MyParser())
 
 parse.parse("a=b",lexer=lexer)
 node_file.graph_plot()

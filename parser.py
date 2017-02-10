@@ -257,7 +257,7 @@ class ExpressionParser(object):
                             | '-' unary_expression
                             | unary_expression_not_plus_minus'''
         if len(p) == 2:
-            p[0] = node_one_child(p[1],"unary_expression")
+            p[0] = nf.node_one_child(p[1],"unary_expression")
         else:
             p[0] = front_unary(p, "unary_expression")
 
@@ -268,22 +268,19 @@ class ExpressionParser(object):
                                      | '-' unary_expression
                                      | unary_expression_not_plus_minus_not_name'''
         if len(p) == 2:
-            p[0] = node_one_child(p[1],"unary_expression_not_expression")
+            p[0] = nf.node_one_child(p[1],"unary_expression_not_expression")
         else:
-            p[0] = front_unary(p, "unary_expression")
-
-       if len(p) == 2:
-            p[0] = p[1]
-        else:
-            p[0] = front_unary(p[1], p[2])
+            p[0] = front_unary(p, "unary_expression_not_name")
 
     def p_pre_increment_expression(self, p):
         '''pre_increment_expression : PLUSPLUS unary_expression'''
-        p[0] = front_unary('++x', p[2])
+        node_leaf = nf.node(p[1])
+        nf.node_two_child(node_leaf,p[2])
 
     def p_pre_decrement_expression(self, p):
         '''pre_decrement_expression : MINUSMINUS unary_expression'''
-        p[0] = front_unary('--x', p[2])
+        node_leaf = nf.node(p[1])
+        nf.node_two_child(node_leaf,p[2])
 
     def p_unary_expression_not_plus_minus(self, p):
         '''unary_expression_not_plus_minus : postfix_expression
@@ -291,9 +288,10 @@ class ExpressionParser(object):
                                            | '!' unary_expression
                                            | cast_expression'''
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus")
         else:
-            p[0] = front_unary(p[1], p[2])
+            p[0] = front_unary(p, "unary_expression_not_plus_minus")
+
 
     def p_unary_expression_not_plus_minus_not_name(self, p):
         '''unary_expression_not_plus_minus_not_name : postfix_expression_not_name
@@ -301,36 +299,36 @@ class ExpressionParser(object):
                                                     | '!' unary_expression
                                                     | cast_expression'''
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus_not_name")
         else:
-            p[0] = front_unary(p[1], p[2])
+            p[0] = front_unary(p, "unary_expression_not_plus_minus_not_name")
 
     def p_postfix_expression(self, p):
         '''postfix_expression : primary
                               | name
                               | post_increment_expression
                               | post_decrement_expression'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1],"postfix_expression")
 
     def p_postfix_expression_not_name(self, p):
         '''postfix_expression_not_name : primary
                                        | post_increment_expression
                                        | post_decrement_expression'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1],"postfix_expression_not_name")
 
     def p_post_increment_expression(self, p):
         '''post_increment_expression : postfix_expression PLUSPLUS'''
-        p[0] = front_unary('x++', p[1])
+        p[0] = back_unary(p, "post_increment_expression")
 
     def p_post_decrement_expression(self, p):
         '''post_decrement_expression : postfix_expression MINUSMINUS'''
-        p[0] = front_unary('x--', p[1])
+        p[0] = back_unary(p, "post_decrement_expression")
 
     def p_primary(self, p):
         '''primary : primary_no_new_array
                    | array_creation_with_array_initializer
                    | array_creation_without_array_initializer'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1],"primary")
 
     def p_primary_no_new_array(self, p):
         '''primary_no_new_array : literal
@@ -339,18 +337,25 @@ class ExpressionParser(object):
                                 | field_access
                                 | method_invocation
                                 | array_access'''
-        p[0] = p[1]
+        if p[1] == "THIS":
+            node_leaf = nf.node(p[1])
+            p[0] = node_one_child(node_leaf,"primary_no_new_array")
+        else:
+            p[0] = node_one_child(p[1],"primary_no_new_array")
 
     def p_primary_no_new_array2(self, p):
         '''primary_no_new_array : '(' name ')'
                                 | '(' expression_not_name ')' '''
-        p[0] = p[2]
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = node_three_child(node_leaf,p[2],node_leaf1)
 
     def p_primary_no_new_array3(self, p):
         '''primary_no_new_array : name '.' THIS
                                 | name '.' SUPER'''
-        p[1].append_name(p[3])
-        p[0] = p[1]
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(p[1],node_leaf,node_leaf1)
 
     def p_primary_no_new_array4(self, p):
         '''primary_no_new_array : name '.' CLASS
@@ -358,9 +363,9 @@ class ExpressionParser(object):
                                 | primitive_type dims '.' CLASS
                                 | primitive_type '.' CLASS'''
         if len(p) == 4:
-            p[0] = ClassLiteral(Type(p[1]))
+            p[0] = p[1]
         else:
-            p[0] = ClassLiteral(Type(p[1], dimensions=p[2]))
+            p[0] = p[1]
 
     def p_dims_opt(self, p):
         '''dims_opt : dims'''
@@ -388,29 +393,28 @@ class ExpressionParser(object):
 
     def p_cast_expression(self, p):
         '''cast_expression : '(' primitive_type dims_opt ')' unary_expression'''
-        p[0] = Cast(Type(p[2], dimensions=p[3]), p[5])
+        p[0] = p[1]#Cast(Type(p[2], dimensions=p[3]), p[5])
 
     def p_cast_expression2(self, p):
         '''cast_expression : '(' name type_arguments dims_opt ')' unary_expression_not_plus_minus'''
-        p[0] = Cast(Type(p[2], type_arguments=p[3], dimensions=p[4]), p[6])
+        p[0] = p[1]#Cast(Type(p[2], type_arguments=p[3], dimensions=p[4]), p[6])
 
     def p_cast_expression3(self, p):
         '''cast_expression : '(' name type_arguments '.' class_or_interface_type dims_opt ')' unary_expression_not_plus_minus'''
-        p[5].dimensions = p[6]
-        p[5].enclosed_in = Type(p[2], type_arguments=p[3])
-        p[0] = Cast(p[5], p[8])
+        p[0] = p[1]
+        #p[5].dimensions = p[6]
+        #p[5].enclosed_in = Type(p[2], type_arguments=p[3])
+        #p[0] = Cast(p[5], p[8])
 
     def p_cast_expression4(self, p):
         '''cast_expression : '(' name ')' unary_expression_not_plus_minus'''
         # technically it's not necessarily a type but could be a type parameter
-        p[0] = Cast(Type(p[2]), p[4])
+        p[0] = p[1]#Cast(Type(p[2]), p[4])
 
     def p_cast_expression5(self, p):
         '''cast_expression : '(' name dims ')' unary_expression_not_plus_minus'''
         # technically it's not necessarily a type but could be a type parameter
-        p[0] = Cast(Type(p[2], dimensions=p[3]), p[5])
-
-
+        p[0] = p[1]#Cast(Type(p[2], dimensions=p[3]), p[5])
 class NameParser(object):
 
     def p_name(self, p):
@@ -438,3 +442,17 @@ class LiteralParser(object):
                    | NULL'''
         node_leaf = nf.node(p[1])
         p[0] = nf.node_one_child(node_leaf,"literal")
+
+class MyParser(ExpressionParser, NameParser, LiteralParser):
+
+    tokens = lexRule.tokens
+
+    def p_goal_expression(self, p):
+        '''goal : MINUSMINUS expression'''
+        p[0] = p[2]
+
+    def p_error(self, p):
+        print('error: {}'.format(p))
+
+    def p_empty(self, p):
+        '''empty :'''
