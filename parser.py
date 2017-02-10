@@ -1847,166 +1847,209 @@ class ClassParser(object):
 
     def p_enum_body_declarations_opt(self, p):
         '''enum_body_declarations_opt : enum_declarations'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "enum_body_declarations_opt")
 
     def p_enum_body_declarations_opt2(self, p):
         '''enum_body_declarations_opt : empty'''
-        p[0] = []
+        p[0] = nf.node_one_child(p[1], "enum_body_declarations_opt")
 
     def p_enum_body_declarations(self, p):
         '''enum_declarations : ';' class_body_declarations_opt'''
-        p[0] = p[2]
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "enum_declarations")
 
     def p_annotation_type_declaration(self, p):
         '''annotation_type_declaration : annotation_type_declaration_header annotation_type_body'''
-        p[0] = AnnotationDeclaration(p[1]['name'], modifiers=p[1]['modifiers'],
-                              type_parameters=p[1]['type_parameters'],
-                              extends=p[1]['extends'], implements=p[1]['implements'],
-                              body=p[2])
+        p[0] = nf.node_two_child(p[1], p[2], "annotation_type_declaration")
 
     def p_annotation_type_declaration_header(self, p):
         '''annotation_type_declaration_header : annotation_type_declaration_header_name class_header_extends_opt class_header_implements_opt'''
-        p[1]['extends'] = p[2]
-        p[1]['implements'] = p[3]
-        p[0] = p[1]
+        p[0] = nf.node_three_child(p[1], p[2], p[3], "annotation_type_declaration_header")
 
     def p_annotation_type_declaration_header_name(self, p):
         '''annotation_type_declaration_header_name : modifiers '@' INTERFACE NAME'''
-        p[0] = {'modifiers': p[1], 'name': p[4], 'type_parameters': []}
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node(p[4])
+        p[0] = nf.node_four_child(p[1], node_leaf, node_leaf1, node_leaf2, "annotation_type_declaration_header_name")
 
     def p_annotation_type_declaration_header_name2(self, p):
         '''annotation_type_declaration_header_name : modifiers '@' INTERFACE NAME type_parameters'''
-        p[0] = {'modifiers': p[1], 'name': p[4], 'type_parameters': p[5]}
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node(p[4])
+        p[0] = nf.node_five_child(p[1], node_leaf, node_leaf1, node_leaf2, p[5], "annotation_type_declaration_header_name")
 
     def p_annotation_type_declaration_header_name3(self, p):
         '''annotation_type_declaration_header_name : '@' INTERFACE NAME type_parameters'''
-        p[0] = {'modifiers': [], 'name': p[3], 'type_parameters': p[4]}
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[2])
+        node_leaf2 = nf.node(p[3])
+        p[0] = nf.node_four_child(node_leaf, node_leaf1, node_leaf2, p[4], "annotation_type_declaration_header_name")
 
     def p_annotation_type_declaration_header_name4(self, p):
         '''annotation_type_declaration_header_name : '@' INTERFACE NAME'''
-        p[0] = {'modifiers': [], 'name': p[3], 'type_parameters': []}
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[2])
+        node_leaf2 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, node_leaf1, node_leaf2, "annotation_type_declaration_header_name")
+
 
     def p_annotation_type_body(self, p):
         '''annotation_type_body : '{' annotation_type_member_declarations_opt '}' '''
-        p[0] = p[2]
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "annotation_type_body")
 
     def p_annotation_type_member_declarations_opt(self, p):
         '''annotation_type_member_declarations_opt : annotation_type_member_declarations'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "annotation_type_member_declarations_opt")
 
     def p_annotation_type_member_declarations_opt2(self, p):
         '''annotation_type_member_declarations_opt : empty'''
-        p[0] = []
+        p[0] = nf.node_one_child(p[1], "annotation_type_member_declarations_opt")
 
     def p_annotation_type_member_declarations(self, p):
         '''annotation_type_member_declarations : annotation_type_member_declaration
                                                | annotation_type_member_declarations annotation_type_member_declaration'''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = nf.node_one_child(p[1], "annotation_type_member_declarations")
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = nf.node_two_child(p[1], p[2], "annotation_type_member_declarations")
 
     def p_annotation_type_member_declaration(self, p):
         '''annotation_type_member_declaration : annotation_method_header ';'
                                               | constant_declaration
                                               | constructor_declaration
                                               | type_declaration'''
-        p[0] = p[1]
+        if len(p) == 3:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_two_child(p[1], node_leaf, "annotation_type_member_declaration")
+        else:
+            p[0] = nf.node_one_child(p[1], "annotation_type_member_declaration")
 
     def p_annotation_method_header(self, p):
         '''annotation_method_header : annotation_method_header_name formal_parameter_list_opt ')' method_header_extended_dims annotation_method_header_default_value_opt'''
-        p[0] = AnnotationMethodDeclaration(p[1]['name'], p[1]['type'], parameters=p[2],
-                                           default=p[5], extended_dims=p[4],
-                                           type_parameters=p[1]['type_parameters'],
-                                           modifiers=p[1]['modifiers'])
+        node_leaf = nf.node(p[3])
+        p[0] = nf.node_five_child(p[1], p[2], node_leaf, p[4], p[5])
 
     def p_annotation_method_header_name(self, p):
         '''annotation_method_header_name : modifiers_opt type_parameters type NAME '('
                                          | modifiers_opt type NAME '(' '''
         if len(p) == 5:
-            p[0] = {'modifiers': p[1], 'type_parameters': [], 'type': p[2], 'name': p[3]}
+            node_leaf = nf.node(p[4])
+            node_leaf1 = nf.node(p[5])
+            p[0] = nf.node_four_child(p[1], p[2], p[3], node_leaf, node_leaf1, "annotation_method_header_name")
         else:
-            p[0] = {'modifiers': p[1], 'type_parameters': p[2], 'type': p[3], 'name': p[4]}
+            node_leaf = nf.node(p[3])
+            node_leaf1 = nf.node(p[4])
+            p[0] = nf.node_four_child(p[1], p[2], node_leaf, node_leaf1, "annotation_method_header_name")
 
     def p_annotation_method_header_default_value_opt(self, p):
         '''annotation_method_header_default_value_opt : default_value
                                                       | empty'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "annotation_method_header_default_value_opt")
 
     def p_default_value(self, p):
         '''default_value : DEFAULT member_value'''
-        p[0] = p[2]
+        node_leaf =nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "default_value")
 
     def p_member_value(self, p):
         '''member_value : conditional_expression_not_name
                         | name
                         | annotation
                         | member_value_array_initializer'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "member_value")
 
     def p_member_value_array_initializer(self, p):
         '''member_value_array_initializer : '{' member_values ',' '}'
                                           | '{' member_values '}' '''
-        p[0] = ArrayInitializer(p[2])
+        if len(p) == 5:
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[3])
+            node_leaf2 = nf.node(p[4])
+            p[0] = nf.node_four_child(node_leaf, p[2], node_leaf1, node_leaf2, "member_value_array_initializer")
+        else:
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[3])
+            p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "member_value_array_initializer")
 
     def p_member_value_array_initializer2(self, p):
         '''member_value_array_initializer : '{' ',' '}'
                                           | '{' '}' '''
         # ignore
+        if len(p) == 4:
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[2])
+            node_leaf2 = nf.node(p[3])
+            p[0] = nf.node_three_child(node_leaf, node_leaf1, node_leaf2, "member_value_array_initializer")
+        else:
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[2])
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "member_value_array_initializer")
 
     def p_member_values(self, p):
         '''member_values : member_value
                          | member_values ',' member_value'''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = nf.node_one_child(p[1], "member_values")
         else:
-            p[0] = p[1] + [p[3]]
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "member_values")
 
     def p_annotation(self, p):
         '''annotation : normal_annotation
                       | marker_annotation
                       | single_member_annotation'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "annotation")
 
     def p_normal_annotation(self, p):
         '''normal_annotation : annotation_name '(' member_value_pairs_opt ')' '''
-        p[0] = Annotation(p[1], members=p[3])
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[4])
+        p[0] = nf.node_four_child(p[1], node_leaf, p[3], node_leaf1, "normal_annotation")
 
     def p_annotation_name(self, p):
         '''annotation_name : '@' name'''
-        p[0] = p[2]
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "annotation_name")
 
     def p_member_value_pairs_opt(self, p):
         '''member_value_pairs_opt : member_value_pairs'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "member_value_pairs_opt")
 
     def p_member_value_pairs_opt2(self, p):
         '''member_value_pairs_opt : empty'''
-        p[0] = []
+        p[0] = nf.node_one_child(p[1], "member_value_pairs_opt")
 
     def p_member_value_pairs(self, p):
         '''member_value_pairs : member_value_pair
                               | member_value_pairs ',' member_value_pair'''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = nf.node_one_child(p[1], "member_value_pairs")
         else:
-            p[0] = p[1] + [p[3]]
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "member_value_pairs")
 
     def p_member_value_pair(self, p):
         '''member_value_pair : simple_name '=' member_value'''
-        p[0] = AnnotationMember(p[1], p[3])
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_three_child(p[1], node_leaf, p[3], "member_value_pair")
 
     def p_marker_annotation(self, p):
         '''marker_annotation : annotation_name'''
-        p[0] = Annotation(p[1])
+        p[0] = nf.node_one_child(p[1], "marker_annotation")
 
     def p_single_member_annotation(self, p):
         '''single_member_annotation : annotation_name '(' single_member_annotation_member_value ')' '''
-        p[0] = Annotation(p[1], single_member=p[3])
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[4])
+        p[0] = nf.node_four_child(p[1], node_leaf, p[3], node_leaf1, "single_member_annotation")
 
     def p_single_member_annotation_member_value(self, p):
         '''single_member_annotation_member_value : member_value'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1], "single_member_annotation_member_value")
 
 class MyParser(ExpressionParser, NameParser, LiteralParser):
 
