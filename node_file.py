@@ -18,3 +18,20 @@ def node_three_child(graph,a,b,c,value_d):
     graph.add_edge(pydot.Edge(node_d,a))
     graph.add_edge(pydot.Edge(node_d,b))
     graph.add_edge(pydot.Edge(node_d,c))
+
+def node_four_child(graph,a,b,c,d,value_e):
+    node_e = pydot.Node(value_e)
+    graph.add_node(node_e)
+    graph.add_edge(pydot.Edge(node_e,a))
+    graph.add_edge(pydot.Edge(node_e,b))
+    graph.add_edge(pydot.Edge(node_e,c))
+    graph.add_edge(pydot.Edge(node_e,d))
+
+def node_five_child(graph,a,b,c,d,e,value_f):
+    node_f = pydot.Node(value_f)
+    graph.add_node(node_f)
+    graph.add_edge(pydot.Edge(node_f,a))
+    graph.add_edge(pydot.Edge(node_f,b))
+    graph.add_edge(pydot.Edge(node_f,c))
+    graph.add_edge(pydot.Edge(node_f,d))
+    graph.add_edge(pydot.Edge(node_f,e))
