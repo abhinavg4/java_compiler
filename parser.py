@@ -363,58 +363,73 @@ class ExpressionParser(object):
                                 | primitive_type dims '.' CLASS
                                 | primitive_type '.' CLASS'''
         if len(p) == 4:
-            p[0] = p[1]
+            node_leaf = nf.node(p[2])
+            node_leaf1 = nf.node(p[3])
+            p[0] = nf.node_three_child(p[1],node_leaf,node_leaf1,"primary_no_new_array")
         else:
-            p[0] = p[1]
+            node_leaf = nf.node(p[3])
+            node_leaf1 = nf.node(p[4])
+            p[0] = nf.node_four_child(p[1],p[2],node_leaf,node_leaf1, "primary_no_new_array")
 
     def p_dims_opt(self, p):
         '''dims_opt : dims'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1],"dims_opt")
 
     def p_dims_opt2(self, p):
         '''dims_opt : empty'''
-        p[0] = 0
+        node_leaf = nf.node("0")
+        p[0] = nf.node_one_child(p[1],"dims_opt")
 
     def p_dims(self, p):
         '''dims : dims_loop'''
-        p[0] = p[1]
+        p[0] = nf.node_one_child(p[1],"dims")
 
     def p_dims_loop(self, p):
         '''dims_loop : one_dim_loop
                      | dims_loop one_dim_loop'''
+        node_leaf = nf.node("1")
         if len(p) == 2:
-            p[0] = 1
+            p[0] = nf.node_one_child(node_leaf, "dims_loop")
         else:
-            p[0] = 1 + p[1]
+            p[0] = nf.node_two_child(p[1], p[2], "dims_loop")
 
     def p_one_dim_loop(self, p):
         '''one_dim_loop : '[' ']' '''
+        node_leaf = nf.node("[")
+        node_leaf1 = nf.node("]")
+        p[0] = node_two_child(node_leaf,node_leaf1,"one_dim_loop")
         # ignore
 
     def p_cast_expression(self, p):
         '''cast_expression : '(' primitive_type dims_opt ')' unary_expression'''
-        p[0] = p[1]#Cast(Type(p[2], dimensions=p[3]), p[5])
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node (")")
+        p[0] = node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5],"cast_expression")
 
     def p_cast_expression2(self, p):
         '''cast_expression : '(' name type_arguments dims_opt ')' unary_expression_not_plus_minus'''
-        p[0] = p[1]#Cast(Type(p[2], type_arguments=p[3], dimensions=p[4]), p[6])
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node(")")
+        p[0] = node_six_child(node_leaf,p[2],[3],p[4],node_leaf1,p[6],"cast_expression")
 
     def p_cast_expression3(self, p):
         '''cast_expression : '(' name type_arguments '.' class_or_interface_type dims_opt ')' unary_expression_not_plus_minus'''
-        p[0] = p[1]
-        #p[5].dimensions = p[6]
-        #p[5].enclosed_in = Type(p[2], type_arguments=p[3])
-        #p[0] = Cast(p[5], p[8])
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node(".")
+        node_leaf2 = nf.node(")")
+        p[0] = node_eight_child(node_leaf,p[2],p[3],node_leaf1,p[5],p[6],node_leaf2,p[8])
 
     def p_cast_expression4(self, p):
         '''cast_expression : '(' name ')' unary_expression_not_plus_minus'''
-        # technically it's not necessarily a type but could be a type parameter
-        p[0] = p[1]#Cast(Type(p[2]), p[4])
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node(")")
+        p[0] = nf.node_four_child(node_leaf,p[2],node_leaf1,p[4])
 
     def p_cast_expression5(self, p):
         '''cast_expression : '(' name dims ')' unary_expression_not_plus_minus'''
-        # technically it's not necessarily a type but could be a type parameter
-        p[0] = p[1]#Cast(Type(p[2], dimensions=p[3]), p[5])
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node(")")
+        p[0] = node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5])
 
 class NameParser(object):
 
@@ -806,3 +821,17 @@ class TypeParser(object):
         '''additional_bound1 : '&' reference_type1'''
         node_leaf = nf.node(p[1])
         p[0] = nf.node_two_child(node_leaf, p[2], "additional_bound1")
+
+class MyParser(ExpressionParser, NameParser, LiteralParser):
+
+    tokens = lexRule.tokens
+
+    def p_goal_expression(self, p):
+        '''goal : MINUSMINUS expression'''
+        p[0] = p[2]
+
+    def p_error(self, p):
+        print('error: {}'.format(p))
+
+    def p_empty(self, p):
+        '''empty :'''
