@@ -37,7 +37,7 @@ t_STRING_LITERAL = r'\"([^\\\n]|(\\.))*?\"'
 
 t_ignore_LINE_COMMENT = '//.*'
 
-def t_BLOCK_COMMENT(self, t):
+def t_BLOCK_COMMENT(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
 
@@ -72,22 +72,22 @@ t_ELLIPSIS = r'\.\.\.'
 
 t_ignore = ' \t\f'
 
-def t_NAME(self, t):
+def t_NAME(t):
     '[A-Za-z_$][A-Za-z0-9_$]*'
     if t.value in Lexer.keywords:
         t.type = t.value.upper()
     return t
 
     #This is for UNIX based languages
-def t_newline(self, t):
+def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
     #This is for windows based systems
-def t_newline2(self, t):
+def t_newline2(t):
     r'(\r\n)+'
     t.lexer.lineno += len(t.value) / 2
 
- def t_error(self, t):
+def t_error(t):
     print("Illegal character '{}' ({}) in line {}".format(t.value[0], hex(ord(t.value[0])), t.lexer.lineno))
     t.lexer.skip(1)

@@ -1,2 +1,6 @@
 *.pyc
 *.swp
+*tab.py
+*.out
+*.png
+
