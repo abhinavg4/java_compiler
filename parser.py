@@ -431,6 +431,615 @@ class ExpressionParser(object):
         node_leaf1 = nf.node(")")
         p[0] = node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5])
 
+class StatementParser(object):
+
+    def p_block(self, p):
+        '''block : '{' block_statements_opt '}' '''
+        node_leaf = nf.node("{")
+        node_leaf1 = nf.node("}")
+        p[0] = nf.node_three_child(node_leaf,p[1],node_leaf1,"block")
+
+    def p_block_statements_opt(self, p):
+        '''block_statements_opt : block_statements'''
+        p[0] = nf.node_one_child(p[1],"block_statements_opt")
+
+    def p_block_statements_opt2(self, p):
+        '''block_statements_opt : empty'''
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(p[1],"block_statements_opt")
+
+    def p_block_statements(self, p):
+        '''block_statements : block_statement
+                            | block_statements block_statement'''
+        if len(p) == 2:
+            p[0]=nf.node_one_child(p[1],"block_statements")
+        else:
+            p[0] = nf.node_two_child(p[1],p[2],"block_statements")
+
+    def p_block_statement(self, p):
+        '''block_statement : local_variable_declaration_statement
+                           | statement
+                           | class_declaration
+                           | interface_declaration
+                           | annotation_type_declaration
+                           | enum_declaration'''
+        p[0] = nf.node_one_child(p[1],"block_statementt")
+
+    def p_local_variable_declaration_statement(self, p):
+        '''local_variable_declaration_statement : local_variable_declaration ';' '''
+        node_leaf = nf.node(";")
+        p[0] = nf.node_two_child(p[1],node_leaf,"local_variable_declaration_statement")
+
+    def p_local_variable_declaration(self, p):
+        '''local_variable_declaration : type variable_declarators'''
+        p[0] = nf.node_two_child(p[1],p[2],"local_variable_declaration")
+
+    def p_local_variable_declaration2(self, p):
+        '''local_variable_declaration : modifiers type variable_declarators'''
+        p[0] = nf.node_three_child(p[1],p[2],p[3],"local_variable_declaration")
+
+    def p_variable_declarators(self, p):
+        '''variable_declarators : variable_declarator
+                                | variable_declarators ',' variable_declarator'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"variable_declarators")
+        else:
+            leaf_node = nf.node(",")
+            p[0] = nf.node_three_child(p[1],node_leaf,p[3],"variable_declarators")
+
+    def p_variable_declarator(self, p):
+        '''variable_declarator : variable_declarator_id
+                               | variable_declarator_id '=' variable_initializer'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"variable_declarator")
+        else:
+            leaf_node = nf.node("=")
+            p[0] = nf.node_three_child(p[1],leaf_node,p[3],"variable_declarator")
+
+    def p_variable_declarator_id(self, p):
+        '''variable_declarator_id : NAME dims_opt'''
+        leaf_node = nf.node(p[0])
+        p[0] = nf.node_two_child(leaf_node,p[2],"variable_declarator_id")
+
+    def p_variable_initializer(self, p):
+        '''variable_initializer : expression
+                                | array_initializer'''
+        p[0] = nf.node_one_child(p[1],"variable_initializer")
+
+    def p_statement(self, p):
+        '''statement : statement_without_trailing_substatement
+                     | labeled_statement
+                     | if_then_statement
+                     | if_then_else_statement
+                     | while_statement
+                     | for_statement
+                     | enhanced_for_statement'''
+        p[0] = nf.node_one_child(p[1],"statement")
+
+    def p_statement_without_trailing_substatement(self, p):
+        '''statement_without_trailing_substatement : block
+                                                   | expression_statement
+                                                   | assert_statement
+                                                   | empty_statement
+                                                   | switch_statement
+                                                   | do_statement
+                                                   | break_statement
+                                                   | continue_statement
+                                                   | return_statement
+                                                   | synchronized_statement
+                                                   | throw_statement
+                                                   | try_statement
+                                                   | try_statement_with_resources'''
+        p[0] = nf.node_one_child(p[1],"statement_without_trailing_substatement")
+
+    def p_expression_statement(self, p):
+        '''expression_statement : statement_expression ';'
+                                | explicit_constructor_invocation'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"expression_statement")
+        else:
+            leaf_node = nf.node(";")
+            p[0] = nf.node_two_child(p[1],leaf_node,"expression_statement")
+
+    def p_statement_expression(self, p):
+        '''statement_expression : assignment
+                                | pre_increment_expression
+                                | pre_decrement_expression
+                                | post_increment_expression
+                                | post_decrement_expression
+                                | method_invocation
+                                | class_instance_creation_expression'''
+        p[0] = nf.node_one_child(p[1],"statement_expression")
+
+    def p_comma_opt(self, p):
+        '''comma_opt : ','
+                     | empty'''
+        if p[1] == ',':
+            leaf_node = nf.node(",")
+            p[0] = nf.node_one_child(leaf_node,"variable_declarators")
+        else:
+            leaf_node = nf.node("empty")
+            p[0] = nf.node_one_child(leaf_node,"variable_declarators")
+
+    def p_array_initializer(self, p):
+        '''array_initializer : '{' comma_opt '}' '''
+        leaf_node = nf.node("{")
+        leaf_node1 = nf.node("}")
+        p[0] = nf.node_three_child(leaf_node,p[2],leaf_node1,"array_initializer")
+
+    def p_array_initializer2(self, p):
+        '''array_initializer : '{' variable_initializers '}'
+                             | '{' variable_initializers ',' '}' '''
+        if len(p) == 3:
+            leaf_node = nf.node("{")
+            leaf_node1 = nf.node("}")
+            p[0] = nf.node_three_child(leaf_node,p[2],leaf_node1,"array_initializer")
+        else:
+            leaf_node = nf.node("{")
+            leaf_node1 = nf.node("}")
+            leaf_node2 = nf.node(",")
+            p[0] = nf.node_four_child(leaf_node,p[2],leaf_node2,leaf_node1,"array_initializer")
+
+    def p_variable_initializers(self, p):
+        '''variable_initializers : variable_initializer
+                                 | variable_initializers ',' variable_initializer'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"variable_initializers")
+        else:
+            node_leaf = nf.node(",")
+            p[0] = nf.node_three_child(p[1],node_leaf,p[2],"variable_initializers")
+
+    def p_method_invocation(self, p):
+        '''method_invocation : NAME '(' argument_list_opt ')' '''
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(")")
+        leaf_node = nf.node(p[1])
+        p[0] = nf.node_four_child(leaf_node,leaf_node1,p[3],leaf_node2,"method_invocation")
+
+    def p_method_invocation2(self, p):
+        '''method_invocation : name '.' type_arguments NAME '(' argument_list_opt ')'
+                             | primary '.' type_arguments NAME '(' argument_list_opt ')'
+                             | SUPER '.' type_arguments NAME '(' argument_list_opt ')' '''
+        leaf_node = nf.node(".")
+        leaf_node1 = nf.node("p[4]")
+        leaf_node2 = nf.node("(")
+        leaf_node3 = nf.node(")")
+        if p[1] == "super":
+            leaf_node4 = nf.node("p[1]")
+            p[0] = nd.node_seven_child(leaf_node4,leaf_node,p[3],leaf_node1,leaf_node2,p[6],leaf_node3,"method_invocation")
+        else:
+            p[0] = nd.node_seven_child(p[1],leaf_node,p[3],leaf_node1,leaf_node2,p[6],leaf_node3,"method_invocation")
+
+    def p_method_invocation3(self, p):
+        '''method_invocation : name '.' NAME '(' argument_list_opt ')'
+                             | primary '.' NAME '(' argument_list_opt ')'
+                             | SUPER '.' NAME '(' argument_list_opt ')' '''
+        leaf_node = nf.node(".")
+        leaf_node1 = nf.node("p[3]")
+        leaf_node2 = nf.node("(")
+        leaf_node3 = nf.node(")")
+        if p[1] == "super":
+            leaf_node4 = nf.node("p[1]")
+            p[0] = nd.node_six_child(leaf_node4,leaf_node,leaf_node1,leaf_node2,p[5],leaf_node3,"method_invocation")
+        else:
+            p[0] = nd.node_six_child(p[1],leaf_node,leaf_node1,leaf_node2,p[5],leaf_node3,"method_invocation")
+
+    def p_labeled_statement(self, p):
+        '''labeled_statement : label ':' statement'''
+        node_leaf = nf.node(":")
+        p[0] = nf.node_three_child(p[1],node_leaf,p[3],"labeled_statement")
+
+    def p_labeled_statement_no_short_if(self, p):
+        '''labeled_statement_no_short_if : label ':' statement_no_short_if'''
+        node_leaf = nf.node(":")
+        p[0] = nf.node_three_child(p[1],node_leaf,p[3],"labeled_statement_no_short_if")
+
+    def p_label(self, p):
+        '''label : NAME'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf,"label")
+
+    def p_if_then_statement(self, p):
+        '''if_then_statement : IF '(' expression ')' statement'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(")")
+        p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"if_then_statement")
+
+    def p_if_then_else_statement(self, p):
+        '''if_then_else_statement : IF '(' expression ')' statement_no_short_if ELSE statement'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(")")
+        leaf_node3 = nf.node(p[6])
+        p[0] = nf.node_seven_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],"if_then_else_statement")
+
+    def p_if_then_else_statement_no_short_if(self, p):
+        '''if_then_else_statement_no_short_if : IF '(' expression ')' statement_no_short_if ELSE statement_no_short_if'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(")")
+        leaf_node3 = nf.node(p[6])
+        p[0] = nf.node_seven_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],"if_then_else_statement_no_short_if")
+
+    def p_while_statement(self, p):
+        '''while_statement : WHILE '(' expression ')' statement'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(")")
+        p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"while_statement")
+
+    def p_while_statement_no_short_if(self, p):
+        '''while_statement_no_short_if : WHILE '(' expression ')' statement_no_short_if'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(")")
+        p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"while_statement_no_short_if")
+
+    def p_for_statement(self, p):
+        '''for_statement : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(";")
+        leaf_node3 = nf.node(";")
+        leaf_node4 = nf.node(")")
+        p[0] = nf.node_nine_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],leaf_node4,p[9],"for_statement")
+
+    def p_for_statement_no_short_if(self, p):
+        '''for_statement_no_short_if : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement_no_short_if'''
+        leaf_node = nf.node(p[0])
+        leaf_node1 = nf.node("(")
+        leaf_node2 = nf.node(";")
+        leaf_node3 = nf.node(";")
+        leaf_node4 = nf.node(")")
+        p[0] = nf.node_nine_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],leaf_node4,p[9],"for_statement_no_short_if")
+
+    def p_for_init_opt(self, p):
+        '''for_init_opt : for_init
+                        | empty'''
+        if p[1]:
+            p[0] = nf.node_one_child(p[1],"for_init_opt")
+        else:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"for_init_opt")
+
+    def p_for_init(self, p):
+        '''for_init : statement_expression_list
+                    | local_variable_declaration'''
+        p[0] = nf.node_one_child(p[1],"for_init")
+
+    def p_statement_expression_list(self, p):
+        '''statement_expression_list : statement_expression
+                                     | statement_expression_list ',' statement_expression'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"statement_expression_list")
+        else:
+            p[0] = p[1] + [p[3]]
+
+    def p_expression_opt(self, p):
+        '''expression_opt : expression
+                          | empty'''
+        p[0] = nf.node_one_child(p[1],"expression_opt")
+
+    def p_for_update_opt(self, p):
+        '''for_update_opt : for_update
+                          | empty'''
+        p[0] = nf.node_one_child(p[1],"for_update_opt")
+
+    def p_for_update(self, p):
+        '''for_update : statement_expression_list'''
+        p[0] = nf.node_one_child(p[1],"for_update")
+
+    def p_enhanced_for_statement(self, p):
+        '''enhanced_for_statement : enhanced_for_statement_header statement'''
+        p[0] = ForEach(p[1]['type'], p[1]['variable'], p[1]['iterable'], p[2], modifiers=p[1]['modifiers'])
+
+    def p_enhanced_for_statement_no_short_if(self, p):
+        '''enhanced_for_statement_no_short_if : enhanced_for_statement_header statement_no_short_if'''
+        p[0] = ForEach(p[1]['type'], p[1]['variable'], p[1]['iterable'], p[2], modifiers=p[1]['modifiers'])
+
+    def p_enhanced_for_statement_header(self, p):
+        '''enhanced_for_statement_header : enhanced_for_statement_header_init ':' expression ')' '''
+        p[1]['iterable'] = p[3]
+        p[0] = p[1]
+
+    def p_enhanced_for_statement_header_init(self, p):
+        '''enhanced_for_statement_header_init : FOR '(' type NAME dims_opt'''
+        p[0] = {'modifiers': [], 'type': p[3], 'variable': Variable(p[4], dimensions=p[5])}
+
+    def p_enhanced_for_statement_header_init2(self, p):
+        '''enhanced_for_statement_header_init : FOR '(' modifiers type NAME dims_opt'''
+        p[0] = {'modifiers': p[3], 'type': p[4], 'variable': Variable(p[5], dimensions=p[6])}
+
+    def p_statement_no_short_if(self, p):
+        '''statement_no_short_if : statement_without_trailing_substatement
+                                 | labeled_statement_no_short_if
+                                 | if_then_else_statement_no_short_if
+                                 | while_statement_no_short_if
+                                 | for_statement_no_short_if
+                                 | enhanced_for_statement_no_short_if'''
+        p[0] = nf.node_one_child(p[1],"statement_no_short_if")
+
+    def p_assert_statement(self, p):
+        '''assert_statement : ASSERT expression ';'
+                            | ASSERT expression ':' expression ';' '''
+        if len(p) == 4:
+            p[0] = Assert(p[2])
+        else:
+            p[0] = Assert(p[2], message=p[4])
+
+    def p_empty_statement(self, p):
+        '''empty_statement : ';' '''
+        node_leaf = nf.node(";")
+        p[0] = nf.node_one_child(node_leaf,"empty_statement")
+
+    def p_switch_statement(self, p):
+        '''switch_statement : SWITCH '(' expression ')' switch_block'''
+        p[0] = Switch(p[3], p[5])
+
+    def p_switch_block(self, p):
+        '''switch_block : '{' '}' '''
+        p[0] = []
+
+    def p_switch_block2(self, p):
+        '''switch_block : '{' switch_block_statements '}' '''
+        p[0] = p[2]
+
+    def p_switch_block3(self, p):
+        '''switch_block : '{' switch_labels '}' '''
+        p[0] = [SwitchCase(p[2])]
+
+    def p_switch_block4(self, p):
+        '''switch_block : '{' switch_block_statements switch_labels '}' '''
+        p[0] = p[2] + [SwitchCase(p[3])]
+
+    def p_switch_block_statements(self, p):
+        '''switch_block_statements : switch_block_statement
+                                   | switch_block_statements switch_block_statement'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"switch_block_statements")
+        else:
+            p[0] = p[1] + [p[2]]
+
+    def p_switch_block_statement(self, p):
+        '''switch_block_statement : switch_labels block_statements'''
+        p[0] = SwitchCase(p[1], body=p[2])
+
+    def p_switch_labels(self, p):
+        '''switch_labels : switch_label
+                         | switch_labels switch_label'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"switch_labels")
+        else:
+            p[0] = p[1] + [p[2]]
+
+    def p_switch_label(self, p):
+        '''switch_label : CASE constant_expression ':'
+                        | DEFAULT ':' '''
+        if len(p) == 3:
+            p[0] = 'default'
+        else:
+            p[0] = p[2]
+
+    def p_constant_expression(self, p):
+        '''constant_expression : expression'''
+        p[0] = nf.node_one_child(p[1],"for_init_opt")
+
+    def p_do_statement(self, p):
+        '''do_statement : DO statement WHILE '(' expression ')' ';' '''
+        p[0] = DoWhile(p[5], body=p[2])
+
+    def p_break_statement(self, p):
+        '''break_statement : BREAK ';'
+                           | BREAK NAME ';' '''
+        if len(p) == 3:
+            p[0] = Break()
+        else:
+            p[0] = Break(p[2])
+
+    def p_continue_statement(self, p):
+        '''continue_statement : CONTINUE ';'
+                              | CONTINUE NAME ';' '''
+        if len(p) == 3:
+            p[0] = Continue()
+        else:
+            p[0] = Continue(p[2])
+
+    def p_return_statement(self, p):
+        '''return_statement : RETURN expression_opt ';' '''
+        p[0] = Return(p[2])
+
+    def p_synchronized_statement(self, p):
+        '''synchronized_statement : SYNCHRONIZED '(' expression ')' block'''
+        p[0] = Synchronized(p[3], p[5])
+
+    def p_throw_statement(self, p):
+        '''throw_statement : THROW expression ';' '''
+        p[0] = Throw(p[2])
+
+    def p_try_statement(self, p):
+        '''try_statement : TRY try_block catches
+                         | TRY try_block catches_opt finally'''
+        if len(p) == 4:
+            p[0] = Try(p[2], catches=p[3])
+        else:
+            p[0] = Try(p[2], catches=p[3], _finally=p[4])
+
+    def p_try_block(self, p):
+        '''try_block : block'''
+        p[0] = nf.node_one_child(p[1],"for_init_opt")
+
+    def p_catches(self, p):
+        '''catches : catch_clause
+                   | catches catch_clause'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[2]]
+
+    def p_catches_opt(self, p):
+        '''catches_opt : catches'''
+        p[0] = nf.node_one_child(p[1],"catches_opt")
+
+    def p_catches_opt2(self, p):
+        '''catches_opt : empty'''
+        p[0] = []
+
+    def p_catch_clause(self, p):
+        '''catch_clause : CATCH '(' catch_formal_parameter ')' block'''
+        p[0] = Catch(p[3]['variable'], types=p[3]['types'], modifiers=p[3]['modifiers'], block=p[5])
+
+    def p_catch_formal_parameter(self, p):
+        '''catch_formal_parameter : modifiers_opt catch_type variable_declarator_id'''
+        p[0] = {'modifiers': p[1], 'types': p[2], 'variable': p[3]}
+
+    def p_catch_type(self, p):
+        '''catch_type : union_type'''
+        p[0] = nf.node_one_child(p[1],"catch_type")
+
+    def p_union_type(self, p):
+        '''union_type : type
+                      | union_type '|' type'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1],"union_type")
+        else:
+            p[0] = p[1] + [p[3]]
+
+    def p_try_statement_with_resources(self, p):
+        '''try_statement_with_resources : TRY resource_specification try_block catches_opt
+                                        | TRY resource_specification try_block catches_opt finally'''
+        if len(p) == 5:
+            p[0] = Try(p[3], resources=p[2], catches=p[4])
+        else:
+            p[0] = Try(p[3], resources=p[2], catches=p[4], _finally=p[5])
+
+    def p_resource_specification(self, p):
+        '''resource_specification : '(' resources semi_opt ')' '''
+        p[0] = p[2]
+
+    def p_semi_opt(self, p):
+        '''semi_opt : ';'
+                    | empty'''
+        # ignore
+
+    def p_resources(self, p):
+        '''resources : resource
+                     | resources trailing_semicolon resource'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[3]]
+
+    def p_trailing_semicolon(self, p):
+        '''trailing_semicolon : ';' '''
+        # ignore
+
+    def p_resource(self, p):
+        '''resource : type variable_declarator_id '=' variable_initializer'''
+        p[0] = Resource(p[2], type=p[1], initializer=p[4])
+
+    def p_resource2(self, p):
+        '''resource : modifiers type variable_declarator_id '=' variable_initializer'''
+        p[0] = Resource(p[3], type=p[2], modifiers=p[1], initializer=p[5])
+
+    def p_finally(self, p):
+        '''finally : FINALLY block'''
+        p[0] = p[2]
+
+    def p_explicit_constructor_invocation(self, p):
+        '''explicit_constructor_invocation : THIS '(' argument_list_opt ')' ';'
+                                           | SUPER '(' argument_list_opt ')' ';' '''
+        p[0] = ConstructorInvocation(p[1], arguments=p[3])
+
+    def p_explicit_constructor_invocation2(self, p):
+        '''explicit_constructor_invocation : type_arguments SUPER '(' argument_list_opt ')' ';'
+                                           | type_arguments THIS '(' argument_list_opt ')' ';' '''
+        p[0] = ConstructorInvocation(p[2], type_arguments=p[1], arguments=p[4])
+
+    def p_explicit_constructor_invocation3(self, p):
+        '''explicit_constructor_invocation : primary '.' SUPER '(' argument_list_opt ')' ';'
+                                           | name '.' SUPER '(' argument_list_opt ')' ';'
+                                           | primary '.' THIS '(' argument_list_opt ')' ';'
+                                           | name '.' THIS '(' argument_list_opt ')' ';' '''
+        p[0] = ConstructorInvocation(p[3], target=p[1], arguments=p[5])
+
+    def p_explicit_constructor_invocation4(self, p):
+        '''explicit_constructor_invocation : primary '.' type_arguments SUPER '(' argument_list_opt ')' ';'
+                                           | name '.' type_arguments SUPER '(' argument_list_opt ')' ';'
+                                           | primary '.' type_arguments THIS '(' argument_list_opt ')' ';'
+                                           | name '.' type_arguments THIS '(' argument_list_opt ')' ';' '''
+        p[0] = ConstructorInvocation(p[4], target=p[1], type_arguments=p[3], arguments=p[6])
+
+    def p_class_instance_creation_expression(self, p):
+        '''class_instance_creation_expression : NEW type_arguments class_type '(' argument_list_opt ')' class_body_opt'''
+        p[0] = InstanceCreation(p[3], type_arguments=p[3], arguments=p[5], body=p[7])
+
+    def p_class_instance_creation_expression2(self, p):
+        '''class_instance_creation_expression : NEW class_type '(' argument_list_opt ')' class_body_opt'''
+        p[0] = InstanceCreation(p[2], arguments=p[4], body=p[6])
+
+    def p_class_instance_creation_expression3(self, p):
+        '''class_instance_creation_expression : primary '.' NEW type_arguments class_type '(' argument_list_opt ')' class_body_opt'''
+        p[0] = InstanceCreation(p[5], enclosed_in=p[1], type_arguments=p[4], arguments=p[7], body=p[9])
+
+    def p_class_instance_creation_expression4(self, p):
+        '''class_instance_creation_expression : primary '.' NEW class_type '(' argument_list_opt ')' class_body_opt'''
+        p[0] = InstanceCreation(p[4], enclosed_in=p[1], arguments=p[6], body=p[8])
+
+    def p_class_instance_creation_expression5(self, p):
+        '''class_instance_creation_expression : class_instance_creation_expression_name NEW class_type '(' argument_list_opt ')' class_body_opt'''
+        p[0] = InstanceCreation(p[3], enclosed_in=p[1], arguments=p[5], body=p[7])
+
+    def p_class_instance_creation_expression6(self, p):
+        '''class_instance_creation_expression : class_instance_creation_expression_name NEW type_arguments class_type '(' argument_list_opt ')' class_body_opt'''
+        p[0] = InstanceCreation(p[4], enclosed_in=p[1], type_arguments=p[3], arguments=p[6], body=p[8])
+
+    def p_class_instance_creation_expression_name(self, p):
+        '''class_instance_creation_expression_name : name '.' '''
+        p[0] = p[1]
+
+    def p_class_body_opt(self, p):
+        '''class_body_opt : class_body
+                          | empty'''
+        p[0] = nf.node_one_child(p[1],"class_body_opt")
+
+    def p_field_access(self, p):
+        '''field_access : primary '.' NAME
+                        | SUPER '.' NAME'''
+        p[0] = FieldAccess(p[3], p[1])
+
+    def p_array_access(self, p):
+        '''array_access : name '[' expression ']'
+                        | primary_no_new_array '[' expression ']'
+                        | array_creation_with_array_initializer '[' expression ']' '''
+        p[0] = ArrayAccess(p[3], p[1])
+
+    def p_array_creation_with_array_initializer(self, p):
+        '''array_creation_with_array_initializer : NEW primitive_type dim_with_or_without_exprs array_initializer
+                                                 | NEW class_or_interface_type dim_with_or_without_exprs array_initializer'''
+        p[0] = ArrayCreation(p[2], dimensions=p[3], initializer=p[4])
+
+    def p_dim_with_or_without_exprs(self, p):
+        '''dim_with_or_without_exprs : dim_with_or_without_expr
+                                     | dim_with_or_without_exprs dim_with_or_without_expr'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[2]]
+
+    def p_dim_with_or_without_expr(self, p):
+        '''dim_with_or_without_expr : '[' expression ']'
+                                    | '[' ']' '''
+        if len(p) == 3:
+            p[0] = None
+        else:
+            p[0] = p[2]
+
+    def p_array_creation_without_array_initializer(self, p):
+        '''array_creation_without_array_initializer : NEW primitive_type dim_with_or_without_exprs
+                                                    | NEW class_or_interface_type dim_with_or_without_exprs'''
+        p[0] = ArrayCreation(p[2], dimensions=p[3])
+
 class NameParser(object):
 
     def p_name(self, p):
