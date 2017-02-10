@@ -415,6 +415,7 @@ class ExpressionParser(object):
         '''cast_expression : '(' name dims ')' unary_expression_not_plus_minus'''
         # technically it's not necessarily a type but could be a type parameter
         p[0] = p[1]#Cast(Type(p[2], dimensions=p[3]), p[5])
+
 class NameParser(object):
 
     def p_name(self, p):
@@ -805,17 +806,3 @@ class TypeParser(object):
         '''additional_bound1 : '&' reference_type1'''
         node_leaf = nf.node(p[1])
         p[0] = nf.node_two_child(node_leaf, p[2], "additional_bound1")
-
-class MyParser(ExpressionParser, NameParser, LiteralParser):
-
-    tokens = lexRule.tokens
-
-    def p_goal_expression(self, p):
-        '''goal : MINUSMINUS expression'''
-        p[0] = p[2]
-
-    def p_error(self, p):
-        print('error: {}'.format(p))
-
-    def p_empty(self, p):
-        '''empty :'''
