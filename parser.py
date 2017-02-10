@@ -1431,6 +1431,583 @@ class TypeParser(object):
         node_leaf = nf.node(p[1])
         p[0] = nf.node_two_child(node_leaf, p[2], "additional_bound1")
 
+class ClassParser(object):
+
+    def p_type_declaration(self, p):
+        '''type_declaration : class_declaration
+                            | interface_declaration
+                            | enum_declaration
+                            | annotation_type_declaration'''
+        p[0] = nf.node_one_child(p[1], "type_declaration")
+
+    def p_type_declaration2(self, p):
+        '''type_declaration : ';' '''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf, "type_declaration")
+
+    def p_class_declaration(self, p):
+        '''class_declaration : class_header class_body'''
+        p[0] = nf.node_two_child(p[1], p[2], "class_declaration")
+
+    def p_class_header(self, p):
+        '''class_header : class_header_name class_header_extends_opt class_header_implements_opt'''
+        p[0] = nf.node_three_child(p[1], p[2], p[3], "class_header")
+
+    def p_class_header_name(self, p):
+        '''class_header_name : class_header_name1 type_parameters
+                             | class_header_name1'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "class_header_name")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "class_header_name")
+
+    def p_class_header_name1(self, p):
+        '''class_header_name1 : modifiers_opt CLASS NAME'''
+        node_leaf = p[2]
+        node_leaf1 = p[3]
+        p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "class_header_name1")
+
+    def p_class_header_extends_opt(self, p):
+        '''class_header_extends_opt : class_header_extends
+                                    | empty'''
+        p[0] = nf.node_one_child(p[1], "class_header_extends_opt")
+
+    def p_class_header_extends(self, p):
+        '''class_header_extends : EXTENDS class_type'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[1], "class_header_extends")
+
+    def p_class_header_implements_opt(self, p):
+        '''class_header_implements_opt : class_header_implements
+                                       | empty'''
+        p[0] = nf.node_one_child(p[1], "class_header_implements_opt")
+
+    def p_class_header_implements(self, p):
+        '''class_header_implements : IMPLEMENTS interface_type_list'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(p[1], p[2], "class_header_implements")
+
+    def p_interface_type_list(self, p):
+        '''interface_type_list : interface_type
+                               | interface_type_list ',' interface_type'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "interface_type_list")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "interface_type_list")
+
+    def p_interface_type(self, p):
+        '''interface_type : class_or_interface_type'''
+        p[0] = nf.node_one_child(p[1], "interface_type")
+
+    def p_class_body(self, p):
+        '''class_body : '{' class_body_declarations_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "class_body")
+
+    def p_class_body_declarations_opt(self, p):
+        '''class_body_declarations_opt : class_body_declarations'''
+        p[0] = nf.node_one_child(p[1], "class_body_declarations")
+
+    def p_class_body_declarations_opt2(self, p):
+        '''class_body_declarations_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "class_body_declarations_opt")
+
+    def p_class_body_declarations(self, p):
+        '''class_body_declarations : class_body_declaration
+                                   | class_body_declarations class_body_declaration'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "class_body_declarations")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "class_body_declarations")
+
+    def p_class_body_declaration(self, p):
+        '''class_body_declaration : class_member_declaration
+                                  | static_initializer
+                                  | constructor_declaration'''
+        p[0] = nf.node_one_child(p[1], "class_body_declaration")
+
+    def p_class_body_declaration2(self, p):
+        '''class_body_declaration : block'''
+        p[0] = nf.node_one_child(p[1], "class_body_declaration")
+
+    def p_class_member_declaration(self, p):
+        '''class_member_declaration : field_declaration
+                                    | class_declaration
+                                    | method_declaration
+                                    | interface_declaration
+                                    | enum_declaration
+                                    | annotation_type_declaration'''
+        p[0] = nf.node_one_child(p[1], "class_member_declaration")
+
+    def p_class_member_declaration2(self, p):
+        '''class_member_declaration : ';' '''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf, "class_member_declaration")
+
+
+    def p_field_declaration(self, p):
+        '''field_declaration : modifiers_opt type variable_declarators ';' '''
+        node_leaf = nf.node(p[4])
+        p[0] = nf.node_four_child(p[1], p[2], p[3], node_leaf, "field_declaration")
+
+    def p_static_initializer(self, p):
+        '''static_initializer : STATIC block'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[1], "static_initializer")
+
+    def p_constructor_declaration(self, p):
+        '''constructor_declaration : constructor_header method_body'''
+        p[0] = nf.node_two_child(p[1], p[2], "constructor_declaration")
+
+    def p_constructor_header(self, p):
+        '''constructor_header : constructor_header_name formal_parameter_list_opt ')' method_header_throws_clause_opt'''
+        node_leaf = nf.node(p[3])
+        p[0] = nf.node_four_child(p[1], p[2], node_leaf, p[4], "constructor_header")
+
+    def p_constructor_header_name(self, p):
+        '''constructor_header_name : modifiers_opt type_parameters NAME '('
+                                   | modifiers_opt NAME '(' '''
+        if len(p) == 4:
+            node_leaf = nf.node(p[2])
+            node_leaf1 = nf.node(p[3])
+            p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "constructor_header_name")
+        else:
+            node_leaf = nf.node(p[3])
+            node_leaf1 = nf.node(p[4])
+            p[0] = nf.node_fur_child(p[1], p[2], node_leaf, node_leaf1, "constructor_header_name")
+
+    def p_formal_parameter_list_opt(self, p):
+        '''formal_parameter_list_opt : formal_parameter_list'''
+        p[0] = nf.node_one_child(p[1], "formal_parameter_list_opt")
+
+    def p_formal_parameter_list_opt2(self, p):
+        '''formal_parameter_list_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "formal_parameter_list_opt")
+
+    def p_formal_parameter_list(self, p):
+        '''formal_parameter_list : formal_parameter
+                                 | formal_parameter_list ',' formal_parameter'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "formal_parameter_list")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "formal_parameter_list")
+
+    def p_formal_parameter(self, p):
+        '''formal_parameter : modifiers_opt type variable_declarator_id
+                            | modifiers_opt type ELLIPSIS variable_declarator_id'''
+        if len(p) == 4:
+            p[0] = nf.node_three_child(p[1], p[2], p[3], "formal_parameter")
+        else:
+            node_leaf = nf.node(p[3])
+            p[0] = nf.node_four_child(p[1], p[2], node_leaf, p[4], "formal_parameter")
+
+    def p_method_header_throws_clause_opt(self, p):
+        '''method_header_throws_clause_opt : method_header_throws_clause
+                                           | empty'''
+        p[0] = nf.node_one_child(p[1], "method_header_throws_clause_opt")
+
+    def p_method_header_throws_clause(self, p):
+        '''method_header_throws_clause : THROWS class_type_list'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "method_header_throws_clause")
+
+    def p_class_type_list(self, p):
+        '''class_type_list : class_type_elt
+                           | class_type_list ',' class_type_elt'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "class_type_list")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "class_type_list")
+
+    def p_class_type_elt(self, p):
+        '''class_type_elt : class_type'''
+        p[0] = nf.node_one_child(p[1], "class_type_elt")
+
+    def p_method_body(self, p):
+        '''method_body : '{' block_statements_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "method_body")
+
+    def p_method_declaration(self, p):
+        '''method_declaration : abstract_method_declaration
+                              | method_header method_body'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "method_declaration")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "method_declaration")
+
+    def p_abstract_method_declaration(self, p):
+        '''abstract_method_declaration : method_header ';' '''
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_two_child(p[1], node_leaf, "abstract_method_declaration")
+
+    def p_method_header(self, p):
+        '''method_header : method_header_name formal_parameter_list_opt ')' method_header_extended_dims method_header_throws_clause_opt'''
+        node_leaf = nf.node(p[3])
+        p[0] = nf.node_five_child(p[1], p[2], node_leaf, p[4], p[5], "method_header")
+
+    def p_method_header_name(self, p):
+        '''method_header_name : modifiers_opt type_parameters type NAME '('
+                              | modifiers_opt type NAME '(' '''
+        if len(p) == 5:
+            node_leaf = nf.node(p[4])
+            node_leaf1 = nf.node(p[5])
+            p[0] = nf.node_five_child(p[1], p[2], p[3], node_leaf, node_leaf1, "method_header_name")
+        else:
+            node_leaf = nf.node(p[3])
+            node_leaf1 = nf.node(p[4])
+            p[0] = nf.node_four_child(p[1], p[2], node_leaf, node_leaf1, "method_header_name")
+
+    def p_method_header_extended_dims(self, p):
+        '''method_header_extended_dims : dims_opt'''
+        p[0] = nf.node_one_child(p[1], "method_header_extended_dims")
+
+    def p_interface_declaration(self, p):
+        '''interface_declaration : interface_header interface_body'''
+        p[0] = nf.node_two_child(p[1], p[2], "interface_declaration")
+
+    def p_interface_header(self, p):
+        '''interface_header : interface_header_name interface_header_extends_opt'''
+        p[0] = nf.node_two_child(p[1], p[2], "interface_header")
+
+    def p_interface_header_name(self, p):
+        '''interface_header_name : interface_header_name1 type_parameters
+                                 | interface_header_name1'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "interface_header_name")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "interface_header_name")
+
+    def p_interface_header_name1(self, p):
+        '''interface_header_name1 : modifiers_opt INTERFACE NAME'''
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "interface_header_name1")
+
+    def p_interface_header_extends_opt(self, p):
+        '''interface_header_extends_opt : interface_header_extends'''
+        p[0] = nf.node_one_child(p[1], "interface_header_extends_opt")
+
+    def p_interface_header_extends_opt2(self, p):
+        '''interface_header_extends_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "interface_header_extends_opt")
+
+    def p_interface_header_extends(self, p):
+        '''interface_header_extends : EXTENDS interface_type_list'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "interface_header_extends")
+
+    def p_interface_body(self, p):
+        '''interface_body : '{' interface_member_declarations_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "interface_body")
+
+    def p_interface_member_declarations_opt(self, p):
+        '''interface_member_declarations_opt : interface_member_declarations'''
+        p[0] = nf.node_one_child(p[1], "interface_member_declarations_opt")
+
+    def p_interface_member_declarations_opt2(self, p):
+        '''interface_member_declarations_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "interface_member_declarations_opt")
+
+    def p_interface_member_declarations(self, p):
+        '''interface_member_declarations : interface_member_declaration
+                                         | interface_member_declarations interface_member_declaration'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "interface_member_declarations")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "interface_member_declarations")
+
+    def p_interface_member_declaration(self, p):
+        '''interface_member_declaration : constant_declaration
+                                        | abstract_method_declaration
+                                        | class_declaration
+                                        | interface_declaration
+                                        | enum_declaration
+                                        | annotation_type_declaration'''
+        p[0] = nf.node_one_child(p[1], "interface_member_declaration")
+
+    def p_interface_member_declaration2(self, p):
+        '''interface_member_declaration : ';' '''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(p[1], "interface_member_declaration")
+
+    def p_constant_declaration(self, p):
+        '''constant_declaration : field_declaration'''
+        p[0] = nf.node_one_child(p[1], "constant_declaration")
+
+    def p_enum_declaration(self, p):
+        '''enum_declaration : enum_header enum_body'''
+        p[0] = nf.node_two_child(p[1], p[2], "enum_declaration")
+
+    def p_enum_header(self, p):
+        '''enum_header : enum_header_name class_header_implements_opt'''
+        p[0] = nf.node_two_child(p[1], p[2], "enum_header")
+
+    def p_enum_header_name(self, p):
+        '''enum_header_name : modifiers_opt ENUM NAME
+                            | modifiers_opt ENUM NAME type_parameters'''
+        if len(p) == 4:
+            node_leaf = nf.node(p[2])
+            node_leaf1 = nf.node(p[3])
+            p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "enum_header_name")
+        else:
+            node_leaf = nf.node(p[2])
+            node_leaf = nf.node(p[3])
+            p[0] = nf.node_four_child(p[1], node_leaf, node_leaf1, p[4], "enum_header_name")
+
+    def p_enum_body(self, p):
+        '''enum_body : '{' enum_body_declarations_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "enum_body")
+
+    def p_enum_body2(self, p):
+        '''enum_body : '{' ',' enum_body_declarations_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[2])
+        node_leaf2 = nf.node(p[4])
+        p[0] = nf.node_four_child(node_leaf, node_leaf1, p[3], node_leaf2, "enum_body")
+
+    def p_enum_body3(self, p):
+        '''enum_body : '{' enum_constants ',' enum_body_declarations_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node(p[5])
+        p[0] = nf.node_five_child(node_leaf, p[2], node_leaf1, p[4], node_leaf2, "enum_body")
+
+    def p_enum_body4(self, p):
+        '''enum_body : '{' enum_constants enum_body_declarations_opt '}' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[4])
+        p[0] =nf.node(node_leaf, p[2], p[3], node_leaf1, "enum_body")
+
+    def p_enum_constants(self, p):
+        '''enum_constants : enum_constant
+                          | enum_constants ',' enum_constant'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "enum_constants")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3])
+
+    def p_enum_constant(self, p):
+        '''enum_constant : enum_constant_header class_body
+                         | enum_constant_header'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "enum_constant")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "enum_constant")
+
+    def p_enum_constant_header(self, p):
+        '''enum_constant_header : enum_constant_header_name arguments_opt'''
+        p[0] = nf.node_two_child(p[1], p[2], "enum_constant_header")
+
+    def p_enum_constant_header_name(self, p):
+        '''enum_constant_header_name : modifiers_opt NAME'''
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_two_child(p[1], node_leaf, "enum_constant_header_name")
+
+    def p_arguments_opt(self, p):
+        '''arguments_opt : arguments'''
+        p[0] = nf.node_one_child(p[1], "arguments")
+
+    def p_arguments_opt2(self, p):
+        '''arguments_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "arguments_opt")
+
+    def p_arguments(self, p):
+        '''arguments : '(' argument_list_opt ')' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node(node_leaf, p[2], node_leaf1, "arguments")
+
+    def p_argument_list_opt(self, p):
+        '''argument_list_opt : argument_list'''
+        p[0] = nf.node_one_child(p[1], "argument_list_opt")
+
+    def p_argument_list_opt2(self, p):
+        '''argument_list_opt : empty'''
+        p[0] = nf.node_one_child(p[1], "argument_list_opt")
+
+    def p_argument_list(self, p):
+        '''argument_list : expression
+                         | argument_list ',' expression'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "argument_list")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] =  nf.node_three_child(p[1], node_leaf, p[3], "argument_list")
+
+    def p_enum_body_declarations_opt(self, p):
+        '''enum_body_declarations_opt : enum_declarations'''
+        p[0] = p[1]
+
+    def p_enum_body_declarations_opt2(self, p):
+        '''enum_body_declarations_opt : empty'''
+        p[0] = []
+
+    def p_enum_body_declarations(self, p):
+        '''enum_declarations : ';' class_body_declarations_opt'''
+        p[0] = p[2]
+
+    def p_annotation_type_declaration(self, p):
+        '''annotation_type_declaration : annotation_type_declaration_header annotation_type_body'''
+        p[0] = AnnotationDeclaration(p[1]['name'], modifiers=p[1]['modifiers'],
+                              type_parameters=p[1]['type_parameters'],
+                              extends=p[1]['extends'], implements=p[1]['implements'],
+                              body=p[2])
+
+    def p_annotation_type_declaration_header(self, p):
+        '''annotation_type_declaration_header : annotation_type_declaration_header_name class_header_extends_opt class_header_implements_opt'''
+        p[1]['extends'] = p[2]
+        p[1]['implements'] = p[3]
+        p[0] = p[1]
+
+    def p_annotation_type_declaration_header_name(self, p):
+        '''annotation_type_declaration_header_name : modifiers '@' INTERFACE NAME'''
+        p[0] = {'modifiers': p[1], 'name': p[4], 'type_parameters': []}
+
+    def p_annotation_type_declaration_header_name2(self, p):
+        '''annotation_type_declaration_header_name : modifiers '@' INTERFACE NAME type_parameters'''
+        p[0] = {'modifiers': p[1], 'name': p[4], 'type_parameters': p[5]}
+
+    def p_annotation_type_declaration_header_name3(self, p):
+        '''annotation_type_declaration_header_name : '@' INTERFACE NAME type_parameters'''
+        p[0] = {'modifiers': [], 'name': p[3], 'type_parameters': p[4]}
+
+    def p_annotation_type_declaration_header_name4(self, p):
+        '''annotation_type_declaration_header_name : '@' INTERFACE NAME'''
+        p[0] = {'modifiers': [], 'name': p[3], 'type_parameters': []}
+
+    def p_annotation_type_body(self, p):
+        '''annotation_type_body : '{' annotation_type_member_declarations_opt '}' '''
+        p[0] = p[2]
+
+    def p_annotation_type_member_declarations_opt(self, p):
+        '''annotation_type_member_declarations_opt : annotation_type_member_declarations'''
+        p[0] = p[1]
+
+    def p_annotation_type_member_declarations_opt2(self, p):
+        '''annotation_type_member_declarations_opt : empty'''
+        p[0] = []
+
+    def p_annotation_type_member_declarations(self, p):
+        '''annotation_type_member_declarations : annotation_type_member_declaration
+                                               | annotation_type_member_declarations annotation_type_member_declaration'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[2]]
+
+    def p_annotation_type_member_declaration(self, p):
+        '''annotation_type_member_declaration : annotation_method_header ';'
+                                              | constant_declaration
+                                              | constructor_declaration
+                                              | type_declaration'''
+        p[0] = p[1]
+
+    def p_annotation_method_header(self, p):
+        '''annotation_method_header : annotation_method_header_name formal_parameter_list_opt ')' method_header_extended_dims annotation_method_header_default_value_opt'''
+        p[0] = AnnotationMethodDeclaration(p[1]['name'], p[1]['type'], parameters=p[2],
+                                           default=p[5], extended_dims=p[4],
+                                           type_parameters=p[1]['type_parameters'],
+                                           modifiers=p[1]['modifiers'])
+
+    def p_annotation_method_header_name(self, p):
+        '''annotation_method_header_name : modifiers_opt type_parameters type NAME '('
+                                         | modifiers_opt type NAME '(' '''
+        if len(p) == 5:
+            p[0] = {'modifiers': p[1], 'type_parameters': [], 'type': p[2], 'name': p[3]}
+        else:
+            p[0] = {'modifiers': p[1], 'type_parameters': p[2], 'type': p[3], 'name': p[4]}
+
+    def p_annotation_method_header_default_value_opt(self, p):
+        '''annotation_method_header_default_value_opt : default_value
+                                                      | empty'''
+        p[0] = p[1]
+
+    def p_default_value(self, p):
+        '''default_value : DEFAULT member_value'''
+        p[0] = p[2]
+
+    def p_member_value(self, p):
+        '''member_value : conditional_expression_not_name
+                        | name
+                        | annotation
+                        | member_value_array_initializer'''
+        p[0] = p[1]
+
+    def p_member_value_array_initializer(self, p):
+        '''member_value_array_initializer : '{' member_values ',' '}'
+                                          | '{' member_values '}' '''
+        p[0] = ArrayInitializer(p[2])
+
+    def p_member_value_array_initializer2(self, p):
+        '''member_value_array_initializer : '{' ',' '}'
+                                          | '{' '}' '''
+        # ignore
+
+    def p_member_values(self, p):
+        '''member_values : member_value
+                         | member_values ',' member_value'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[3]]
+
+    def p_annotation(self, p):
+        '''annotation : normal_annotation
+                      | marker_annotation
+                      | single_member_annotation'''
+        p[0] = p[1]
+
+    def p_normal_annotation(self, p):
+        '''normal_annotation : annotation_name '(' member_value_pairs_opt ')' '''
+        p[0] = Annotation(p[1], members=p[3])
+
+    def p_annotation_name(self, p):
+        '''annotation_name : '@' name'''
+        p[0] = p[2]
+
+    def p_member_value_pairs_opt(self, p):
+        '''member_value_pairs_opt : member_value_pairs'''
+        p[0] = p[1]
+
+    def p_member_value_pairs_opt2(self, p):
+        '''member_value_pairs_opt : empty'''
+        p[0] = []
+
+    def p_member_value_pairs(self, p):
+        '''member_value_pairs : member_value_pair
+                              | member_value_pairs ',' member_value_pair'''
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = p[1] + [p[3]]
+
+    def p_member_value_pair(self, p):
+        '''member_value_pair : simple_name '=' member_value'''
+        p[0] = AnnotationMember(p[1], p[3])
+
+    def p_marker_annotation(self, p):
+        '''marker_annotation : annotation_name'''
+        p[0] = Annotation(p[1])
+
+    def p_single_member_annotation(self, p):
+        '''single_member_annotation : annotation_name '(' single_member_annotation_member_value ')' '''
+        p[0] = Annotation(p[1], single_member=p[3])
+
+    def p_single_member_annotation_member_value(self, p):
+        '''single_member_annotation_member_value : member_value'''
+        p[0] = p[1]
+
 class MyParser(ExpressionParser, NameParser, LiteralParser):
 
     tokens = lexRule.tokens
