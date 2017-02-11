@@ -484,7 +484,7 @@ class StatementParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"variable_declarators")
         else:
-            leaf_node = nf.node(",")
+            node_leaf = nf.node(",")
             p[0] = nf.node_three_child(p[1],node_leaf,p[3],"variable_declarators")
 
     def p_variable_declarator(self, p):
@@ -493,8 +493,8 @@ class StatementParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"variable_declarator")
         else:
-            leaf_node = nf.node("=")
-            p[0] = nf.node_three_child(p[1],leaf_node,p[3],"variable_declarator")
+            node_leaf = nf.node("=")
+            p[0] = nf.node_three_child(p[1],node_leaf,p[3],"variable_declarator")
 
     def p_variable_declarator_id(self, p):
         '''variable_declarator_id : NAME dims_opt'''
@@ -601,7 +601,7 @@ class StatementParser(object):
                              | primary '.' type_arguments NAME '(' argument_list_opt ')'
                              | SUPER '.' type_arguments NAME '(' argument_list_opt ')' '''
         leaf_node = nf.node(".")
-        leaf_node1 = nf.node("p[4]")
+        leaf_node1 = nf.node(p[4])
         leaf_node2 = nf.node("(")
         leaf_node3 = nf.node(")")
         if p[1] == "super":
@@ -615,11 +615,11 @@ class StatementParser(object):
                              | primary '.' NAME '(' argument_list_opt ')'
                              | SUPER '.' NAME '(' argument_list_opt ')' '''
         leaf_node = nf.node(".")
-        leaf_node1 = nf.node("p[3]")
+        leaf_node1 = nf.node(p[3])
         leaf_node2 = nf.node("(")
         leaf_node3 = nf.node(")")
         if p[1] == "super":
-            leaf_node4 = nf.node("p[1]")
+            leaf_node4 = nf.node(p[1])
             p[0] = nd.node_six_child(leaf_node4,leaf_node,leaf_node1,leaf_node2,p[5],leaf_node3,"method_invocation")
         else:
             p[0] = nd.node_six_child(p[1],leaf_node,leaf_node1,leaf_node2,p[5],leaf_node3,"method_invocation")
@@ -656,7 +656,7 @@ class StatementParser(object):
 
     def p_if_then_else_statement_no_short_if(self, p):
         '''if_then_else_statement_no_short_if : IF '(' expression ')' statement_no_short_if ELSE statement_no_short_if'''
-        leaf_node = nf.node(p[0])
+        leaf_node = nf.node(p[1])
         leaf_node1 = nf.node("(")
         leaf_node2 = nf.node(")")
         leaf_node3 = nf.node(p[6])
@@ -664,21 +664,21 @@ class StatementParser(object):
 
     def p_while_statement(self, p):
         '''while_statement : WHILE '(' expression ')' statement'''
-        leaf_node = nf.node(p[0])
+        leaf_node = nf.node(p[1])
         leaf_node1 = nf.node("(")
         leaf_node2 = nf.node(")")
         p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"while_statement")
 
     def p_while_statement_no_short_if(self, p):
         '''while_statement_no_short_if : WHILE '(' expression ')' statement_no_short_if'''
-        leaf_node = nf.node(p[0])
+        leaf_node = nf.node(p[1])
         leaf_node1 = nf.node("(")
         leaf_node2 = nf.node(")")
         p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"while_statement_no_short_if")
 
     def p_for_statement(self, p):
         '''for_statement : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement'''
-        leaf_node = nf.node(p[0])
+        leaf_node = nf.node(p[1])
         leaf_node1 = nf.node("(")
         leaf_node2 = nf.node(";")
         leaf_node3 = nf.node(";")
@@ -687,7 +687,7 @@ class StatementParser(object):
 
     def p_for_statement_no_short_if(self, p):
         '''for_statement_no_short_if : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement_no_short_if'''
-        leaf_node = nf.node(p[0])
+        leaf_node = nf.node(p[1])
         leaf_node1 = nf.node("(")
         leaf_node2 = nf.node(";")
         leaf_node3 = nf.node(";")
@@ -700,8 +700,7 @@ class StatementParser(object):
         if p[1]:
             p[0] = nf.node_one_child(p[1],"for_init_opt")
         else:
-            node_leaf = nf.node("empty")
-            p[0] = nf.node_one_child(node_leaf,"for_init_opt")
+            p[0] = nf.node_one_child(p[1],"for_init_opt")
 
     def p_for_init(self, p):
         '''for_init : statement_expression_list
@@ -714,7 +713,8 @@ class StatementParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"statement_expression_list")
         else:
-            p[0] = p[1] + [p[3]]
+            node_leaf = nf.node(",")
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "statement_expression_list")
 
     def p_expression_opt(self, p):
         '''expression_opt : expression
