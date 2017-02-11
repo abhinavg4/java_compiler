@@ -732,24 +732,31 @@ class StatementParser(object):
 
     def p_enhanced_for_statement(self, p):
         '''enhanced_for_statement : enhanced_for_statement_header statement'''
-        p[0] = ForEach(p[1]['type'], p[1]['variable'], p[1]['iterable'], p[2], modifiers=p[1]['modifiers'])
+        p[0] = nf.node_two_child(p[1], p[2], "enhanced_for_statement")
 
     def p_enhanced_for_statement_no_short_if(self, p):
         '''enhanced_for_statement_no_short_if : enhanced_for_statement_header statement_no_short_if'''
-        p[0] = ForEach(p[1]['type'], p[1]['variable'], p[1]['iterable'], p[2], modifiers=p[1]['modifiers'])
+        p[0] = nf.node_two_child(p[1], p[2], "enhanced_for_statement_no_short_if")
 
     def p_enhanced_for_statement_header(self, p):
         '''enhanced_for_statement_header : enhanced_for_statement_header_init ':' expression ')' '''
-        p[1]['iterable'] = p[3]
-        p[0] = p[1]
+        node_leaf = nf. node(":")
+        node_leaf1 = nf.node(")")
+        p[0] = nf.node_four_child(p[1], node_leaf, p[3], node_leaf1, "enhanced_for_statement_header")
 
     def p_enhanced_for_statement_header_init(self, p):
         '''enhanced_for_statement_header_init : FOR '(' type NAME dims_opt'''
-        p[0] = {'modifiers': [], 'type': p[3], 'variable': Variable(p[4], dimensions=p[5])}
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node(p[1])
+        node_leaf2 = nf.node(p[4])
+        p[0] = nf.node_five_child(node_leaf1, node_leaf, p[3], node_leaf2, p[5], "enhanced_for_statement_header_init")
 
     def p_enhanced_for_statement_header_init2(self, p):
         '''enhanced_for_statement_header_init : FOR '(' modifiers type NAME dims_opt'''
-        p[0] = {'modifiers': p[3], 'type': p[4], 'variable': Variable(p[5], dimensions=p[6])}
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(p[5])
+        p[0] = nf.node_six_child(node_leaf, node_leaf1, p[3], p[4], node_leaf2, p[6], "enhanced_for_statement_header_init")
 
     def p_statement_no_short_if(self, p):
         '''statement_no_short_if : statement_without_trailing_substatement
@@ -764,9 +771,14 @@ class StatementParser(object):
         '''assert_statement : ASSERT expression ';'
                             | ASSERT expression ':' expression ';' '''
         if len(p) == 4:
-            p[0] = Assert(p[2])
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[3])
+            p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "assert_statement")
         else:
-            p[0] = Assert(p[2], message=p[4])
+            node_leaf = nf.node(p[1])
+            node_leaf1 = nf.node(p[3])
+            node_leaf2 = nf.node(p[5])
+            p[0] = nf.node_five_child(node_leaf, p[2], node_leaf1, p[4], node_leaf2, "assert_statement")
 
     def p_empty_statement(self, p):
         '''empty_statement : ';' '''
@@ -775,228 +787,316 @@ class StatementParser(object):
 
     def p_switch_statement(self, p):
         '''switch_statement : SWITCH '(' expression ')' switch_block'''
-        p[0] = Switch(p[3], p[5])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[2])
+        node_leaf2 = nf.node(p[4])
+        p[0] = nf.node_five_child(node_leaf, node_leaf1, p[3], node_leaf2, p[5], "switch_statement")
 
     def p_switch_block(self, p):
         '''switch_block : '{' '}' '''
-        p[0] = []
+        node_leaf = nf.node("{")
+        node_leaf1 = nf.node("}")
+        p[0] = nf.node_two_child(node_leaf, node_leaf1, "switch_block")
 
     def p_switch_block2(self, p):
         '''switch_block : '{' switch_block_statements '}' '''
-        p[0] = p[2]
+        node_leaf = nf.node("{")
+        node_leaf1 = nf.node("}")
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "switch_block")
 
     def p_switch_block3(self, p):
         '''switch_block : '{' switch_labels '}' '''
-        p[0] = [SwitchCase(p[2])]
+        node_leaf = nf.node("{")
+        node_leaf1 = nf.node("}")
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "switch_block")
 
     def p_switch_block4(self, p):
         '''switch_block : '{' switch_block_statements switch_labels '}' '''
-        p[0] = p[2] + [SwitchCase(p[3])]
+        node_leaf = nf.node("{")
+        node_leaf1 = nf.node("}")
+        p[0] = nf.node_four_child(node_leaf, p[2], p[3], node_leaf1, "switch_block")
 
     def p_switch_block_statements(self, p):
         '''switch_block_statements : switch_block_statement
                                    | switch_block_statements switch_block_statement'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"switch_block_statements")
+            p[0] = nf.node_one_child(p[1], "switch_block_statements")
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = nf.node_two_child(p[1], p[2], "switch_block_statements")
 
     def p_switch_block_statement(self, p):
         '''switch_block_statement : switch_labels block_statements'''
-        p[0] = SwitchCase(p[1], body=p[2])
+        p[0] = nf.node_two_child(p[1], p[2], "switch_block_statement")
 
     def p_switch_labels(self, p):
         '''switch_labels : switch_label
                          | switch_labels switch_label'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"switch_labels")
+            p[0] = nf.node_one_child(p[1], "switch_labels")
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = nf.node_two_child(p[1], p[2], "switch_labels")
 
     def p_switch_label(self, p):
         '''switch_label : CASE constant_expression ':'
                         | DEFAULT ':' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(":")
         if len(p) == 3:
-            p[0] = 'default'
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "switch_label")
         else:
-            p[0] = p[2]
+            p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "switch_label")
 
     def p_constant_expression(self, p):
         '''constant_expression : expression'''
-        p[0] = nf.node_one_child(p[1],"for_init_opt")
+        p[0] = nf.node_one_child(p[1], "constant_expression")
 
     def p_do_statement(self, p):
         '''do_statement : DO statement WHILE '(' expression ')' ';' '''
-        p[0] = DoWhile(p[5], body=p[2])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node("(")
+        node_leaf3 = nf.node(")")
+        node_leaf4 = nf.node(";")
+        p[0] = nf.node_seven_child(node_leaf, p[2], node_leaf1, node_leaf2, p[5], node_leaf3, node_leaf4)
 
     def p_break_statement(self, p):
         '''break_statement : BREAK ';'
                            | BREAK NAME ';' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 =nf.node(";")
         if len(p) == 3:
-            p[0] = Break()
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "break_statement")
         else:
-            p[0] = Break(p[2])
+            node_leaf2 = nf.node(p[2])
+            p[0] = nf.node_three_child(node_leaf, node_leaf2, node_leaf1, "break_statement")
 
     def p_continue_statement(self, p):
         '''continue_statement : CONTINUE ';'
                               | CONTINUE NAME ';' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 =nf.node(";")
         if len(p) == 3:
-            p[0] = Continue()
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "continue_statement")
         else:
-            p[0] = Continue(p[2])
+            node_leaf2 = nf.node(p[2])
+            p[0] = nf.node_three_child(node_leaf, node_leaf2, node_leaf1, "continue_statement")
 
     def p_return_statement(self, p):
         '''return_statement : RETURN expression_opt ';' '''
-        p[0] = Return(p[2])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "return_statement")
 
     def p_synchronized_statement(self, p):
         '''synchronized_statement : SYNCHRONIZED '(' expression ')' block'''
-        p[0] = Synchronized(p[3], p[5])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_five_child(node_leaf, node_leaf1, p[3], node_leaf2, p[5], "synchronized_statement")
 
     def p_throw_statement(self, p):
         '''throw_statement : THROW expression ';' '''
-        p[0] = Throw(p[2])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(";")
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "throw_statement")
 
     def p_try_statement(self, p):
         '''try_statement : TRY try_block catches
                          | TRY try_block catches_opt finally'''
+        node_leaf = nf.node(p[1])
         if len(p) == 4:
-            p[0] = Try(p[2], catches=p[3])
+            p[0] = nf.node_three_child(node_leaf, p[2], p[3], "try_statement")
         else:
-            p[0] = Try(p[2], catches=p[3], _finally=p[4])
+            p[0] = nf.node_four_child(node_leaf, p[2], p[3], p[4], "try_statement")
 
     def p_try_block(self, p):
         '''try_block : block'''
-        p[0] = nf.node_one_child(p[1],"for_init_opt")
+        p[0] = nf.node_one_child(p[1], "try_block")
 
     def p_catches(self, p):
         '''catches : catch_clause
                    | catches catch_clause'''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = nf.node_one_child(p[1], "catches")
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = nf.node_two_child(p[1], p[2], "catches")
 
     def p_catches_opt(self, p):
         '''catches_opt : catches'''
-        p[0] = nf.node_one_child(p[1],"catches_opt")
+        p[0] = nf.node_one_child(p[1], "catches_opt")
 
     def p_catches_opt2(self, p):
         '''catches_opt : empty'''
-        p[0] = []
+        p[0] = nf.node_one_child(p[1], "catches_opt")
 
     def p_catch_clause(self, p):
         '''catch_clause : CATCH '(' catch_formal_parameter ')' block'''
-        p[0] = Catch(p[3]['variable'], types=p[3]['types'], modifiers=p[3]['modifiers'], block=p[5])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_five_child(node_leaf, node_leaf1, p[3], node_leaf2, p[5], "catch_clause")
 
     def p_catch_formal_parameter(self, p):
         '''catch_formal_parameter : modifiers_opt catch_type variable_declarator_id'''
-        p[0] = {'modifiers': p[1], 'types': p[2], 'variable': p[3]}
+        p[0] = nf.node_three_child(p[1], p[2], p[3], "catch_formal_parameter")
 
     def p_catch_type(self, p):
         '''catch_type : union_type'''
-        p[0] = nf.node_one_child(p[1],"catch_type")
+        p[0] = nf.node_one_child(p[1], "catch_type")
 
     def p_union_type(self, p):
         '''union_type : type
                       | union_type '|' type'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"union_type")
+            p[0] = nf.node_one_child(p[1], "union_type")
         else:
-            p[0] = p[1] + [p[3]]
+            node_leaf = nf.node("|")
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "union_type")
 
     def p_try_statement_with_resources(self, p):
         '''try_statement_with_resources : TRY resource_specification try_block catches_opt
                                         | TRY resource_specification try_block catches_opt finally'''
+        node_leaf = nf.node(p[1])
         if len(p) == 5:
-            p[0] = Try(p[3], resources=p[2], catches=p[4])
+            p[0] = nf.node_four_child(node_leaf, p[2], p[3], p[4], "try_statement_with_resources")
         else:
-            p[0] = Try(p[3], resources=p[2], catches=p[4], _finally=p[5])
+            p[0] = nf.node_five_child(node_leaf, p[2], p[3], p[4], p[5], "try_statement_with_resources")
 
     def p_resource_specification(self, p):
         '''resource_specification : '(' resources semi_opt ')' '''
-        p[0] = p[2]
+        node_leaf = nf.node("(")
+        node_leaf1 = nf.node(")")
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "resource_specification")
 
     def p_semi_opt(self, p):
         '''semi_opt : ';'
                     | empty'''
+        if p[1] == ";":
+            node_leaf = nf.node(";")
+            p[0] = nf.node_one_child(node_leaf, "semi_opt")
+        else:
+            p[0] = nf.node_one_child(p[1], "semi_opt")
         # ignore
 
     def p_resources(self, p):
         '''resources : resource
                      | resources trailing_semicolon resource'''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = nf.node_one_child(p[1], "resources")
         else:
-            p[0] = p[1] + [p[3]]
+            p[0] = nf.node_three_child(p[1], p[2], p[3], "resources")
 
     def p_trailing_semicolon(self, p):
         '''trailing_semicolon : ';' '''
+        node_leaf = nf.node(";")
+        p[0] = nf.node_one_child(node_leaf, "trailing_semicolon")
         # ignore
 
     def p_resource(self, p):
         '''resource : type variable_declarator_id '=' variable_initializer'''
-        p[0] = Resource(p[2], type=p[1], initializer=p[4])
+        node_leaf = nf.node("=")
+        p[0] = nf.node_four_child(p[1], p[2], node_leaf, p[4], "resource")
 
     def p_resource2(self, p):
         '''resource : modifiers type variable_declarator_id '=' variable_initializer'''
-        p[0] = Resource(p[3], type=p[2], modifiers=p[1], initializer=p[5])
+        node_leaf = nf.node("=")
+        p[0] = nf.node_five_child(p[1], p[2], p[3], node_leaf, p[5], "resource")
 
     def p_finally(self, p):
         '''finally : FINALLY block'''
-        p[0] = p[2]
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "finally")
 
     def p_explicit_constructor_invocation(self, p):
         '''explicit_constructor_invocation : THIS '(' argument_list_opt ')' ';'
                                            | SUPER '(' argument_list_opt ')' ';' '''
-        p[0] = ConstructorInvocation(p[1], arguments=p[3])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        node_leaf3 = nf.node(";")
+        p[0] = nf.node_five_child(node_leaf, node_leaf1, p[3], node_leaf2, node_leaf3, "explicit_constructor_invocation")
 
     def p_explicit_constructor_invocation2(self, p):
         '''explicit_constructor_invocation : type_arguments SUPER '(' argument_list_opt ')' ';'
                                            | type_arguments THIS '(' argument_list_opt ')' ';' '''
-        p[0] = ConstructorInvocation(p[2], type_arguments=p[1], arguments=p[4])
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        node_leaf3 = nf.node(";")
+        p[0] = nf.node_six_child(p[1], node_leaf, node_leaf1, p[4], node_leaf2, node_leaf3, "explicit_constructor_invocation")
 
     def p_explicit_constructor_invocation3(self, p):
         '''explicit_constructor_invocation : primary '.' SUPER '(' argument_list_opt ')' ';'
                                            | name '.' SUPER '(' argument_list_opt ')' ';'
                                            | primary '.' THIS '(' argument_list_opt ')' ';'
                                            | name '.' THIS '(' argument_list_opt ')' ';' '''
-        p[0] = ConstructorInvocation(p[3], target=p[1], arguments=p[5])
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node("(")
+        node_leaf3 = nf.node(")")
+        node_leaf4 = nf.node(";")
+        p[0] = nf.node_seven_child(p[1], node_leaf, node_leaf1, node_leaf2, p[5], node_leaf3, node_leaf4, "explicit_constructor_invocation")
 
     def p_explicit_constructor_invocation4(self, p):
         '''explicit_constructor_invocation : primary '.' type_arguments SUPER '(' argument_list_opt ')' ';'
                                            | name '.' type_arguments SUPER '(' argument_list_opt ')' ';'
                                            | primary '.' type_arguments THIS '(' argument_list_opt ')' ';'
                                            | name '.' type_arguments THIS '(' argument_list_opt ')' ';' '''
-        p[0] = ConstructorInvocation(p[4], target=p[1], type_arguments=p[3], arguments=p[6])
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[4])
+        node_leaf2 = nf.node("(")
+        node_leaf3 = nf.node(")")
+        node_leaf4 = nf.node(";")
+        p[0] = nf.node_eight_child(p[1], node_leaf, p[3], node_leaf1, node_leaf2, p[6], node_leaf3, node_leaf4, "explicit_constructor_invocation")
 
     def p_class_instance_creation_expression(self, p):
         '''class_instance_creation_expression : NEW type_arguments class_type '(' argument_list_opt ')' class_body_opt'''
-        p[0] = InstanceCreation(p[3], type_arguments=p[3], arguments=p[5], body=p[7])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_seven_child(node_leaf, p[2], p[3], node_leaf1, p[5], node_leaf2, p[7], "class_instance_creation_expression")
 
     def p_class_instance_creation_expression2(self, p):
         '''class_instance_creation_expression : NEW class_type '(' argument_list_opt ')' class_body_opt'''
-        p[0] = InstanceCreation(p[2], arguments=p[4], body=p[6])
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_six_child(node_leaf, p[2], node_leaf1, p[4], node_leaf2, p[6], "class_instance_creation_expression")
 
     def p_class_instance_creation_expression3(self, p):
         '''class_instance_creation_expression : primary '.' NEW type_arguments class_type '(' argument_list_opt ')' class_body_opt'''
-        p[0] = InstanceCreation(p[5], enclosed_in=p[1], type_arguments=p[4], arguments=p[7], body=p[9])
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node(p[6])
+        node_leaf3 = nf.node(p[8])
+        p[0] = nf.node_nine_child(p[1], node_leaf, node_leaf1, p[4], p[5], node_leaf2, p[7], node_leaf3, p[9], "class_instance_creation_expression")
 
     def p_class_instance_creation_expression4(self, p):
         '''class_instance_creation_expression : primary '.' NEW class_type '(' argument_list_opt ')' class_body_opt'''
-        p[0] = InstanceCreation(p[4], enclosed_in=p[1], arguments=p[6], body=p[8])
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node(p[5])
+        node_leaf3 = nf.node(p[7])
+        p[0] = nf.node_eight_child(p[1], node_leaf, node_leaf1, p[4], node_leaf2, p[6], node_leaf3, p[8], "class_instance_creation_expression")
 
     def p_class_instance_creation_expression5(self, p):
         '''class_instance_creation_expression : class_instance_creation_expression_name NEW class_type '(' argument_list_opt ')' class_body_opt'''
-        p[0] = InstanceCreation(p[3], enclosed_in=p[1], arguments=p[5], body=p[7])
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[4])
+        node_leaf2 = nf.node(p[6])
+        p[0] = nf.node_seven_child(p[1], node_leaf, p[3], node_leaf1, p[5], node_leaf2, p[7], "class_instance_creation_expression")
 
     def p_class_instance_creation_expression6(self, p):
         '''class_instance_creation_expression : class_instance_creation_expression_name NEW type_arguments class_type '(' argument_list_opt ')' class_body_opt'''
-        p[0] = InstanceCreation(p[4], enclosed_in=p[1], type_arguments=p[3], arguments=p[6], body=p[8])
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[5])
+        node_leaf2 = nf.node(p[7])
+        p[0] = nf.node_eight_child(p[1], node_leaf, p[3], p[4], node_leaf1, p[6], node_leaf2, p[8], "class_instance_creation_expression")
 
     def p_class_instance_creation_expression_name(self, p):
         '''class_instance_creation_expression_name : name '.' '''
-        p[0] = p[1]
+        node_leaf = nf.node(".")
+        p[0] = nf.node_two_child(p[1], node_leaf, "class_instance_creation_expression_name")
 
     def p_class_body_opt(self, p):
         '''class_body_opt : class_body
@@ -1006,39 +1106,53 @@ class StatementParser(object):
     def p_field_access(self, p):
         '''field_access : primary '.' NAME
                         | SUPER '.' NAME'''
-        p[0] = FieldAccess(p[3], p[1])
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[3])
+        if p[1] == "super":
+            node_leaf2 = nf.node(p[1])
+            p[0] = nf.node_three_child(node_leaf2, node_leaf, node_leaf1, "field_access")
+        else:
+            p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "field_access")
 
     def p_array_access(self, p):
         '''array_access : name '[' expression ']'
                         | primary_no_new_array '[' expression ']'
                         | array_creation_with_array_initializer '[' expression ']' '''
-        p[0] = ArrayAccess(p[3], p[1])
+        node_leaf = nf.node("[")
+        node_leaf1 = nf.node("]")
+        p[0] = nf.node_four_child(p[1], node_leaf, p[3], node_leaf1, "array_access")
 
     def p_array_creation_with_array_initializer(self, p):
         '''array_creation_with_array_initializer : NEW primitive_type dim_with_or_without_exprs array_initializer
                                                  | NEW class_or_interface_type dim_with_or_without_exprs array_initializer'''
-        p[0] = ArrayCreation(p[2], dimensions=p[3], initializer=p[4])
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_four_child(node_leaf, p[2], p[3], p[4], "array_creation_with_array_initializer")
 
     def p_dim_with_or_without_exprs(self, p):
         '''dim_with_or_without_exprs : dim_with_or_without_expr
                                      | dim_with_or_without_exprs dim_with_or_without_expr'''
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = nf.node_one_child(p[1], "dim_with_or_without_exprs")
         else:
-            p[0] = p[1] + [p[2]]
+            p[0] = nf.node_two_child(p[1], "dim_with_or_without_exprs")
 
     def p_dim_with_or_without_expr(self, p):
         '''dim_with_or_without_expr : '[' expression ']'
                                     | '[' ']' '''
         if len(p) == 3:
-            p[0] = None
+            node_leaf = nf.node("[")
+            node_leaf1 = nf.node("]")
+            p[0] = nf.node_two_child(node_leaf, node_leaf1)
         else:
-            p[0] = p[2]
+            node_leaf = nf.node("[")
+            node_leaf1 = nf.node("]")
+            p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1)
 
     def p_array_creation_without_array_initializer(self, p):
         '''array_creation_without_array_initializer : NEW primitive_type dim_with_or_without_exprs
                                                     | NEW class_or_interface_type dim_with_or_without_exprs'''
-        p[0] = ArrayCreation(p[2], dimensions=p[3])
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_three_child(node_leaf, p[2], p[3], "array_creation_without_array_initializer")
 
 class NameParser(object):
 
@@ -1576,7 +1690,7 @@ class ClassParser(object):
         else:
             node_leaf = nf.node(p[3])
             node_leaf1 = nf.node(p[4])
-            p[0] = nf.node_fur_child(p[1], p[2], node_leaf, node_leaf1, "constructor_header_name")
+            p[0] = nf.node_four_child(p[1], p[2], node_leaf, node_leaf1, "constructor_header_name")
 
     def p_formal_parameter_list_opt(self, p):
         '''formal_parameter_list_opt : formal_parameter_list'''
