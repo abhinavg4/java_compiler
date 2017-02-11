@@ -2051,6 +2051,108 @@ class ClassParser(object):
         '''single_member_annotation_member_value : member_value'''
         p[0] = nf.node_one_child(p[1], "single_member_annotation_member_value")
 
+class CompilationUnitParser(object):
+
+    def p_compilation_unit(self, p):
+        '''compilation_unit : package_declaration'''
+        p[0] = nf.node_one_child(p[1], "compilation_unit")
+
+    def p_compilation_unit2(self, p):
+        '''compilation_unit : package_declaration import_declarations'''
+        p[0] = nf.node_two_child(p[1], p[2], "compilation_unit")
+
+    def p_compilation_unit3(self, p):
+        '''compilation_unit : package_declaration import_declarations type_declarations'''
+        p[0] = nf.node_three_child(p[1], p[2], p[3], "compilation_unit")
+
+    def p_compilation_unit4(self, p):
+        '''compilation_unit : package_declaration type_declarations'''
+        p[0] = nf.node_two_child(p[1], p[2], "compilation_unit")
+
+    def p_compilation_unit5(self, p):
+        '''compilation_unit : import_declarations'''
+        p[0] = nf.node_one_child(p[1], "compilation_unit")
+
+    def p_compilation_unit6(self, p):
+        '''compilation_unit : type_declarations'''
+        p[0] = nf.node_one_child(p[1], "compilation_unit")
+
+    def p_compilation_unit7(self, p):
+        '''compilation_unit : import_declarations type_declarations'''
+        p[0] = nf.node_two_child(p[1], p[2], "compilation_unit")
+
+    def p_compilation_unit8(self, p):
+        '''compilation_unit : empty'''
+        p[0] = nf.node_one_child(p[1], "compilation_unit")
+
+    def p_package_declaration(self, p):
+        '''package_declaration : package_declaration_name ';' '''
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_two_child(p[1], node_leaf, "package_declaration")
+
+    def p_package_declaration_name(self, p):
+        '''package_declaration_name : modifiers PACKAGE name
+                                    | PACKAGE name'''
+        if len(p) == 3:
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "package_declaration_name")
+        else:
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "package_declaration_name")
+
+    def p_import_declarations(self, p):
+        '''import_declarations : import_declaration
+                               | import_declarations import_declaration'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "import_declarations")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "import_declarations")
+
+    def p_import_declaration(self, p):
+        '''import_declaration : single_type_import_declaration
+                              | type_import_on_demand_declaration
+                              | single_static_import_declaration
+                              | static_import_on_demand_declaration'''
+        p[0] = nf.node_one_child(p[1], "import_declaration")
+
+    def p_single_type_import_declaration(self, p):
+        '''single_type_import_declaration : IMPORT name ';' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "single_type_import_declaration")
+
+    def p_type_import_on_demand_declaration(self, p):
+        '''type_import_on_demand_declaration : IMPORT name '.' '*' ';' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node(p[4])
+        node_leaf3 = nf.node(p[5])
+        p[0] = nf.node_five_child(node_leaf, p[2], node_leaf1, node_leaf2, node_leaf3, "type_import_on_demand_declaration")
+
+    def p_single_static_import_declaration(self, p):
+        '''single_static_import_declaration : IMPORT STATIC name ';' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[2])
+        node_leaf2 = nf.node(p[4])
+        p[0] = nf.node_four_child(node_leaf, node_leaf1, p[3], node_leaf2, "single_static_import_declaration")
+
+    def p_static_import_on_demand_declaration(self, p):
+        '''static_import_on_demand_declaration : IMPORT STATIC name '.' '*' ';' '''
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node(p[2])
+        node_leaf2 = nf.node(p[4])
+        node_leaf3 = nf.node(p[5])
+        node_leaf4 = nf.node(p[6])
+        p[0] = nf.node_six_child(node_leaf, node_leaf1, p[3], node_leaf2, node_leaf3, node_leaf4, "static_import_on_demand_declaration")
+
+    def p_type_declarations(self, p):
+        '''type_declarations : type_declaration
+                             | type_declarations type_declaration'''
+        if len(p) == 2:
+            p[0] = nf.node_one_child(p[1], "type_declarations")
+        else:
+            p[0] = nf.node_two_child(p[1], p[2], "type_declarations")
+
 class MyParser(ExpressionParser, NameParser, LiteralParser):
 
     tokens = lexRule.tokens
