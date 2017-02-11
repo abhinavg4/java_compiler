@@ -1,6 +1,8 @@
 import pydot
 import node_file as nf
 import lexRule
+import ply.lex as lex
+import ply.yacc as yacc
 
 global tokens
 
@@ -248,7 +250,7 @@ class ExpressionParser(object):
 
     def back_unary(self, p,node_name):
         node_leaf = nf.node(p[2])
-        nf.node_two_child(p[1],leaf_node,node_name)
+        nf.node_two_child(p[1],node_leaf,node_name)
 
     def p_unary_expression(self, p):
         '''unary_expression : pre_increment_expression
@@ -259,7 +261,7 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression")
         else:
-            p[0] = front_unary(p, "unary_expression")
+            p[0] = self.front_unary(p, "unary_expression")
 
     def p_unary_expression_not_name(self, p):
         '''unary_expression_not_name : pre_increment_expression
@@ -270,12 +272,12 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression_not_expression")
         else:
-            p[0] = front_unary(p, "unary_expression_not_name")
+            p[0] = self.front_unary(p, "unary_expression_not_name")
 
     def p_pre_increment_expression(self, p):
         '''pre_increment_expression : PLUSPLUS unary_expression'''
         node_leaf = nf.node(p[1])
-        nf.node_two_child(node_leaf,p[2])
+        nf.node_two_child(node_leaf,p[2],"pre_increment_expression")
 
     def p_pre_decrement_expression(self, p):
         '''pre_decrement_expression : MINUSMINUS unary_expression'''
@@ -290,7 +292,7 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus")
         else:
-            p[0] = front_unary(p, "unary_expression_not_plus_minus")
+            p[0] = self.front_unary(p, "unary_expression_not_plus_minus")
 
 
     def p_unary_expression_not_plus_minus_not_name(self, p):
@@ -301,7 +303,7 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus_not_name")
         else:
-            p[0] = front_unary(p, "unary_expression_not_plus_minus_not_name")
+            p[0] = self.front_unary(p, "unary_expression_not_plus_minus_not_name")
 
     def p_postfix_expression(self, p):
         '''postfix_expression : primary
@@ -318,11 +320,11 @@ class ExpressionParser(object):
 
     def p_post_increment_expression(self, p):
         '''post_increment_expression : postfix_expression PLUSPLUS'''
-        p[0] = back_unary(p, "post_increment_expression")
+        p[0] = self.back_unary(p, "post_increment_expression")
 
     def p_post_decrement_expression(self, p):
         '''post_decrement_expression : postfix_expression MINUSMINUS'''
-        p[0] = back_unary(p, "post_decrement_expression")
+        p[0] = self.back_unary(p, "post_decrement_expression")
 
     def p_primary(self, p):
         '''primary : primary_no_new_array
@@ -719,11 +721,19 @@ class StatementParser(object):
     def p_expression_opt(self, p):
         '''expression_opt : expression
                           | empty'''
-        p[0] = nf.node_one_child(p[1],"expression_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"expression_opt")
+        else:
+            p[0] = nf.node_one_child(p[1],"expression_opt")
 
     def p_for_update_opt(self, p):
         '''for_update_opt : for_update
                           | empty'''
+    if not p[1]:
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf,"for_update_opt")
+    else:
         p[0] = nf.node_one_child(p[1],"for_update_opt")
 
     def p_for_update(self, p):
@@ -927,7 +937,8 @@ class StatementParser(object):
 
     def p_catches_opt2(self, p):
         '''catches_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "catches_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf,"catches_opt")
 
     def p_catch_clause(self, p):
         '''catch_clause : CATCH '(' catch_formal_parameter ')' block'''
@@ -975,7 +986,8 @@ class StatementParser(object):
             node_leaf = nf.node(";")
             p[0] = nf.node_one_child(node_leaf, "semi_opt")
         else:
-            p[0] = nf.node_one_child(p[1], "semi_opt")
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf, "semi_opt")
         # ignore
 
     def p_resources(self, p):
@@ -1101,7 +1113,11 @@ class StatementParser(object):
     def p_class_body_opt(self, p):
         '''class_body_opt : class_body
                           | empty'''
-        p[0] = nf.node_one_child(p[1],"class_body_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"class_body_opt")
+        else:
+            p[0] = nf.node_one_child(p[1],"class_body_opt")
 
     def p_field_access(self, p):
         '''field_access : primary '.' NAME
@@ -1191,7 +1207,8 @@ class TypeParser(object):
 
     def p_modifiers_opt2(self, p):
         '''modifiers_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "modifiers_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "modifiers_opt")
 
     def p_modifiers(self, p):
         '''modifiers : modifier
@@ -1577,14 +1594,18 @@ class ClassParser(object):
 
     def p_class_header_name1(self, p):
         '''class_header_name1 : modifiers_opt CLASS NAME'''
-        node_leaf = p[2]
-        node_leaf1 = p[3]
+        node_leaf = nf.node(p[2])
+        node_leaf1 = nf.node(p[3])
         p[0] = nf.node_three_child(p[1], node_leaf, node_leaf1, "class_header_name1")
 
     def p_class_header_extends_opt(self, p):
         '''class_header_extends_opt : class_header_extends
                                     | empty'''
-        p[0] = nf.node_one_child(p[1], "class_header_extends_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf, "class_header_extends_opt")
+        else:
+            p[0] = nf.node_one_child(p[1], "class_header_extends_opt")
 
     def p_class_header_extends(self, p):
         '''class_header_extends : EXTENDS class_type'''
@@ -1594,7 +1615,11 @@ class ClassParser(object):
     def p_class_header_implements_opt(self, p):
         '''class_header_implements_opt : class_header_implements
                                        | empty'''
-        p[0] = nf.node_one_child(p[1], "class_header_implements_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf, "class_header_implements_opt")
+        else:
+            p[0] = nf.node_one_child(p[1], "class_header_implements_opt")
 
     def p_class_header_implements(self, p):
         '''class_header_implements : IMPLEMENTS interface_type_list'''
@@ -1626,7 +1651,11 @@ class ClassParser(object):
 
     def p_class_body_declarations_opt2(self, p):
         '''class_body_declarations_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "class_body_declarations_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(empty, "class_body_declarations_opt")
+        else:
+            p[0] = nf.node_one_child(p[1], "class_body_declarations_opt")
 
     def p_class_body_declarations(self, p):
         '''class_body_declarations : class_body_declaration
@@ -1698,7 +1727,8 @@ class ClassParser(object):
 
     def p_formal_parameter_list_opt2(self, p):
         '''formal_parameter_list_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "formal_parameter_list_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf,"formal_parameter_list_opt")
 
     def p_formal_parameter_list(self, p):
         '''formal_parameter_list : formal_parameter
@@ -1721,7 +1751,11 @@ class ClassParser(object):
     def p_method_header_throws_clause_opt(self, p):
         '''method_header_throws_clause_opt : method_header_throws_clause
                                            | empty'''
-        p[0] = nf.node_one_child(p[1], "method_header_throws_clause_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"method_header_throws_clause_opt")
+        else:
+            p[0] = nf.node_one_child(p[1], "method_header_throws_clause_opt")
 
     def p_method_header_throws_clause(self, p):
         '''method_header_throws_clause : THROWS class_type_list'''
@@ -1809,7 +1843,8 @@ class ClassParser(object):
 
     def p_interface_header_extends_opt2(self, p):
         '''interface_header_extends_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "interface_header_extends_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "interface_header_extends_opt")
 
     def p_interface_header_extends(self, p):
         '''interface_header_extends : EXTENDS interface_type_list'''
@@ -1828,6 +1863,7 @@ class ClassParser(object):
 
     def p_interface_member_declarations_opt2(self, p):
         '''interface_member_declarations_opt : empty'''
+        node_leaf = nf.node("empty")
         p[0] = nf.node_one_child(p[1], "interface_member_declarations_opt")
 
     def p_interface_member_declarations(self, p):
@@ -1934,7 +1970,8 @@ class ClassParser(object):
 
     def p_arguments_opt2(self, p):
         '''arguments_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "arguments_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "arguments_opt")
 
     def p_arguments(self, p):
         '''arguments : '(' argument_list_opt ')' '''
@@ -1948,7 +1985,8 @@ class ClassParser(object):
 
     def p_argument_list_opt2(self, p):
         '''argument_list_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "argument_list_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "argument_list_opt")
 
     def p_argument_list(self, p):
         '''argument_list : expression
@@ -1965,7 +2003,8 @@ class ClassParser(object):
 
     def p_enum_body_declarations_opt2(self, p):
         '''enum_body_declarations_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "enum_body_declarations_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(leaf_node, "enum_body_declarations_opt")
 
     def p_enum_body_declarations(self, p):
         '''enum_declarations : ';' class_body_declarations_opt'''
@@ -2021,7 +2060,8 @@ class ClassParser(object):
 
     def p_annotation_type_member_declarations_opt2(self, p):
         '''annotation_type_member_declarations_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "annotation_type_member_declarations_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "annotation_type_member_declarations_opt")
 
     def p_annotation_type_member_declarations(self, p):
         '''annotation_type_member_declarations : annotation_type_member_declaration
@@ -2062,7 +2102,11 @@ class ClassParser(object):
     def p_annotation_method_header_default_value_opt(self, p):
         '''annotation_method_header_default_value_opt : default_value
                                                       | empty'''
-        p[0] = nf.node_one_child(p[1], "annotation_method_header_default_value_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf, "annotation_method_header_default_value_opt")
+        else:
+            p[0] = nf.node_one_child(p[1], "annotation_method_header_default_value_opt")
 
     def p_default_value(self, p):
         '''default_value : DEFAULT member_value'''
@@ -2135,7 +2179,8 @@ class ClassParser(object):
 
     def p_member_value_pairs_opt2(self, p):
         '''member_value_pairs_opt : empty'''
-        p[0] = nf.node_one_child(p[1], "member_value_pairs_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "member_value_pairs_opt")
 
     def p_member_value_pairs(self, p):
         '''member_value_pairs : member_value_pair
@@ -2197,7 +2242,8 @@ class CompilationUnitParser(object):
 
     def p_compilation_unit8(self, p):
         '''compilation_unit : empty'''
-        p[0] = nf.node_one_child(p[1], "compilation_unit")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "compilation_unit")
 
     def p_package_declaration(self, p):
         '''package_declaration : package_declaration_name ';' '''
@@ -2293,3 +2339,38 @@ class MyParser(ExpressionParser, NameParser, LiteralParser, TypeParser, ClassPar
 
     def p_empty(self, p):
         '''empty :'''
+
+class Parser(object):
+
+    def __init__(self):
+        self.lexer = lex.lex(module=lexRule, optimize=1)
+        self.parser = yacc.yacc(module=MyParser(), start='goal', optimize=1)
+
+    def tokenize_string(self, code):
+        self.lexer.input(code)
+        for token in self.lexer:
+            print(token)
+
+    def tokenize_file(self, _file):
+        if type(_file) == str:
+            _file = open(_file)
+        content = ''
+        for line in _file:
+            content += line
+        return self.tokenize_string(content)
+
+    def parse_expression(self, code, debug=0, lineno=1):
+        return self.parse_string(code, debug, lineno, prefix='--')
+
+    def parse_statement(self, code, debug=0, lineno=1):
+        return self.parse_string(code, debug, lineno, prefix='* ')
+
+    def parse_string(self, code, debug=0, lineno=1, prefix='++'):
+        self.lexer.lineno = lineno
+        return self.parser.parse(prefix + code, lexer=self.lexer, debug=debug)
+
+    def parse_file(self, _file, debug=0):
+        if type(_file) == str:
+            _file = open(_file)
+        content = _file.read()
+        return self.parse_string(content, debug=debug)
