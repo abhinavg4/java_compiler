@@ -337,18 +337,18 @@ class ExpressionParser(object):
                                 | field_access
                                 | method_invocation
                                 | array_access'''
-        if p[1] == "THIS":
+        if p[1] == "this":
             node_leaf = nf.node(p[1])
-            p[0] = node_one_child(node_leaf,"primary_no_new_array")
+            p[0] = nf.node_one_child(node_leaf,"primary_no_new_array")
         else:
-            p[0] = node_one_child(p[1],"primary_no_new_array")
+            p[0] = nf.node_one_child(p[1],"primary_no_new_array")
 
     def p_primary_no_new_array2(self, p):
         '''primary_no_new_array : '(' name ')'
                                 | '(' expression_not_name ')' '''
         node_leaf = nf.node(p[1])
         node_leaf1 = nf.node(p[3])
-        p[0] = node_three_child(node_leaf,p[2],node_leaf1)
+        p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1)
 
     def p_primary_no_new_array3(self, p):
         '''primary_no_new_array : name '.' THIS
@@ -397,27 +397,27 @@ class ExpressionParser(object):
         '''one_dim_loop : '[' ']' '''
         node_leaf = nf.node("[")
         node_leaf1 = nf.node("]")
-        p[0] = node_two_child(node_leaf,node_leaf1,"one_dim_loop")
+        p[0] = nf.node_two_child(node_leaf,node_leaf1,"one_dim_loop")
         # ignore
 
     def p_cast_expression(self, p):
         '''cast_expression : '(' primitive_type dims_opt ')' unary_expression'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node (")")
-        p[0] = node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5],"cast_expression")
+        p[0] = nf.node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5],"cast_expression")
 
     def p_cast_expression2(self, p):
         '''cast_expression : '(' name type_arguments dims_opt ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(")")
-        p[0] = node_six_child(node_leaf,p[2],[3],p[4],node_leaf1,p[6],"cast_expression")
+        p[0] = nf.node_six_child(node_leaf,p[2],[3],p[4],node_leaf1,p[6],"cast_expression")
 
     def p_cast_expression3(self, p):
         '''cast_expression : '(' name type_arguments '.' class_or_interface_type dims_opt ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(".")
         node_leaf2 = nf.node(")")
-        p[0] = node_eight_child(node_leaf,p[2],p[3],node_leaf1,p[5],p[6],node_leaf2,p[8])
+        p[0] = nf.node_eight_child(node_leaf,p[2],p[3],node_leaf1,p[5],p[6],node_leaf2,p[8])
 
     def p_cast_expression4(self, p):
         '''cast_expression : '(' name ')' unary_expression_not_plus_minus'''
@@ -429,7 +429,7 @@ class ExpressionParser(object):
         '''cast_expression : '(' name dims ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(")")
-        p[0] = node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5])
+        p[0] = nf.node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5])
 
 class StatementParser(object):
 
