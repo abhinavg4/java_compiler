@@ -87,7 +87,7 @@ def node_six_child(a,b,c,d,e,f,value_g):
     d = pydot.Node(d)
     e = pydot.Node(e)
     f = pydot.Node(f)
-    node_g = pydot.Node(id,label=value_g)
+    #node_g = pydot.Node(id,label=value_g)
     graph.add_node(node_g)
     graph.add_edge(pydot.Edge(node_g,a))
     graph.add_edge(pydot.Edge(node_g,b))

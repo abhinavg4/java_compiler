@@ -7,24 +7,6 @@ import ply.yacc as yacc
 global tokens
 
 class ExpressionParser(object):
-    tokens = lexRule.tokens
-
-    def p_assignment_operator(self, p):
-        '''assignment_operator : '='
-                               | TIMES_ASSIGN
-                               | DIVIDE_ASSIGN
-                               | REMAINDER_ASSIGN
-                               | PLUS_ASSIGN
-                               | MINUS_ASSIGN
-                               | LSHIFT_ASSIGN
-                               | RSHIFT_ASSIGN
-                               | RRSHIFT_ASSIGN
-                               | AND_ASSIGN
-                               | OR_ASSIGN
-                               | XOR_ASSIGN'''
-        node_leaf = nf.node(p[1])
-        p[0] = nf.node_one_child(node_leaf,"assignment_operator")
-
 
     def p_expression(self, p):
         '''expression : assignment_expression'''
@@ -245,7 +227,7 @@ class ExpressionParser(object):
 
     def front_unary(self, p,node_name):
         node_leaf = nf.node(p[1])
-        nf.node_two_child(leaf_node,p[2],node_name)
+        nf.node_two_child(node_leaf,p[2],node_name)
 
 
     def back_unary(self, p,node_name):
@@ -500,8 +482,8 @@ class StatementParser(object):
 
     def p_variable_declarator_id(self, p):
         '''variable_declarator_id : NAME dims_opt'''
-        leaf_node = nf.node(p[0])
-        p[0] = nf.node_two_child(leaf_node,p[2],"variable_declarator_id")
+        node_leaf = nf.node(p[0])
+        p[0] = nf.node_two_child(node_leaf,p[2],"variable_declarator_id")
 
     def p_variable_initializer(self, p):
         '''variable_initializer : expression
@@ -540,8 +522,8 @@ class StatementParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"expression_statement")
         else:
-            leaf_node = nf.node(";")
-            p[0] = nf.node_two_child(p[1],leaf_node,"expression_statement")
+            node_leaf = nf.node(";")
+            p[0] = nf.node_two_child(p[1],node_leaf,"expression_statement")
 
     def p_statement_expression(self, p):
         '''statement_expression : assignment
@@ -557,30 +539,30 @@ class StatementParser(object):
         '''comma_opt : ','
                      | empty'''
         if p[1] == ',':
-            leaf_node = nf.node(",")
-            p[0] = nf.node_one_child(leaf_node,"variable_declarators")
+            node_leaf = nf.node(",")
+            p[0] = nf.node_one_child(node_leaf,"variable_declarators")
         else:
-            leaf_node = nf.node("empty")
-            p[0] = nf.node_one_child(leaf_node,"variable_declarators")
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"variable_declarators")
 
     def p_array_initializer(self, p):
         '''array_initializer : '{' comma_opt '}' '''
-        leaf_node = nf.node("{")
-        leaf_node1 = nf.node("}")
-        p[0] = nf.node_three_child(leaf_node,p[2],leaf_node1,"array_initializer")
+        node_leaf = nf.node("{")
+        node_leaf1 = nf.node("}")
+        p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1,"array_initializer")
 
     def p_array_initializer2(self, p):
         '''array_initializer : '{' variable_initializers '}'
                              | '{' variable_initializers ',' '}' '''
         if len(p) == 3:
-            leaf_node = nf.node("{")
-            leaf_node1 = nf.node("}")
-            p[0] = nf.node_three_child(leaf_node,p[2],leaf_node1,"array_initializer")
+            node_leaf = nf.node("{")
+            node_leaf1 = nf.node("}")
+            p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1,"array_initializer")
         else:
-            leaf_node = nf.node("{")
-            leaf_node1 = nf.node("}")
-            leaf_node2 = nf.node(",")
-            p[0] = nf.node_four_child(leaf_node,p[2],leaf_node2,leaf_node1,"array_initializer")
+            node_leaf = nf.node("{")
+            node_leaf1 = nf.node("}")
+            node_leaf2 = nf.node(",")
+            p[0] = nf.node_four_child(node_leaf,p[2],node_leaf2,node_leaf1,"array_initializer")
 
     def p_variable_initializers(self, p):
         '''variable_initializers : variable_initializer
@@ -593,38 +575,38 @@ class StatementParser(object):
 
     def p_method_invocation(self, p):
         '''method_invocation : NAME '(' argument_list_opt ')' '''
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(")")
-        leaf_node = nf.node(p[1])
-        p[0] = nf.node_four_child(leaf_node,leaf_node1,p[3],leaf_node2,"method_invocation")
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_four_child(node_leaf,node_leaf1,p[3],node_leaf2,"method_invocation")
 
     def p_method_invocation2(self, p):
         '''method_invocation : name '.' type_arguments NAME '(' argument_list_opt ')'
                              | primary '.' type_arguments NAME '(' argument_list_opt ')'
                              | SUPER '.' type_arguments NAME '(' argument_list_opt ')' '''
-        leaf_node = nf.node(".")
-        leaf_node1 = nf.node(p[4])
-        leaf_node2 = nf.node("(")
-        leaf_node3 = nf.node(")")
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[4])
+        node_leaf2 = nf.node("(")
+        node_leaf3 = nf.node(")")
         if p[1] == "super":
-            leaf_node4 = nf.node("p[1]")
-            p[0] = nd.node_seven_child(leaf_node4,leaf_node,p[3],leaf_node1,leaf_node2,p[6],leaf_node3,"method_invocation")
+            node_leaf4 = nf.node("p[1]")
+            p[0] = nd.node_seven_child(node_leaf4,node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
         else:
-            p[0] = nd.node_seven_child(p[1],leaf_node,p[3],leaf_node1,leaf_node2,p[6],leaf_node3,"method_invocation")
+            p[0] = nd.node_seven_child(p[1],node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
 
     def p_method_invocation3(self, p):
         '''method_invocation : name '.' NAME '(' argument_list_opt ')'
                              | primary '.' NAME '(' argument_list_opt ')'
                              | SUPER '.' NAME '(' argument_list_opt ')' '''
-        leaf_node = nf.node(".")
-        leaf_node1 = nf.node(p[3])
-        leaf_node2 = nf.node("(")
-        leaf_node3 = nf.node(")")
+        node_leaf = nf.node(".")
+        node_leaf1 = nf.node(p[3])
+        node_leaf2 = nf.node("(")
+        node_leaf3 = nf.node(")")
         if p[1] == "super":
-            leaf_node4 = nf.node(p[1])
-            p[0] = nd.node_six_child(leaf_node4,leaf_node,leaf_node1,leaf_node2,p[5],leaf_node3,"method_invocation")
+            node_leaf4 = nf.node(p[1])
+            p[0] = nd.node_six_child(node_leaf4,node_leaf,node_leaf1,node_leaf2,p[5],node_leaf3,"method_invocation")
         else:
-            p[0] = nd.node_six_child(p[1],leaf_node,leaf_node1,leaf_node2,p[5],leaf_node3,"method_invocation")
+            p[0] = nd.node_six_child(p[1],node_leaf,node_leaf1,node_leaf2,p[5],node_leaf3,"method_invocation")
 
     def p_labeled_statement(self, p):
         '''labeled_statement : label ':' statement'''
@@ -643,58 +625,58 @@ class StatementParser(object):
 
     def p_if_then_statement(self, p):
         '''if_then_statement : IF '(' expression ')' statement'''
-        leaf_node = nf.node(p[0])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(")")
-        p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"if_then_statement")
+        node_leaf = nf.node(p[0])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_five_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],"if_then_statement")
 
     def p_if_then_else_statement(self, p):
         '''if_then_else_statement : IF '(' expression ')' statement_no_short_if ELSE statement'''
-        leaf_node = nf.node(p[0])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(")")
-        leaf_node3 = nf.node(p[6])
-        p[0] = nf.node_seven_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],"if_then_else_statement")
+        node_leaf = nf.node(p[0])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        node_leaf3 = nf.node(p[6])
+        p[0] = nf.node_seven_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],node_leaf3,p[7],"if_then_else_statement")
 
     def p_if_then_else_statement_no_short_if(self, p):
         '''if_then_else_statement_no_short_if : IF '(' expression ')' statement_no_short_if ELSE statement_no_short_if'''
-        leaf_node = nf.node(p[1])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(")")
-        leaf_node3 = nf.node(p[6])
-        p[0] = nf.node_seven_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],"if_then_else_statement_no_short_if")
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        node_leaf3 = nf.node(p[6])
+        p[0] = nf.node_seven_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],node_leaf3,p[7],"if_then_else_statement_no_short_if")
 
     def p_while_statement(self, p):
         '''while_statement : WHILE '(' expression ')' statement'''
-        leaf_node = nf.node(p[1])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(")")
-        p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"while_statement")
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_five_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],"while_statement")
 
     def p_while_statement_no_short_if(self, p):
         '''while_statement_no_short_if : WHILE '(' expression ')' statement_no_short_if'''
-        leaf_node = nf.node(p[1])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(")")
-        p[0] = nf.node_five_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],"while_statement_no_short_if")
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(")")
+        p[0] = nf.node_five_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],"while_statement_no_short_if")
 
     def p_for_statement(self, p):
         '''for_statement : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement'''
-        leaf_node = nf.node(p[1])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(";")
-        leaf_node3 = nf.node(";")
-        leaf_node4 = nf.node(")")
-        p[0] = nf.node_nine_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],leaf_node4,p[9],"for_statement")
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(";")
+        node_leaf3 = nf.node(";")
+        node_leaf4 = nf.node(")")
+        p[0] = nf.node_nine_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],node_leaf3,p[7],node_leaf4,p[9],"for_statement")
 
     def p_for_statement_no_short_if(self, p):
         '''for_statement_no_short_if : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement_no_short_if'''
-        leaf_node = nf.node(p[1])
-        leaf_node1 = nf.node("(")
-        leaf_node2 = nf.node(";")
-        leaf_node3 = nf.node(";")
-        leaf_node4 = nf.node(")")
-        p[0] = nf.node_nine_child(leaf_node,leaf_node1,p[3],leaf_node2,p[5],leaf_node3,p[7],leaf_node4,p[9],"for_statement_no_short_if")
+        node_leaf = nf.node(p[1])
+        node_leaf1 = nf.node("(")
+        node_leaf2 = nf.node(";")
+        node_leaf3 = nf.node(";")
+        node_leaf4 = nf.node(")")
+        p[0] = nf.node_nine_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],node_leaf3,p[7],node_leaf4,p[9],"for_statement_no_short_if")
 
     def p_for_init_opt(self, p):
         '''for_init_opt : for_init
@@ -730,11 +712,11 @@ class StatementParser(object):
     def p_for_update_opt(self, p):
         '''for_update_opt : for_update
                           | empty'''
-    if not p[1]:
-        node_leaf = nf.node("empty")
-        p[0] = nf.node_one_child(node_leaf,"for_update_opt")
-    else:
-        p[0] = nf.node_one_child(p[1],"for_update_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"for_update_opt")
+        else:
+            p[0] = nf.node_one_child(p[1],"for_update_opt")
 
     def p_for_update(self, p):
         '''for_update : statement_expression_list'''
@@ -1231,7 +1213,7 @@ class TypeParser(object):
                     | VOLATILE
                     | STRICTFP
                     | annotation'''
-        if p[1] != "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" | "transient" | "volatile" | "strictfp":
+        if p[1] not in ["public" , "protected" , "private" , "static" , "abstract" , "final" , "native" , "synchronized" , "transient" , "volatile" , "strictfp"]:
             p[0] = nf.node_one_child(p[1], "modifier")
         else:
             node_leaf = nf.node(p[1])
@@ -1653,7 +1635,7 @@ class ClassParser(object):
         '''class_body_declarations_opt : empty'''
         if not p[1]:
             node_leaf = nf.node("empty")
-            p[0] = nf.node_one_child(empty, "class_body_declarations_opt")
+            p[0] = nf.node_one_child(node_leaf, "class_body_declarations_opt")
         else:
             p[0] = nf.node_one_child(p[1], "class_body_declarations_opt")
 
@@ -2004,7 +1986,7 @@ class ClassParser(object):
     def p_enum_body_declarations_opt2(self, p):
         '''enum_body_declarations_opt : empty'''
         node_leaf = nf.node("empty")
-        p[0] = nf.node_one_child(leaf_node, "enum_body_declarations_opt")
+        p[0] = nf.node_one_child(node_leaf, "enum_body_declarations_opt")
 
     def p_enum_body_declarations(self, p):
         '''enum_declarations : ';' class_body_declarations_opt'''
@@ -2320,18 +2302,18 @@ class MyParser(ExpressionParser, NameParser, LiteralParser, TypeParser, ClassPar
     def p_goal_compilation_unit(self, p):
         '''goal : PLUSPLUS compilation_unit'''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(leaf_node,p[2],"goal")
+        p[0] = nf.node_two_child(node_leaf,p[2],"goal")
 
     def p_goal_expression(self, p):
         '''goal : MINUSMINUS expression'''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(leaf_node,p[2],"goal")
+        p[0] = nf.node_two_child(node_leaf,p[2],"goal")
 
 
     def p_goal_statement(self, p):
         '''goal : '*' block_statement'''
         node_leaf = nf.node("*")
-        p[0] = nf.node_two_child(leaf_node,p[2],"goal")
+        p[0] = nf.node_two_child(node_leaf,p[2],"goal")
 
 
     def p_error(self, p):
@@ -2343,8 +2325,8 @@ class MyParser(ExpressionParser, NameParser, LiteralParser, TypeParser, ClassPar
 class Parser(object):
 
     def __init__(self):
-        self.lexer = lex.lex(module=lexRule, optimize=1)
-        self.parser = yacc.yacc(module=MyParser(), start='goal', optimize=1)
+        self.lexer = lex.lex(module=lexRule)
+        self.parser = yacc.yacc(module=MyParser(), start='goal')
 
     def tokenize_string(self, code):
         self.lexer.input(code)
