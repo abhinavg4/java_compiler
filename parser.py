@@ -2267,13 +2267,26 @@ class CompilationUnitParser(object):
         else:
             p[0] = nf.node_two_child(p[1], p[2], "type_declarations")
 
-class MyParser(ExpressionParser, NameParser, LiteralParser):
+class MyParser(ExpressionParser, NameParser, LiteralParser, TypeParser, ClassParser, StatementParser, CompilationUnitParser):
 
     tokens = lexRule.tokens
 
+    def p_goal_compilation_unit(self, p):
+        '''goal : PLUSPLUS compilation_unit'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(leaf_node,p[2],"goal")
+
     def p_goal_expression(self, p):
         '''goal : MINUSMINUS expression'''
-        p[0] = p[2]
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(leaf_node,p[2],"goal")
+
+
+    def p_goal_statement(self, p):
+        '''goal : '*' block_statement'''
+        node_leaf = nf.node("*")
+        p[0] = nf.node_two_child(leaf_node,p[2],"goal")
+
 
     def p_error(self, p):
         print('error: {}'.format(p))

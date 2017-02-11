@@ -74,7 +74,7 @@ t_ignore = ' \t\f'
 
 def t_NAME(t):
     '[A-Za-z_$][A-Za-z0-9_$]*'
-    if t.value in Lexer.keywords:
+    if t.value in keywords:
         t.type = t.value.upper()
     return t
 
