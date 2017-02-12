@@ -1,6 +1,6 @@
 all:
-	[ -e *.png ] && rm *.png; \
+	find . -type f -name '*.png' -delete; \
 	./bin/go.py -h;
 
 clean:
-	rm *.png;
+	find . -type f -name '*.png' -delete;
