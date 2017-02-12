@@ -56,7 +56,7 @@ class ExpressionParser(object):
         else:
             node_leaf = nf.node(p[2])
             node_leaf1 = nf.node(p[4])
-            p[0] = nf.node_five_child(p[1],p[2],p[3],p[4],p[5],"conditional_expression")
+            p[0] = nf.node_five_child(p[1],node_leaf,p[3],node_leaf1,p[5],"conditional_expression")
 
     def p_conditional_expression_not_name(self, p):
         '''conditional_expression_not_name : conditional_or_expression_not_name
@@ -67,7 +67,7 @@ class ExpressionParser(object):
         else:
             node_leaf = nf.node(p[2])
             node_leaf1 = nf.node(p[4])
-            p[0] = nf.node_five_child(p[1],p[2],p[3],p[4],p[5],"conditional_expression_not_name")
+            p[0] = nf.node_five_child(p[1],node_leaf,p[3],node_leaf1,p[5],"conditional_expression_not_name")
 
     def one_or_three(self, p, name_of_node):
         if len(p) == 2:
@@ -225,15 +225,6 @@ class ExpressionParser(object):
                                               | name '%' unary_expression'''
         self.one_or_three(p, "multiplicative_expression_not_name")
 
-    def front_unary(self, p,node_name):
-        node_leaf = nf.node(p[1])
-        nf.node_two_child(node_leaf,p[2],node_name)
-
-
-    def back_unary(self, p,node_name):
-        node_leaf = nf.node(p[2])
-        nf.node_two_child(p[1],node_leaf,node_name)
-
     def p_unary_expression(self, p):
         '''unary_expression : pre_increment_expression
                             | pre_decrement_expression
@@ -243,7 +234,8 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression")
         else:
-            p[0] = self.front_unary(p, "unary_expression")
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression")
 
     def p_unary_expression_not_name(self, p):
         '''unary_expression_not_name : pre_increment_expression
@@ -254,7 +246,8 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression_not_expression")
         else:
-            p[0] = self.front_unary(p, "unary_expression_not_name")
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression_not_name")
 
     def p_pre_increment_expression(self, p):
         '''pre_increment_expression : PLUSPLUS unary_expression'''
@@ -274,8 +267,8 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus")
         else:
-            p[0] = self.front_unary(p, "unary_expression_not_plus_minus")
-
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression_not_plus_minus")
 
     def p_unary_expression_not_plus_minus_not_name(self, p):
         '''unary_expression_not_plus_minus_not_name : postfix_expression_not_name
@@ -285,7 +278,8 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus_not_name")
         else:
-            p[0] = self.front_unary(p, "unary_expression_not_plus_minus_not_name")
+            node_leaf = nf.node(p[1])
+            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression_not_plus_minus_not_name")
 
     def p_postfix_expression(self, p):
         '''postfix_expression : primary
@@ -302,11 +296,13 @@ class ExpressionParser(object):
 
     def p_post_increment_expression(self, p):
         '''post_increment_expression : postfix_expression PLUSPLUS'''
-        p[0] = self.back_unary(p, "post_increment_expression")
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_two_child(p[1], node_leaf, "post_increment_expression")
 
     def p_post_decrement_expression(self, p):
         '''post_decrement_expression : postfix_expression MINUSMINUS'''
-        p[0] = self.back_unary(p, "post_decrement_expression")
+        node_leaf = nf.node(p[2])
+        p[0] = nf.node_two_child(p[1], node_leaf, "post_decrement_expression")
 
     def p_primary(self, p):
         '''primary : primary_no_new_array
@@ -332,14 +328,14 @@ class ExpressionParser(object):
                                 | '(' expression_not_name ')' '''
         node_leaf = nf.node(p[1])
         node_leaf1 = nf.node(p[3])
-        p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1)
+        p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1, "primary_no_new_array")
 
     def p_primary_no_new_array3(self, p):
         '''primary_no_new_array : name '.' THIS
                                 | name '.' SUPER'''
         node_leaf = nf.node(p[2])
         node_leaf1 = nf.node(p[3])
-        p[0] = nf.node_three_child(p[1],node_leaf,node_leaf1)
+        p[0] = nf.node_three_child(p[1],node_leaf,node_leaf1, "primary_no_new_array")
 
     def p_primary_no_new_array4(self, p):
         '''primary_no_new_array : name '.' CLASS
@@ -361,7 +357,7 @@ class ExpressionParser(object):
 
     def p_dims_opt2(self, p):
         '''dims_opt : empty'''
-        node_leaf = nf.node("0")
+        node_leaf = nf.node("empty")
         p[0] = nf.node_one_child(p[1],"dims_opt")
 
     def p_dims(self, p):
@@ -371,9 +367,8 @@ class ExpressionParser(object):
     def p_dims_loop(self, p):
         '''dims_loop : one_dim_loop
                      | dims_loop one_dim_loop'''
-        node_leaf = nf.node("1")
         if len(p) == 2:
-            p[0] = nf.node_one_child(node_leaf, "dims_loop")
+            p[0] = nf.node_one_child(p[1], "dims_loop")
         else:
             p[0] = nf.node_two_child(p[1], p[2], "dims_loop")
 
@@ -387,33 +382,33 @@ class ExpressionParser(object):
     def p_cast_expression(self, p):
         '''cast_expression : '(' primitive_type dims_opt ')' unary_expression'''
         node_leaf = nf.node("(")
-        node_leaf1 = nf.node (")")
+        node_leaf1 = nf.node(")")
         p[0] = nf.node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5],"cast_expression")
 
     def p_cast_expression2(self, p):
         '''cast_expression : '(' name type_arguments dims_opt ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(")")
-        p[0] = nf.node_six_child(node_leaf,p[2],[3],p[4],node_leaf1,p[6],"cast_expression")
+        p[0] = nf.node_six_child(node_leaf,p[2],p[3],p[4],node_leaf1,p[6],"cast_expression")
 
     def p_cast_expression3(self, p):
         '''cast_expression : '(' name type_arguments '.' class_or_interface_type dims_opt ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(".")
         node_leaf2 = nf.node(")")
-        p[0] = nf.node_eight_child(node_leaf,p[2],p[3],node_leaf1,p[5],p[6],node_leaf2,p[8])
+        p[0] = nf.node_eight_child(node_leaf,p[2],p[3],node_leaf1,p[5],p[6],node_leaf2,p[8],"cast_expression")
 
     def p_cast_expression4(self, p):
         '''cast_expression : '(' name ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(")")
-        p[0] = nf.node_four_child(node_leaf,p[2],node_leaf1,p[4])
+        p[0] = nf.node_four_child(node_leaf,p[2],node_leaf1,p[4],"cast_expression")
 
     def p_cast_expression5(self, p):
         '''cast_expression : '(' name dims ')' unary_expression_not_plus_minus'''
         node_leaf = nf.node("(")
         node_leaf1 = nf.node(")")
-        p[0] = nf.node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5])
+        p[0] = nf.node_five_child(node_leaf,p[2],p[3],node_leaf1,p[5],"cast_expression")
 
 class StatementParser(object):
 
@@ -430,7 +425,7 @@ class StatementParser(object):
     def p_block_statements_opt2(self, p):
         '''block_statements_opt : empty'''
         node_leaf = nf.node("empty")
-        p[0] = nf.node_one_child(p[1],"block_statements_opt")
+        p[0] = nf.node_one_child(node_leaf,"block_statements_opt")
 
     def p_block_statements(self, p):
         '''block_statements : block_statement
@@ -447,7 +442,7 @@ class StatementParser(object):
                            | interface_declaration
                            | annotation_type_declaration
                            | enum_declaration'''
-        p[0] = nf.node_one_child(p[1],"block_statementt")
+        p[0] = nf.node_one_child(p[1],"block_statement")
 
     def p_local_variable_declaration_statement(self, p):
         '''local_variable_declaration_statement : local_variable_declaration ';' '''
@@ -482,7 +477,7 @@ class StatementParser(object):
 
     def p_variable_declarator_id(self, p):
         '''variable_declarator_id : NAME dims_opt'''
-        node_leaf = nf.node(p[0])
+        node_leaf = nf.node(p[1])
         p[0] = nf.node_two_child(node_leaf,p[2],"variable_declarator_id")
 
     def p_variable_initializer(self, p):
@@ -589,7 +584,7 @@ class StatementParser(object):
         node_leaf2 = nf.node("(")
         node_leaf3 = nf.node(")")
         if p[1] == "super":
-            node_leaf4 = nf.node("p[1]")
+            node_leaf4 = nf.node(p[1])
             p[0] = nd.node_seven_child(node_leaf4,node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
         else:
             p[0] = nd.node_seven_child(p[1],node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
@@ -625,14 +620,14 @@ class StatementParser(object):
 
     def p_if_then_statement(self, p):
         '''if_then_statement : IF '(' expression ')' statement'''
-        node_leaf = nf.node(p[0])
+        node_leaf = nf.node(p[1])
         node_leaf1 = nf.node("(")
         node_leaf2 = nf.node(")")
         p[0] = nf.node_five_child(node_leaf,node_leaf1,p[3],node_leaf2,p[5],"if_then_statement")
 
     def p_if_then_else_statement(self, p):
         '''if_then_else_statement : IF '(' expression ')' statement_no_short_if ELSE statement'''
-        node_leaf = nf.node(p[0])
+        node_leaf = nf.node(p[1])
         node_leaf1 = nf.node("(")
         node_leaf2 = nf.node(")")
         node_leaf3 = nf.node(p[6])
@@ -1633,11 +1628,8 @@ class ClassParser(object):
 
     def p_class_body_declarations_opt2(self, p):
         '''class_body_declarations_opt : empty'''
-        if not p[1]:
-            node_leaf = nf.node("empty")
-            p[0] = nf.node_one_child(node_leaf, "class_body_declarations_opt")
-        else:
-            p[0] = nf.node_one_child(p[1], "class_body_declarations_opt")
+        node_leaf = nf.node("empty")
+        p[0] = nf.node_one_child(node_leaf, "class_body_declarations_opt")
 
     def p_class_body_declarations(self, p):
         '''class_body_declarations : class_body_declaration
