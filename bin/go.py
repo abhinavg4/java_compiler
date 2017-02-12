@@ -50,7 +50,7 @@ def main(argv):
             node_file.graph_plot()
             print("Output printed to file statement_tree.png")
         elif opt in ("-h", "--help"):
-            _file = open("/home/abhigarg/bitbucket/java_compiler/readme.md")
+            _file = open("/home/abhigarg/bitbucket/java_compiler/README.txt")
             content = _file.read()
             print(content)
         else:
