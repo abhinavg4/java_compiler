@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-sys.path.insert(0, '/home/abhigarg/bitbucket/java_compiler/src/')
+sys.path.insert(0, './src/')
 import lexRule
 import parser
 import ply.lex as lex
@@ -14,7 +14,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"d:s:e:f:hl:z:t:",["debug=","string=","expression=","file=","help","lexfile=","lexstring=","statement="])
     except getopt.GetoptError:
-        print 'Usage : go.py [options][-d/-s/-e/-f/-h] [string]'
+        print 'Usage : ./bin/go.py [options][-d/-s/-e/-f/-h/-l/-z/-t] [string]'
         sys.exit(2)
     parse = parser.Parser()
     for opt, arg in opts:
@@ -24,19 +24,19 @@ def main(argv):
         elif opt in ("-s", "--string"):
             node_file.graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
             parse.parse_string(arg)
-            node_file.outputfile = "/home/abhigarg/bitbucket/java_compiler/string_tree.png"
+            node_file.outputfile = "./string_tree.png"
             node_file.graph_plot()
             print("Output printed to file string_tree.png")
         elif opt in ("-e", "--expression"):
             node_file.graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
             parse.parse_expression(arg)
-            node_file.outputfile = "/home/abhigarg/bitbucket/java_compiler/expression_tree.png"
+            node_file.outputfile = "./expression_tree.png"
             node_file.graph_plot()
             print("Output printed to file expression_tree.png")
         elif opt in ("-f", "--file"):
             node_file.graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
             parse.parse_file(file(arg))
-            node_file.outputfile = "/home/abhigarg/bitbucket/java_compiler/file_tree.png"
+            node_file.outputfile = "./file_tree.png"
             node_file.graph_plot()
             print("Output printed to file file_tree.png")
         elif opt in ("-l", "--lexfile"):
@@ -46,18 +46,18 @@ def main(argv):
         elif opt in ("-t", "--statement"):
             node_file.graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
             parse.parse_statement(arg)
-            node_file.outputfile = "/home/abhigarg/bitbucket/java_compiler/statement_tree.png"
+            node_file.outputfile = "./statement_tree.png"
             node_file.graph_plot()
             print("Output printed to file statement_tree.png")
         elif opt in ("-h", "--help"):
-            _file = open("/home/abhigarg/bitbucket/java_compiler/README.txt")
+            _file = open("./README.txt")
             content = _file.read()
             print(content)
         else:
-            print 'Usage : go.py [options][-d/-s/-e/-f/-h] [string]'
+            print 'Usage : ./bin/go.py [options][-d/-s/-e/-f/-h/-l/-z/-t] [string]'
             sys.exit(2)
     if not opts:
-        print 'Usage : go.py [options][-d/-s/-e/-f/-h] [string]'
+        print 'Usage : ./bin/go.py [options][-d/-s/-e/-f/-h/-l/-z/-t] [string]'
         sys.exit(2)
 
 if __name__ == "__main__":
