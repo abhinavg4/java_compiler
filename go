@@ -7,5 +7,5 @@ import node_file
 
 parse = parser.Parser()
 
-parse.parse_expression('(int)9')
+parse.parse_string('class Foo { int a = 1; }')
 node_file.graph_plot()

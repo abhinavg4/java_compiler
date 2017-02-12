@@ -358,7 +358,7 @@ class ExpressionParser(object):
     def p_dims_opt2(self, p):
         '''dims_opt : empty'''
         node_leaf = nf.node("empty")
-        p[0] = nf.node_one_child(p[1],"dims_opt")
+        p[0] = nf.node_one_child(node_leaf, "dims_opt")
 
     def p_dims(self, p):
         '''dims : dims_loop'''
@@ -416,7 +416,7 @@ class StatementParser(object):
         '''block : '{' block_statements_opt '}' '''
         node_leaf = nf.node("{")
         node_leaf1 = nf.node("}")
-        p[0] = nf.node_three_child(node_leaf,p[1],node_leaf1,"block")
+        p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1,"block")
 
     def p_block_statements_opt(self, p):
         '''block_statements_opt : block_statements'''
@@ -676,8 +676,9 @@ class StatementParser(object):
     def p_for_init_opt(self, p):
         '''for_init_opt : for_init
                         | empty'''
-        if p[1]:
-            p[0] = nf.node_one_child(p[1],"for_init_opt")
+        if not p[1]:
+            node_leaf = nf.node("empty")
+            p[0] = nf.node_one_child(node_leaf,"for_init_opt")
         else:
             p[0] = nf.node_one_child(p[1],"for_init_opt")
 
@@ -715,7 +716,7 @@ class StatementParser(object):
 
     def p_for_update(self, p):
         '''for_update : statement_expression_list'''
-        p[0] = nf.node_one_child(p[1],"for_update")
+        p[0] = nf.node_one_child(p[1], "for_update")
 
     def p_enhanced_for_statement(self, p):
         '''enhanced_for_statement : enhanced_for_statement_header statement'''
@@ -844,13 +845,13 @@ class StatementParser(object):
         node_leaf2 = nf.node("(")
         node_leaf3 = nf.node(")")
         node_leaf4 = nf.node(";")
-        p[0] = nf.node_seven_child(node_leaf, p[2], node_leaf1, node_leaf2, p[5], node_leaf3, node_leaf4)
+        p[0] = nf.node_seven_child(node_leaf, p[2], node_leaf1, node_leaf2, p[5], node_leaf3, node_leaf4, "do_statement")
 
     def p_break_statement(self, p):
         '''break_statement : BREAK ';'
                            | BREAK NAME ';' '''
         node_leaf = nf.node(p[1])
-        node_leaf1 =nf.node(";")
+        node_leaf1 = nf.node(";")
         if len(p) == 3:
             p[0] = nf.node_two_child(node_leaf, node_leaf1, "break_statement")
         else:
@@ -1127,7 +1128,7 @@ class StatementParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1], "dim_with_or_without_exprs")
         else:
-            p[0] = nf.node_two_child(p[1], "dim_with_or_without_exprs")
+            p[0] = nf.node_two_child(p[1], p[2], "dim_with_or_without_exprs")
 
     def p_dim_with_or_without_expr(self, p):
         '''dim_with_or_without_expr : '[' expression ']'
@@ -1135,11 +1136,11 @@ class StatementParser(object):
         if len(p) == 3:
             node_leaf = nf.node("[")
             node_leaf1 = nf.node("]")
-            p[0] = nf.node_two_child(node_leaf, node_leaf1)
+            p[0] = nf.node_two_child(node_leaf, node_leaf1, "dim_with_or_without_expr")
         else:
             node_leaf = nf.node("[")
             node_leaf1 = nf.node("]")
-            p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1)
+            p[0] = nf.node_three_child(node_leaf, p[2], node_leaf1, "dim_with_or_without_expr")
 
     def p_array_creation_without_array_initializer(self, p):
         '''array_creation_without_array_initializer : NEW primitive_type dim_with_or_without_exprs
@@ -1206,13 +1207,13 @@ class TypeParser(object):
                     | SYNCHRONIZED
                     | TRANSIENT
                     | VOLATILE
-                    | STRICTFP
-                    | annotation'''
-        if p[1] not in ["public" , "protected" , "private" , "static" , "abstract" , "final" , "native" , "synchronized" , "transient" , "volatile" , "strictfp"]:
-            p[0] = nf.node_one_child(p[1], "modifier")
-        else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_one_child(node_leaf, "modifier")
+                    | STRICTFP'''
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_one_child(node_leaf, "modifier")
+
+    def p_modifier2(self, p):
+        '''modifier : annotation'''
+        p[0] = nf.node_one_child(p[1], "modifier")
 
     def p_type(self, p):
         '''type : primitive_type
@@ -1252,11 +1253,12 @@ class TypeParser(object):
         if len(p) == 2:
             p[0] = nf.node_one_child(p[1], "class_or_interface")
         else:
-            p[0] = nf.node_three_child(p[1],p[2],p[3],"class_or_interface")
+            node_leaf = nf.node(p[2])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "class_or_interface")
 
     def p_generic_type(self, p):
         '''generic_type : class_or_interface type_arguments'''
-        p[0] = nf.node_two_child(p[1],p[2],"generic_type")
+        p[0] = nf.node_two_child(p[1], p[2], "generic_type")
 
     def p_generic_type2(self, p):
         '''generic_type : class_or_interface '<' '>' '''
@@ -1287,7 +1289,7 @@ class TypeParser(object):
     def p_array_type3(self, p):
         '''array_type : generic_type '.' name dims'''
         node_leaf = nf.node(p[2])
-        p[0] = nf.node_three_child(p[1], node_leaf, p[3], "array_type")
+        p[0] = nf.node_four_child(p[1], node_leaf, p[3], p[4], "array_type")
 
     def p_type_arguments(self, p):
         '''type_arguments : '<' type_argument_list1'''
@@ -1388,17 +1390,13 @@ class TypeParser(object):
     def p_wildcard_bounds(self, p):
         '''wildcard_bounds : EXTENDS reference_type
                            | SUPER reference_type'''
-        if p[1] == 'extends':
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds")
-        else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds")
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds")
 
     def p_wildcard1(self, p):
         '''wildcard1 : '?' '>'
                      | '?' wildcard_bounds1'''
-        if p[2] == '>':
+        if p[2] == ">":
             node_leaf = nf.node(p[1])
             node_leaf1 = nf.node(p[2])
             p[0] = nf.node_two_child(node_leaf, node_leaf1, "wildcard1")
@@ -1409,17 +1407,13 @@ class TypeParser(object):
     def p_wildcard_bounds1(self, p):
         '''wildcard_bounds1 : EXTENDS reference_type1
                             | SUPER reference_type1'''
-        if p[1] == 'extends':
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds1")
-        else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds1")
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds1")
 
     def p_wildcard2(self, p):
         '''wildcard2 : '?' RSHIFT
                      | '?' wildcard_bounds2'''
-        if p[2] == '>>':
+        if p[2] == ">>":
             node_leaf = nf.node(p[1])
             node_leaf1 = nf.node(p[2])
             p[0] = nf.node_two_child(node_leaf, node_leaf1, "wildcard2")
@@ -1430,17 +1424,13 @@ class TypeParser(object):
     def p_wildcard_bounds2(self, p):
         '''wildcard_bounds2 : EXTENDS reference_type2
                             | SUPER reference_type2'''
-        if p[1] == 'extends':
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds2")
-        else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds2")
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds2")
 
     def p_wildcard3(self, p):
         '''wildcard3 : '?' RRSHIFT
                      | '?' wildcard_bounds3'''
-        if p[2] == '>>>':
+        if p[2] == ">>>":
             node_leaf = nf.node(p[1])
             node_leaf1 = nf.node(p[2])
             p[0] = nf.node_two_child(node_leaf, node_leaf2, "wildcard3")
@@ -1451,12 +1441,8 @@ class TypeParser(object):
     def p_wildcard_bounds3(self, p):
         '''wildcard_bounds3 : EXTENDS reference_type3
                             | SUPER reference_type3'''
-        if p[1] == 'extends':
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds3")
-        else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds3")
+        node_leaf = nf.node(p[1])
+        p[0] = nf.node_two_child(node_leaf, p[2], "wildcard_bounds3")
 
     def p_type_parameter_header(self, p):
         '''type_parameter_header : NAME'''
@@ -1466,7 +1452,7 @@ class TypeParser(object):
     def p_type_parameters(self, p):
         '''type_parameters : '<' type_parameter_list1'''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(node_leaf, p[1], "type_parameters")
+        p[0] = nf.node_two_child(node_leaf, p[2], "type_parameters")
 
     def p_type_parameter_list(self, p):
         '''type_parameter_list : type_parameter
@@ -1601,7 +1587,7 @@ class ClassParser(object):
     def p_class_header_implements(self, p):
         '''class_header_implements : IMPLEMENTS interface_type_list'''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(p[1], p[2], "class_header_implements")
+        p[0] = nf.node_two_child(node_leaf, p[2], "class_header_implements")
 
     def p_interface_type_list(self, p):
         '''interface_type_list : interface_type
@@ -1624,7 +1610,7 @@ class ClassParser(object):
 
     def p_class_body_declarations_opt(self, p):
         '''class_body_declarations_opt : class_body_declarations'''
-        p[0] = nf.node_one_child(p[1], "class_body_declarations")
+        p[0] = nf.node_one_child(p[1], "class_body_declarations_opt")
 
     def p_class_body_declarations_opt2(self, p):
         '''class_body_declarations_opt : empty'''
@@ -1672,7 +1658,7 @@ class ClassParser(object):
     def p_static_initializer(self, p):
         '''static_initializer : STATIC block'''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(node_leaf, p[1], "static_initializer")
+        p[0] = nf.node_two_child(node_leaf, p[2], "static_initializer")
 
     def p_constructor_declaration(self, p):
         '''constructor_declaration : constructor_header method_body'''
@@ -1838,7 +1824,7 @@ class ClassParser(object):
     def p_interface_member_declarations_opt2(self, p):
         '''interface_member_declarations_opt : empty'''
         node_leaf = nf.node("empty")
-        p[0] = nf.node_one_child(p[1], "interface_member_declarations_opt")
+        p[0] = nf.node_one_child(node_leaf, "interface_member_declarations_opt")
 
     def p_interface_member_declarations(self, p):
         '''interface_member_declarations : interface_member_declaration
@@ -1860,7 +1846,7 @@ class ClassParser(object):
     def p_interface_member_declaration2(self, p):
         '''interface_member_declaration : ';' '''
         node_leaf = nf.node(p[1])
-        p[0] = nf.node_one_child(p[1], "interface_member_declaration")
+        p[0] = nf.node_one_child(node_leaf, "interface_member_declaration")
 
     def p_constant_declaration(self, p):
         '''constant_declaration : field_declaration'''
@@ -1910,7 +1896,7 @@ class ClassParser(object):
         '''enum_body : '{' enum_constants enum_body_declarations_opt '}' '''
         node_leaf = nf.node(p[1])
         node_leaf1 = nf.node(p[4])
-        p[0] =nf.node(node_leaf, p[2], p[3], node_leaf1, "enum_body")
+        p[0] = nf.node_four_child(node_leaf, p[2], p[3], node_leaf1, "enum_body")
 
     def p_enum_constants(self, p):
         '''enum_constants : enum_constant
@@ -1919,7 +1905,7 @@ class ClassParser(object):
             p[0] = nf.node_one_child(p[1], "enum_constants")
         else:
             node_leaf = nf.node(p[2])
-            p[0] = nf.node_three_child(p[1], node_leaf, p[3])
+            p[0] = nf.node_three_child(p[1], node_leaf, p[3], "enum_constants")
 
     def p_enum_constant(self, p):
         '''enum_constant : enum_constant_header class_body
@@ -1940,7 +1926,7 @@ class ClassParser(object):
 
     def p_arguments_opt(self, p):
         '''arguments_opt : arguments'''
-        p[0] = nf.node_one_child(p[1], "arguments")
+        p[0] = nf.node_one_child(p[1], "arguments_opt")
 
     def p_arguments_opt2(self, p):
         '''arguments_opt : empty'''
@@ -2059,7 +2045,7 @@ class ClassParser(object):
     def p_annotation_method_header(self, p):
         '''annotation_method_header : annotation_method_header_name formal_parameter_list_opt ')' method_header_extended_dims annotation_method_header_default_value_opt'''
         node_leaf = nf.node(p[3])
-        p[0] = nf.node_five_child(p[1], p[2], node_leaf, p[4], p[5])
+        p[0] = nf.node_five_child(p[1], p[2], node_leaf, p[4], p[5], "annotation_method_header")
 
     def p_annotation_method_header_name(self, p):
         '''annotation_method_header_name : modifiers_opt type_parameters type NAME '('
