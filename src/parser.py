@@ -585,9 +585,9 @@ class StatementParser(object):
         node_leaf3 = nf.node(")")
         if p[1] == "super":
             node_leaf4 = nf.node(p[1])
-            p[0] = nd.node_seven_child(node_leaf4,node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
+            p[0] = nf.node_seven_child(node_leaf4,node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
         else:
-            p[0] = nd.node_seven_child(p[1],node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
+            p[0] = nf.node_seven_child(p[1],node_leaf,p[3],node_leaf1,node_leaf2,p[6],node_leaf3,"method_invocation")
 
     def p_method_invocation3(self, p):
         '''method_invocation : name '.' NAME '(' argument_list_opt ')'
@@ -599,9 +599,9 @@ class StatementParser(object):
         node_leaf3 = nf.node(")")
         if p[1] == "super":
             node_leaf4 = nf.node(p[1])
-            p[0] = nd.node_six_child(node_leaf4,node_leaf,node_leaf1,node_leaf2,p[5],node_leaf3,"method_invocation")
+            p[0] = nf.node_six_child(node_leaf4,node_leaf,node_leaf1,node_leaf2,p[5],node_leaf3,"method_invocation")
         else:
-            p[0] = nd.node_six_child(p[1],node_leaf,node_leaf1,node_leaf2,p[5],node_leaf3,"method_invocation")
+            p[0] = nf.node_six_child(p[1],node_leaf,node_leaf1,node_leaf2,p[5],node_leaf3,"method_invocation")
 
     def p_labeled_statement(self, p):
         '''labeled_statement : label ':' statement'''
