@@ -9,7 +9,7 @@ id = 0
 def node(value_a):
     global id
     id += 1
-    node_a = pydot.Node(id,label=value_a,shape="plaintext")
+    node_a = pydot.Node(id,label=value_a)
     if debug:
         print(id,value_a,"leaf_node")
         print("\n")
@@ -20,7 +20,7 @@ def node_one_child(a,value_b):
     global id
     id += 1
     a = pydot.Node(a)
-    node_b = pydot.Node(id,label=value_b,shape="plaintext")
+    node_b = pydot.Node(id,label=value_b)
     if debug:
         print(id,value_b,"one_child_node")
         print("\n")
@@ -34,7 +34,7 @@ def node_two_child(a,b,value_c):
     id += 1
     a = pydot.Node(a)
     b = pydot.Node(b)
-    node_c = pydot.Node(id,label=value_c,shape="plaintext")
+    node_c = pydot.Node(id,label=value_c)
     if debug:
         print(id,value_c,"two_child_node")
         print("\n")
@@ -49,7 +49,7 @@ def node_three_child(a,b,c,value_d):
     a = pydot.Node(a)
     b = pydot.Node(b)
     c = pydot.Node(c)
-    node_d = pydot.Node(id,label=value_d,shape="plaintext")
+    node_d = pydot.Node(id,label=value_d)
     if debug:
         print(id,value_d,"three_child_node")
         print("\n")
@@ -66,7 +66,7 @@ def node_four_child(a,b,c,d,value_e):
     b = pydot.Node(b)
     c = pydot.Node(c)
     d = pydot.Node(d)
-    node_e = pydot.Node(id,label=value_e,shape="plaintext")
+    node_e = pydot.Node(id,label=value_e)
     if debug:
         print(id,value_e,"four_child_node")
         print("\n")
@@ -85,7 +85,7 @@ def node_five_child(a,b,c,d,e,value_f):
     c = pydot.Node(c)
     d = pydot.Node(d)
     e = pydot.Node(e)
-    node_f = pydot.Node(id,label=value_f,shape="plaintext")
+    node_f = pydot.Node(id,label=value_f)
     if debug:
         print(id,value_f,"five_child_node")
         print("\n")
@@ -106,7 +106,7 @@ def node_six_child(a,b,c,d,e,f,value_g):
     d = pydot.Node(d)
     e = pydot.Node(e)
     f = pydot.Node(f)
-    node_g = pydot.Node(id,label=value_g,shape="plaintext")
+    node_g = pydot.Node(id,label=value_g)
     if debug:
         print(id,value_g,"six_child_node")
         print("\n")
@@ -129,7 +129,7 @@ def node_seven_child(a,b,c,d,e,f,g,value_h):
     e = pydot.Node(e)
     f = pydot.Node(f)
     g = pydot.Node(g)
-    node_h = pydot.Node(id,label=value_h,shape="plaintext")
+    node_h = pydot.Node(id,label=value_h)
     if debug:
         print(id,value_h)
         print("\n")
@@ -154,7 +154,7 @@ def node_eight_child(a,b,c,d,e,f,g,h,value_i):
     f = pydot.Node(f)
     g = pydot.Node(g)
     h = pydot.Node(h)
-    node_i = pydot.Node(id,label=value_i,shape="plaintext")
+    node_i = pydot.Node(id,label=value_i)
     if debug:
         print(id,value_i)
         print("\n")
@@ -181,7 +181,7 @@ def node_nine_child(a,b,c,d,e,f,g,h,i,value_j):
     g = pydot.Node(g)
     h = pydot.Node(h)
     i = pydot.Node(i)
-    node_j = pydot.Node(id,label=value_j,shape="plaintext")
+    node_j = pydot.Node(id,label=value_j)
     if debug:
         print(id,value_j)
         print("\n")

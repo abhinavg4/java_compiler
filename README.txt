@@ -37,6 +37,7 @@ SAMPLE COMMAND
     -d 1 will print the debugging statements.
 
 FILES
+    Makefile - The usual makefile to clean all png files and display this readme on terminal
     /src - Contains all source files
     /bin - Binaries are built in this directory
     /tests - Contains testcases

@@ -2277,21 +2277,18 @@ class MyParser(ExpressionParser, NameParser, LiteralParser, TypeParser, ClassPar
 
     tokens = lexRule.tokens
 
-    def p_goal_compilation_unit(self, p):
-        '''goal : PLUSPLUS compilation_unit'''
-        node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(node_leaf,p[2],"goal")
+    def p_start_compilation_unit(self, p):
+        '''start : PLUSPLUS compilation_unit'''
+        p[0] = nf.node_one_child(p[2],"start")
 
-    def p_goal_expression(self, p):
-        '''goal : MINUSMINUS expression'''
-        node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(node_leaf,p[2],"goal")
+    def p_start_expression(self, p):
+        '''start : MINUSMINUS expression'''
+        p[0] = nf.node_one_child(p[2],"start")
 
 
-    def p_goal_statement(self, p):
-        '''goal : '*' block_statement'''
-        node_leaf = nf.node("*")
-        p[0] = nf.node_two_child(node_leaf,p[2],"goal")
+    def p_start_statement(self, p):
+        '''start : '*' block_statement'''
+        p[0] = nf.node_one_child(p[2],"start")
 
 
     def p_error(self, p):
@@ -2304,7 +2301,7 @@ class Parser(object):
 
     def __init__(self):
         self.lexer = lex.lex(module=lexRule)
-        self.parser = yacc.yacc(module=MyParser(), start='goal')
+        self.parser = yacc.yacc(module=MyParser(), start='start')
 
     def tokenize_string(self, code):
         self.lexer.input(code)
