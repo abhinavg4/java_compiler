@@ -1762,7 +1762,7 @@ class ClassParser(object):
     def p_method_header_name(self, p):
         '''method_header_name : modifiers_opt type_parameters type NAME '('
                               | modifiers_opt type NAME '(' '''
-        if len(p) == 5:
+        if len(p) == 6:
             node_leaf = nf.node(p[4])
             node_leaf1 = nf.node(p[5])
             p[0] = nf.node_five_child(p[1], p[2], p[3], node_leaf, node_leaf1, "method_header_name")
@@ -2050,7 +2050,7 @@ class ClassParser(object):
     def p_annotation_method_header_name(self, p):
         '''annotation_method_header_name : modifiers_opt type_parameters type NAME '('
                                          | modifiers_opt type NAME '(' '''
-        if len(p) == 5:
+        if len(p) == 6:
             node_leaf = nf.node(p[4])
             node_leaf1 = nf.node(p[5])
             p[0] = nf.node_four_child(p[1], p[2], p[3], node_leaf, node_leaf1, "annotation_method_header_name")

@@ -6,6 +6,5 @@ import node_file
 
 
 parse = parser.Parser()
-
-parse.parse_string('class Foo { int a = 1; }')
+parse.parse_string('class Ideone { public static void main(){}}')
 node_file.graph_plot()
