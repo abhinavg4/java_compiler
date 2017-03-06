@@ -10,25 +10,25 @@ class ExpressionParser(object):
 
     def p_expression(self, p):
         '''expression : assignment_expression'''
-        p[0] = nf.node_one_child(p[1],"expression")
+        p[0] = p[1]
 
     def p_expression_not_name(self, p):
         '''expression_not_name : assignment_expression_not_name'''
-        p[0] = nf.node_one_child(p[1],"expression_not_name")
+        p[0] = p[1]
 
     def p_assignment_expression(self, p):
         '''assignment_expression : assignment
                                  | conditional_expression'''
-        p[0] = nf.node_one_child(p[1],"assignment_expression")
+        p[0] = p[1]
 
     def p_assignment_expression_not_name(self, p):
         '''assignment_expression_not_name : assignment
                                           | conditional_expression_not_name'''
-        p[0] = nf.node_one_child(p[1],"assignment_expression_not_name")
+        p[0] = p[1]
 
     def p_assignment(self, p):
         '''assignment : postfix_expression assignment_operator assignment_expression'''
-        p[0] = nf.node_three_child(p[1],p[2],p[3],"assignment")
+        p[0] = Assignment(p[2],p[1],p[3])
         #Ease: for ease of readiblity we can even do it p[1] p[2] p[3]
 
     def p_assignment_operator(self, p):
@@ -44,34 +44,28 @@ class ExpressionParser(object):
                                | AND_ASSIGN
                                | OR_ASSIGN
                                | XOR_ASSIGN'''
-        node_leaf = nf.node(p[1])
-        p[0] = nf.node_one_child(node_leaf,"assignment_operator")
-
+        p[0] = p[1]
 
     def p_conditional_expression(self, p):
         '''conditional_expression : conditional_or_expression
                                   | conditional_or_expression '?' expression ':' conditional_expression'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"conditional_expression")
+            p[0] = p[1]
         else:
-            node_leaf = nf.node(p[2])
-            node_leaf1 = nf.node(p[4])
-            p[0] = nf.node_five_child(p[1],node_leaf,p[3],node_leaf1,p[5],"conditional_expression")
+            p[0] = Conditional(p[1],p[3],p[5])
 
     def p_conditional_expression_not_name(self, p):
         '''conditional_expression_not_name : conditional_or_expression_not_name
                                            | conditional_or_expression_not_name '?' expression ':' conditional_expression
                                            | name '?' expression ':' conditional_expression'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"conditional_expression_not_name")
+            p[0] = p[1]
         else:
-            node_leaf = nf.node(p[2])
-            node_leaf1 = nf.node(p[4])
-            p[0] = nf.node_five_child(p[1],node_leaf,p[3],node_leaf1,p[5],"conditional_expression_not_name")
+            p[0] = Conditional(p[1],p[3],p[5])
 
     def one_or_three(self, p, name_of_node):
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],name_of_node)
+            p[0] = p[1]
         else:
             node_leaf = nf.node(p[2])
             p[0] = nf.node_three_child(p[1],node_leaf,p[3],name_of_node)
@@ -252,12 +246,12 @@ class ExpressionParser(object):
     def p_pre_increment_expression(self, p):
         '''pre_increment_expression : PLUSPLUS unary_expression'''
         node_leaf = nf.node(p[1])
-        nf.node_two_child(node_leaf,p[2],"pre_increment_expression")
+        p[0]  = nf.node_two_child(node_leaf,p[2],"pre_increment_expression")
 
     def p_pre_decrement_expression(self, p):
         '''pre_decrement_expression : MINUSMINUS unary_expression'''
         node_leaf = nf.node(p[1])
-        nf.node_two_child(node_leaf,p[2])
+        p[0] = nf.node_two_child(node_leaf,p[2],"pre_decrement_expression")
 
     def p_unary_expression_not_plus_minus(self, p):
         '''unary_expression_not_plus_minus : postfix_expression
