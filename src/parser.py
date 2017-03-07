@@ -302,25 +302,18 @@ class ExpressionParser(object):
                                 | field_access
                                 | method_invocation
                                 | array_access'''
-        if p[1] == "this":
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_one_child(node_leaf,"primary_no_new_array")
-        else:
-            p[0] = nf.node_one_child(p[1],"primary_no_new_array")
-            
+        p[0] = p[1]
+
     def p_primary_no_new_array2(self, p):
         '''primary_no_new_array : '(' name ')'
                                 | '(' expression_not_name ')' '''
-        node_leaf = nf.node(p[1])
-        node_leaf1 = nf.node(p[3])
-        p[0] = nf.node_three_child(node_leaf,p[2],node_leaf1, "primary_no_new_array")
+        p[0] = p[2]
 
     def p_primary_no_new_array3(self, p):
         '''primary_no_new_array : name '.' THIS
                                 | name '.' SUPER'''
-        node_leaf = nf.node(p[2])
-        node_leaf1 = nf.node(p[3])
-        p[0] = nf.node_three_child(p[1],node_leaf,node_leaf1, "primary_no_new_array")
+        p[1].value = p[1].value + '.' + p[2]
+        p[0] = p[1]
 
     def p_primary_no_new_array4(self, p):
         '''primary_no_new_array : name '.' CLASS
