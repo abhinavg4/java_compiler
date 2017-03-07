@@ -67,70 +67,69 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
-            node_leaf = nf.node(p[2])
-            p[0] = nf.node_three_child(p[1],node_leaf,p[3],name_of_node)
+            p[0] = name_of_node(p[2],p[1],p[3])
             #Ease: For ease of reading operator is between operants
 
     def p_conditional_or_expression(self, p):
         '''conditional_or_expression : conditional_and_expression
                                      | conditional_or_expression OR conditional_and_expression'''
-        self.one_or_three(p, "conditional_or_expression")
+        self.one_or_three(p, ConditionalOr )
 
     def p_conditional_or_expression_not_name(self, p):
         '''conditional_or_expression_not_name : conditional_and_expression_not_name
                                               | conditional_or_expression_not_name OR conditional_and_expression
                                               | name OR conditional_and_expression'''
-        self.one_or_three(p, "conditional_or_expression_not_name")
+        self.one_or_three(p, ConditionalOr )
 
     def p_conditional_and_expression(self, p):
         '''conditional_and_expression : inclusive_or_expression
                                       | conditional_and_expression AND inclusive_or_expression'''
-        self.one_or_three(p, "conditional_and_expression")
+        self.one_or_three(p, ConditionalAnd )
 
     def p_conditional_and_expression_not_name(self, p):
         '''conditional_and_expression_not_name : inclusive_or_expression_not_name
                                                | conditional_and_expression_not_name AND inclusive_or_expression
                                                | name AND inclusive_or_expression'''
-        self.one_or_three(p, "conditional_and_expression_not_name")
+        self.one_or_three(p, ConditionalAnd)
 
     def p_inclusive_or_expression(self, p):
         '''inclusive_or_expression : exclusive_or_expression
                                    | inclusive_or_expression '|' exclusive_or_expression'''
-        self.one_or_three(p, "inclusive_or_expression")
+        self.one_or_three(p, Or )
 
     def p_inclusive_or_expression_not_name(self, p):
         '''inclusive_or_expression_not_name : exclusive_or_expression_not_name
                                             | inclusive_or_expression_not_name '|' exclusive_or_expression
                                             | name '|' exclusive_or_expression'''
-        self.one_or_three(p, "inclusive_or_expression_not_name")
+        self.one_or_three(p, Or )
 
     def p_exclusive_or_expression(self, p):
         '''exclusive_or_expression : and_expression
                                    | exclusive_or_expression '^' and_expression'''
-        self.one_or_three(p, "exclusive_or_expression")
+        self.one_or_three(p, Xor )
 
     def p_exclusive_or_expression_not_name(self, p):
         '''exclusive_or_expression_not_name : and_expression_not_name
                                             | exclusive_or_expression_not_name '^' and_expression
                                             | name '^' and_expression'''
-        self.one_or_three(p, "exclusive_or_expression_not_name")
+        self.one_or_three(p, Xor )
 
     def p_and_expression(self, p):
         '''and_expression : equality_expression
                           | and_expression '&' equality_expression'''
-        self.one_or_three(p, "and_expression")
+        self.one_or_three(p, And)
 
     def p_and_expression_not_name(self, p):
         '''and_expression_not_name : equality_expression_not_name
                                    | and_expression_not_name '&' equality_expression
                                    | name '&' equality_expression'''
-        self.one_or_three(p, "and_expression_not_name")
+        self.one_or_three(p, And)
 
     def p_equality_expression(self, p):
         '''equality_expression : instanceof_expression
                                | equality_expression EQ instanceof_expression
                                | equality_expression NEQ instanceof_expression'''
-        self.one_or_three(p, "equality_expression")
+        self.one_or_three(p, EqualNotEqual )
 
     def p_equality_expression_not_name(self, p):
         '''equality_expression_not_name : instanceof_expression_not_name
@@ -138,18 +137,18 @@ class ExpressionParser(object):
                                         | name EQ instanceof_expression
                                         | equality_expression_not_name NEQ instanceof_expression
                                         | name NEQ instanceof_expression'''
-        self.one_or_three(p, "equality_expression_not_name")
+        self.one_or_three(p, EqualNotEqual )
 
     def p_instanceof_expression(self, p):
         '''instanceof_expression : relational_expression
                                  | instanceof_expression INSTANCEOF reference_type'''
-        self.one_or_three(p, "instanceof_expression")
+        self.one_or_three(p, InstanceOfExp )
 
     def p_instanceof_expression_not_name(self, p):
         '''instanceof_expression_not_name : relational_expression_not_name
                                           | name INSTANCEOF reference_type
                                           | instanceof_expression_not_name INSTANCEOF reference_type'''
-        self.one_or_three(p, "instanceof_expression_not_name")
+        self.one_or_three(p, InstanceOfExp )
 
     def p_relational_expression(self, p):
         '''relational_expression : shift_expression
@@ -157,7 +156,7 @@ class ExpressionParser(object):
                                  | relational_expression '<' shift_expression
                                  | relational_expression GTEQ shift_expression
                                  | relational_expression LTEQ shift_expression'''
-        self.one_or_three(p, "relational_expression")
+        self.one_or_three(p, RelationalExp )
 
     def p_relational_expression_not_name(self, p):
         '''relational_expression_not_name : shift_expression_not_name
@@ -169,14 +168,14 @@ class ExpressionParser(object):
                                           | name GTEQ shift_expression
                                           | shift_expression_not_name LTEQ shift_expression
                                           | name LTEQ shift_expression'''
-        self.one_or_three(p, "relational_expression_not_name")
+        self.one_or_three(p, RelationalExp )
 
     def p_shift_expression(self, p):
         '''shift_expression : additive_expression
                             | shift_expression LSHIFT additive_expression
                             | shift_expression RSHIFT additive_expression
                             | shift_expression RRSHIFT additive_expression'''
-        self.one_or_three(p, "shift_expression")
+        self.one_or_three(p, ShiftExp )
 
     def p_shift_expression_not_name(self, p):
         '''shift_expression_not_name : additive_expression_not_name
@@ -186,13 +185,13 @@ class ExpressionParser(object):
                                      | name RSHIFT additive_expression
                                      | shift_expression_not_name RRSHIFT additive_expression
                                      | name RRSHIFT additive_expression'''
-        self.one_or_three(p, "shift_expression_not_name")
+        self.one_or_three(p, ShiftExp )
 
     def p_additive_expression(self, p):
         '''additive_expression : multiplicative_expression
                                | additive_expression '+' multiplicative_expression
                                | additive_expression '-' multiplicative_expression'''
-        self.one_or_three(p, "additive_expression")
+        self.one_or_three(p, AddSub )
 
     def p_additive_expression_not_name(self, p):
         '''additive_expression_not_name : multiplicative_expression_not_name
@@ -200,14 +199,14 @@ class ExpressionParser(object):
                                         | name '+' multiplicative_expression
                                         | additive_expression_not_name '-' multiplicative_expression
                                         | name '-' multiplicative_expression'''
-        self.one_or_three(p, "additive_expression_not_name")
+        self.one_or_three(p, AddSub )
 
     def p_multiplicative_expression(self, p):
         '''multiplicative_expression : unary_expression
                                      | multiplicative_expression '*' unary_expression
                                      | multiplicative_expression '/' unary_expression
                                      | multiplicative_expression '%' unary_expression'''
-        self.one_or_three(p, "multiplicative_expression")
+        self.one_or_three(p, MulDivMod )
 
     def p_multiplicative_expression_not_name(self, p):
         '''multiplicative_expression_not_name : unary_expression_not_name
@@ -217,7 +216,7 @@ class ExpressionParser(object):
                                               | name '/' unary_expression
                                               | multiplicative_expression_not_name '%' unary_expression
                                               | name '%' unary_expression'''
-        self.one_or_three(p, "multiplicative_expression_not_name")
+        self.one_or_three(p, MulDivMod )
 
     def p_unary_expression(self, p):
         '''unary_expression : pre_increment_expression
@@ -226,10 +225,9 @@ class ExpressionParser(object):
                             | '-' unary_expression
                             | unary_expression_not_plus_minus'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"unary_expression")
+            p[0] = p[1]
         else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression")
+            p[0] = Unary(p[1],p[2])
 
     def p_unary_expression_not_name(self, p):
         '''unary_expression_not_name : pre_increment_expression
@@ -238,20 +236,17 @@ class ExpressionParser(object):
                                      | '-' unary_expression
                                      | unary_expression_not_plus_minus_not_name'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"unary_expression_not_expression")
+            p[0] = p[1]
         else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression_not_name")
+            p[0] = Unary( p[1],p[2] )
 
     def p_pre_increment_expression(self, p):
         '''pre_increment_expression : PLUSPLUS unary_expression'''
-        node_leaf = nf.node(p[1])
-        p[0]  = nf.node_two_child(node_leaf,p[2],"pre_increment_expression")
+        p[0] = Unary('++x',p[2])
 
     def p_pre_decrement_expression(self, p):
         '''pre_decrement_expression : MINUSMINUS unary_expression'''
-        node_leaf = nf.node(p[1])
-        p[0] = nf.node_two_child(node_leaf,p[2],"pre_decrement_expression")
+        p[0] = Unary('--x',p[2])
 
     def p_unary_expression_not_plus_minus(self, p):
         '''unary_expression_not_plus_minus : postfix_expression
@@ -259,10 +254,9 @@ class ExpressionParser(object):
                                            | '!' unary_expression
                                            | cast_expression'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus")
+            p[0] = p[1]
         else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression_not_plus_minus")
+            p[0] = Unary(p[1],p[2])
 
     def p_unary_expression_not_plus_minus_not_name(self, p):
         '''unary_expression_not_plus_minus_not_name : postfix_expression_not_name
@@ -270,39 +264,36 @@ class ExpressionParser(object):
                                                     | '!' unary_expression
                                                     | cast_expression'''
         if len(p) == 2:
-            p[0] = nf.node_one_child(p[1],"unary_expression_not_plus_minus_not_name")
+            p[0] = p[1]
         else:
-            node_leaf = nf.node(p[1])
-            p[0] = nf.node_two_child(node_leaf, p[2], "unary_expression_not_plus_minus_not_name")
+            p[0] = Unary(p[1],p[2])
 
     def p_postfix_expression(self, p):
         '''postfix_expression : primary
                               | name
                               | post_increment_expression
                               | post_decrement_expression'''
-        p[0] = nf.node_one_child(p[1],"postfix_expression")
+        p[0] = p[1]
 
     def p_postfix_expression_not_name(self, p):
         '''postfix_expression_not_name : primary
                                        | post_increment_expression
                                        | post_decrement_expression'''
-        p[0] = nf.node_one_child(p[1],"postfix_expression_not_name")
+        p[0] = p[1]
 
     def p_post_increment_expression(self, p):
         '''post_increment_expression : postfix_expression PLUSPLUS'''
-        node_leaf = nf.node(p[2])
-        p[0] = nf.node_two_child(p[1], node_leaf, "post_increment_expression")
+        p[0] = Unary('x++', p[1])
 
     def p_post_decrement_expression(self, p):
         '''post_decrement_expression : postfix_expression MINUSMINUS'''
-        node_leaf = nf.node(p[2])
-        p[0] = nf.node_two_child(p[1], node_leaf, "post_decrement_expression")
+        p[0] = Unary('x--',p[1])
 
     def p_primary(self, p):
         '''primary : primary_no_new_array
                    | array_creation_with_array_initializer
                    | array_creation_without_array_initializer'''
-        p[0] = nf.node_one_child(p[1],"primary")
+        p[0] = p[1]
 
     def p_primary_no_new_array(self, p):
         '''primary_no_new_array : literal
@@ -316,7 +307,7 @@ class ExpressionParser(object):
             p[0] = nf.node_one_child(node_leaf,"primary_no_new_array")
         else:
             p[0] = nf.node_one_child(p[1],"primary_no_new_array")
-
+            
     def p_primary_no_new_array2(self, p):
         '''primary_no_new_array : '(' name ')'
                                 | '(' expression_not_name ')' '''
