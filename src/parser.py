@@ -252,12 +252,12 @@ class ExpressionParser(object):
     def p_pre_increment_expression(self, p):
         '''pre_increment_expression : PLUSPLUS unary_expression'''
         node_leaf = nf.node(p[1])
-        nf.node_two_child(node_leaf,p[2],"pre_increment_expression")
+        p[0] = nf.node_two_child(node_leaf,p[2],"pre_increment_expression")
 
     def p_pre_decrement_expression(self, p):
         '''pre_decrement_expression : MINUSMINUS unary_expression'''
         node_leaf = nf.node(p[1])
-        nf.node_two_child(node_leaf,p[2])
+        p[0] = nf.node_two_child(node_leaf,p[2])
 
     def p_unary_expression_not_plus_minus(self, p):
         '''unary_expression_not_plus_minus : postfix_expression
