@@ -29,7 +29,12 @@ class ExpressionParser(object):
 
     def p_assignment(self, p):
         '''assignment : postfix_expression assignment_operator assignment_expression'''
+<<<<<<< HEAD
         p[0] = Assignment(p[2], p[1], p[3])
+=======
+        p[0] = Assignment(p[2],p[1],p[3])
+        #Ease: for ease of readiblity we can even do it p[1] p[2] p[3]
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_assignment_operator(self, p):
         '''assignment_operator : '='
@@ -52,7 +57,11 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = Conditional(p[1], p[3], p[5])
+=======
+            p[0] = Conditional(p[1],p[3],p[5])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_conditional_expression_not_name(self, p):
         '''conditional_expression_not_name : conditional_or_expression_not_name
@@ -61,74 +70,127 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = Conditional(p[1], p[3], p[5])
+=======
+            p[0] = Conditional(p[1],p[3],p[5])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def binop(self, p, ctor):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = ctor(p[2], p[1], p[3])
+=======
+            p[0] = name_of_node(p[2],p[1],p[3])
+            #Ease: For ease of reading operator is between operants
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_conditional_or_expression(self, p):
         '''conditional_or_expression : conditional_and_expression
                                      | conditional_or_expression OR conditional_and_expression'''
+<<<<<<< HEAD
         self.binop(p, ConditionalOr)
+=======
+        self.one_or_three(p, ConditionalOr )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_conditional_or_expression_not_name(self, p):
         '''conditional_or_expression_not_name : conditional_and_expression_not_name
                                               | conditional_or_expression_not_name OR conditional_and_expression
                                               | name OR conditional_and_expression'''
+<<<<<<< HEAD
         self.binop(p, ConditionalOr)
+=======
+        self.one_or_three(p, ConditionalOr )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_conditional_and_expression(self, p):
         '''conditional_and_expression : inclusive_or_expression
                                       | conditional_and_expression AND inclusive_or_expression'''
+<<<<<<< HEAD
         self.binop(p, ConditionalAnd)
+=======
+        self.one_or_three(p, ConditionalAnd )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_conditional_and_expression_not_name(self, p):
         '''conditional_and_expression_not_name : inclusive_or_expression_not_name
                                                | conditional_and_expression_not_name AND inclusive_or_expression
                                                | name AND inclusive_or_expression'''
+<<<<<<< HEAD
         self.binop(p, ConditionalAnd)
+=======
+        self.one_or_three(p, ConditionalAnd)
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_inclusive_or_expression(self, p):
         '''inclusive_or_expression : exclusive_or_expression
                                    | inclusive_or_expression '|' exclusive_or_expression'''
+<<<<<<< HEAD
         self.binop(p, Or)
+=======
+        self.one_or_three(p, Or )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_inclusive_or_expression_not_name(self, p):
         '''inclusive_or_expression_not_name : exclusive_or_expression_not_name
                                             | inclusive_or_expression_not_name '|' exclusive_or_expression
                                             | name '|' exclusive_or_expression'''
+<<<<<<< HEAD
         self.binop(p, Or)
+=======
+        self.one_or_three(p, Or )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_exclusive_or_expression(self, p):
         '''exclusive_or_expression : and_expression
                                    | exclusive_or_expression '^' and_expression'''
+<<<<<<< HEAD
         self.binop(p, Xor)
+=======
+        self.one_or_three(p, Xor )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_exclusive_or_expression_not_name(self, p):
         '''exclusive_or_expression_not_name : and_expression_not_name
                                             | exclusive_or_expression_not_name '^' and_expression
                                             | name '^' and_expression'''
+<<<<<<< HEAD
         self.binop(p, Xor)
+=======
+        self.one_or_three(p, Xor )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_and_expression(self, p):
         '''and_expression : equality_expression
                           | and_expression '&' equality_expression'''
+<<<<<<< HEAD
         self.binop(p, And)
+=======
+        self.one_or_three(p, And)
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_and_expression_not_name(self, p):
         '''and_expression_not_name : equality_expression_not_name
                                    | and_expression_not_name '&' equality_expression
                                    | name '&' equality_expression'''
+<<<<<<< HEAD
         self.binop(p, And)
+=======
+        self.one_or_three(p, And)
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_equality_expression(self, p):
         '''equality_expression : instanceof_expression
                                | equality_expression EQ instanceof_expression
                                | equality_expression NEQ instanceof_expression'''
+<<<<<<< HEAD
         self.binop(p, Equality)
+=======
+        self.one_or_three(p, EqualNotEqual )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_equality_expression_not_name(self, p):
         '''equality_expression_not_name : instanceof_expression_not_name
@@ -136,18 +198,30 @@ class ExpressionParser(object):
                                         | name EQ instanceof_expression
                                         | equality_expression_not_name NEQ instanceof_expression
                                         | name NEQ instanceof_expression'''
+<<<<<<< HEAD
         self.binop(p, Equality)
+=======
+        self.one_or_three(p, EqualNotEqual )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_instanceof_expression(self, p):
         '''instanceof_expression : relational_expression
                                  | instanceof_expression INSTANCEOF reference_type'''
+<<<<<<< HEAD
         self.binop(p, InstanceOf)
+=======
+        self.one_or_three(p, InstanceOfExp )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_instanceof_expression_not_name(self, p):
         '''instanceof_expression_not_name : relational_expression_not_name
                                           | name INSTANCEOF reference_type
                                           | instanceof_expression_not_name INSTANCEOF reference_type'''
+<<<<<<< HEAD
         self.binop(p, InstanceOf)
+=======
+        self.one_or_three(p, InstanceOfExp )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_relational_expression(self, p):
         '''relational_expression : shift_expression
@@ -155,7 +229,11 @@ class ExpressionParser(object):
                                  | relational_expression '<' shift_expression
                                  | relational_expression GTEQ shift_expression
                                  | relational_expression LTEQ shift_expression'''
+<<<<<<< HEAD
         self.binop(p, Relational)
+=======
+        self.one_or_three(p, RelationalExp )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_relational_expression_not_name(self, p):
         '''relational_expression_not_name : shift_expression_not_name
@@ -167,14 +245,22 @@ class ExpressionParser(object):
                                           | name GTEQ shift_expression
                                           | shift_expression_not_name LTEQ shift_expression
                                           | name LTEQ shift_expression'''
+<<<<<<< HEAD
         self.binop(p, Relational)
+=======
+        self.one_or_three(p, RelationalExp )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_shift_expression(self, p):
         '''shift_expression : additive_expression
                             | shift_expression LSHIFT additive_expression
                             | shift_expression RSHIFT additive_expression
                             | shift_expression RRSHIFT additive_expression'''
+<<<<<<< HEAD
         self.binop(p, Shift)
+=======
+        self.one_or_three(p, ShiftExp )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_shift_expression_not_name(self, p):
         '''shift_expression_not_name : additive_expression_not_name
@@ -184,13 +270,21 @@ class ExpressionParser(object):
                                      | name RSHIFT additive_expression
                                      | shift_expression_not_name RRSHIFT additive_expression
                                      | name RRSHIFT additive_expression'''
+<<<<<<< HEAD
         self.binop(p, Shift)
+=======
+        self.one_or_three(p, ShiftExp )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_additive_expression(self, p):
         '''additive_expression : multiplicative_expression
                                | additive_expression '+' multiplicative_expression
                                | additive_expression '-' multiplicative_expression'''
+<<<<<<< HEAD
         self.binop(p, Additive)
+=======
+        self.one_or_three(p, AddSub )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_additive_expression_not_name(self, p):
         '''additive_expression_not_name : multiplicative_expression_not_name
@@ -198,14 +292,22 @@ class ExpressionParser(object):
                                         | name '+' multiplicative_expression
                                         | additive_expression_not_name '-' multiplicative_expression
                                         | name '-' multiplicative_expression'''
+<<<<<<< HEAD
         self.binop(p, Additive)
+=======
+        self.one_or_three(p, AddSub )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_multiplicative_expression(self, p):
         '''multiplicative_expression : unary_expression
                                      | multiplicative_expression '*' unary_expression
                                      | multiplicative_expression '/' unary_expression
                                      | multiplicative_expression '%' unary_expression'''
+<<<<<<< HEAD
         self.binop(p, Multiplicative)
+=======
+        self.one_or_three(p, MulDivMod )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_multiplicative_expression_not_name(self, p):
         '''multiplicative_expression_not_name : unary_expression_not_name
@@ -215,7 +317,11 @@ class ExpressionParser(object):
                                               | name '/' unary_expression
                                               | multiplicative_expression_not_name '%' unary_expression
                                               | name '%' unary_expression'''
+<<<<<<< HEAD
         self.binop(p, Multiplicative)
+=======
+        self.one_or_three(p, MulDivMod )
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_unary_expression(self, p):
         '''unary_expression : pre_increment_expression
@@ -226,7 +332,11 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = Unary(p[1], p[2])
+=======
+            p[0] = Unary(p[1],p[2])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_unary_expression_not_name(self, p):
         '''unary_expression_not_name : pre_increment_expression
@@ -237,6 +347,7 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = Unary(p[1], p[2])
 
     def p_pre_increment_expression(self, p):
@@ -246,6 +357,17 @@ class ExpressionParser(object):
     def p_pre_decrement_expression(self, p):
         '''pre_decrement_expression : MINUSMINUS unary_expression'''
         p[0] = Unary('--x', p[2])
+=======
+            p[0] = Unary( p[1],p[2] )
+
+    def p_pre_increment_expression(self, p):
+        '''pre_increment_expression : PLUSPLUS unary_expression'''
+        p[0] = Unary('++x',p[2])
+
+    def p_pre_decrement_expression(self, p):
+        '''pre_decrement_expression : MINUSMINUS unary_expression'''
+        p[0] = Unary('--x',p[2])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_unary_expression_not_plus_minus(self, p):
         '''unary_expression_not_plus_minus : postfix_expression
@@ -255,7 +377,11 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = Unary(p[1], p[2])
+=======
+            p[0] = Unary(p[1],p[2])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_unary_expression_not_plus_minus_not_name(self, p):
         '''unary_expression_not_plus_minus_not_name : postfix_expression_not_name
@@ -265,7 +391,11 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+<<<<<<< HEAD
             p[0] = Unary(p[1], p[2])
+=======
+            p[0] = Unary(p[1],p[2])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_postfix_expression(self, p):
         '''postfix_expression : primary
@@ -286,7 +416,11 @@ class ExpressionParser(object):
 
     def p_post_decrement_expression(self, p):
         '''post_decrement_expression : postfix_expression MINUSMINUS'''
+<<<<<<< HEAD
         p[0] = Unary('x--', p[1])
+=======
+        p[0] = Unary('x--',p[1])
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
 
     def p_primary(self, p):
         '''primary : primary_no_new_array
@@ -311,7 +445,11 @@ class ExpressionParser(object):
     def p_primary_no_new_array3(self, p):
         '''primary_no_new_array : name '.' THIS
                                 | name '.' SUPER'''
+<<<<<<< HEAD
         p[1].append_name(p[3])
+=======
+        p[1].value = p[1].value + '.' + p[2]
+>>>>>>> bc89e7dfe63f99094ec9e26553a67a5d31fbd429
         p[0] = p[1]
 
     def p_primary_no_new_array4(self, p):
