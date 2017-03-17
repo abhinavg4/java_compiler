@@ -1,4 +1,10 @@
 # Base node
+import pydot
+global graph
+global outputfile
+
+idg = 0
+graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
 class SourceElement(object):
     '''
     A SourceElement is the base class for all elements that occur in a Java
@@ -8,11 +14,15 @@ class SourceElement(object):
     def __init__(self):
         super(SourceElement, self).__init__()
         self._fields = []
+        global idg
+        idg+=1
+        self.id = idg
 
     def __repr__(self):
         equals = ("{0}={1!r}".format(k, getattr(self, k))
                   for k in self._fields)
         args = ", ".join(equals)
+        args = args + ", "+str(self.id)
         return "{0}({1})".format(self.__class__.__name__, args)
 
     def __eq__(self, other):
@@ -43,12 +53,43 @@ class SourceElement(object):
                         field.accept(visitor)
         getattr(visitor, 'leave_' + class_name)(self)
 
+class node:
+    def __init__(self,*args):
+        global graph
+        global idg
+        node_a = pydot.Node(args[1],label=args[0])
+        graph.add_node(node_a)
+        for x in args[2:]:
+            print(x)
+            y = [1,2]
+            z = "sdfds"
+            if x:
+                if type(x) == type(y):
+                    for k in x:
+                        if type(k) == type(z):
+                            idg+=1;
+                            node_b = pydot.Node(idg,label=k)
+                            graph.add_node(node_b)
+                            graph.add_edge(pydot.Edge(node_a,node_b))
+                        else:
+                            graph.add_edge(pydot.Edge(node_a,pydot.Node(k.id)))
+                elif type(x) == type(z):
+                    idg+=1;
+                    node_b = pydot.Node(idg,label=x)
+                    graph.add_node(node_b)
+                    graph.add_edge(pydot.Edge(node_a,node_b))
+                else:
+                    graph.add_edge(pydot.Edge(node_a,pydot.Node(x.id)))
+def printing():
+    global graph
+    graph.write_png('./string.png')
 
 class CompilationUnit(SourceElement):
 
     def __init__(self, package_declaration=None, import_declarations=None,
                  type_declarations=None):
         super(CompilationUnit, self).__init__()
+        node("CompilationUnit",self.id,package_declaration, import_declarations, type_declarations)
         self._fields = [
             'package_declaration', 'import_declarations', 'type_declarations']
         if import_declarations is None:
@@ -63,6 +104,7 @@ class PackageDeclaration(SourceElement):
 
     def __init__(self, name, modifiers=None):
         super(PackageDeclaration, self).__init__()
+        node("PackageDeclaration",self.id, name,modifiers)
         self._fields = ['name', 'modifiers']
         if modifiers is None:
             modifiers = []
@@ -74,6 +116,7 @@ class ImportDeclaration(SourceElement):
 
     def __init__(self, name, static=False, on_demand=False):
         super(ImportDeclaration, self).__init__()
+        node("ImportDeclaration",self.id, name)
         self._fields = ['name', 'static', 'on_demand']
         self.name = name
         self.static = static
@@ -85,6 +128,7 @@ class ClassDeclaration(SourceElement):
     def __init__(self, name, body, modifiers=None, type_parameters=None,
                  extends=None, implements=None):
         super(ClassDeclaration, self).__init__()
+        node("ClassDeclaration",self.id, name,body, modifiers, type_parameters,extends, implements)
         self._fields = ['name', 'body', 'modifiers',
                         'type_parameters', 'extends', 'implements']
         if modifiers is None:
@@ -104,6 +148,7 @@ class ClassInitializer(SourceElement):
 
     def __init__(self, block, static=False):
         super(ClassInitializer, self).__init__()
+        node("ClassInitializer",self.id, block)
         self._fields = ['block', 'static']
         self.block = block
         self.static = static
@@ -113,6 +158,7 @@ class ConstructorDeclaration(SourceElement):
     def __init__(self, name, block, modifiers=None, type_parameters=None,
                  parameters=None, throws=None):
         super(ConstructorDeclaration, self).__init__()
+        node("ConstructorDeclaration",self.id, name,block, modifiers=None, type_parameters=None,parameters=None, throws=None)
         self._fields = ['name', 'block', 'modifiers',
                         'type_parameters', 'parameters', 'throws']
         if modifiers is None:
@@ -135,6 +181,7 @@ class FieldDeclaration(SourceElement):
 
     def __init__(self, type, variable_declarators, modifiers=None):
         super(FieldDeclaration, self).__init__()
+        node("FieldDeclaration",self.id, type, variable_declarators, modifiers)
         self._fields = ['type', 'variable_declarators', 'modifiers']
         if modifiers is None:
             modifiers = []
@@ -148,6 +195,8 @@ class MethodDeclaration(SourceElement):
                  parameters=None, return_type='void', body=None, abstract=False,
                  extended_dims=0, throws=None):
         super(MethodDeclaration, self).__init__()
+        print("sg")
+        node("MethodDeclaration",self.id, name, modifiers, type_parameters,parameters, body, throws)
         self._fields = ['name', 'modifiers', 'type_parameters', 'parameters',
                         'return_type', 'body', 'abstract', 'extended_dims',
                         'throws']
@@ -171,6 +220,7 @@ class FormalParameter(SourceElement):
 
     def __init__(self, variable, type, modifiers=None, vararg=False):
         super(FormalParameter, self).__init__()
+        node("FormalParameter",self.id, variable, type, modifiers)
         self._fields = ['variable', 'type', 'modifiers', 'vararg']
         if modifiers is None:
             modifiers = []
@@ -190,6 +240,7 @@ class Variable(SourceElement):
 
     def __init__(self, name, dimensions=0):
         super(Variable, self).__init__()
+        node("Variable",self.id, name)
         self._fields = ['name', 'dimensions']
         self.name = name
         self.dimensions = dimensions
@@ -199,6 +250,7 @@ class VariableDeclarator(SourceElement):
 
     def __init__(self, variable, initializer=None):
         super(VariableDeclarator, self).__init__()
+        node("VariableDeclarator",self.id, variable, initializer)
         self._fields = ['variable', 'initializer']
         self.variable = variable
         self.initializer = initializer
@@ -207,6 +259,7 @@ class Throws(SourceElement):
 
     def __init__(self, types):
         super(Throws, self).__init__()
+        node("Throws",self.id, types)
         self._fields = ['types']
         self.types = types
 
@@ -215,6 +268,7 @@ class InterfaceDeclaration(SourceElement):
     def __init__(self, name, modifiers=None, extends=None, type_parameters=None,
                  body=None):
         super(InterfaceDeclaration, self).__init__()
+        node("InterfaceDeclaration",self.id, name, modifiers, extends, type_parameters,body)
         self._fields = [
             'name', 'modifiers', 'extends', 'type_parameters', 'body']
         if modifiers is None:
@@ -236,6 +290,7 @@ class EnumDeclaration(SourceElement):
     def __init__(self, name, implements=None, modifiers=None,
                  type_parameters=None, body=None):
         super(EnumDeclaration, self).__init__()
+        node("EnumDeclaration",self.id,  name, implements, modifiers,type_parameters, body)
         self._fields = [
             'name', 'implements', 'modifiers', 'type_parameters', 'body']
         if implements is None:
@@ -256,6 +311,7 @@ class EnumConstant(SourceElement):
 
     def __init__(self, name, arguments=None, modifiers=None, body=None):
         super(EnumConstant, self).__init__()
+        node("Throws",self.id,  name, arguments, modifiers, body)
         self._fields = ['name', 'arguments', 'modifiers', 'body']
         if arguments is None:
             arguments = []
@@ -273,6 +329,7 @@ class AnnotationDeclaration(SourceElement):
     def __init__(self, name, modifiers=None, type_parameters=None, extends=None,
                  implements=None, body=None):
         super(AnnotationDeclaration, self).__init__()
+        node("AnnotationDeclaration",self.id, name, modifiers, type_parameters, extends,implements, body)
         self._fields = [
             'name', 'modifiers', 'type_parameters', 'extends', 'implements',
             'body']
@@ -296,6 +353,7 @@ class AnnotationMethodDeclaration(SourceElement):
     def __init__(self, name, type, parameters=None, default=None,
                  modifiers=None, type_parameters=None, extended_dims=0):
         super(AnnotationMethodDeclaration, self).__init__()
+        node("AnnotationMethodDeclaration", self.id, name, type, parameters, default, modifiers, type_parameters)
         self._fields = ['name', 'type', 'parameters', 'default',
                         'modifiers', 'type_parameters', 'extended_dims']
         if parameters is None:
@@ -316,6 +374,7 @@ class Annotation(SourceElement):
 
     def __init__(self, name, members=None, single_member=None):
         super(Annotation, self).__init__()
+        node("Annotation", self.id, name, members, single_member)
         self._fields = ['name', 'members', 'single_member']
         if members is None:
             members = []
@@ -328,6 +387,7 @@ class AnnotationMember(SourceElement):
 
     def __init__(self, name, value):
         super(SourceElement, self).__init__()
+        node("AnnotationMember", self.id, name, value)
         self._fields = ['name', 'value']
         self.name = name
         self.value = value
@@ -338,6 +398,7 @@ class Type(SourceElement):
     def __init__(self, name, type_arguments=None, enclosed_in=None,
                  dimensions=0):
         super(Type, self).__init__()
+        node("Type",self.id, name, type_arguments, enclosed_in)
         self._fields = ['name', 'type_arguments', 'enclosed_in', 'dimensions']
         if type_arguments is None:
             type_arguments = []
@@ -371,6 +432,7 @@ class TypeParameter(SourceElement):
 
     def __init__(self, name, extends=None):
         super(TypeParameter, self).__init__()
+        node("TypeParameter", self.id, name, extends)
         self._fields = ['name', 'extends']
         if extends is None:
             extends = []
@@ -388,6 +450,7 @@ class BinaryExpression(Expression):
 
     def __init__(self, operator, lhs, rhs):
         super(BinaryExpression, self).__init__()
+        node("BinaryExpression", self.id, operator, lhs, rhs)
         self._fields = ['operator', 'lhs', 'rhs']
         self.operator = operator
         self.lhs = lhs
@@ -401,6 +464,7 @@ class Conditional(Expression):
 
     def __init__(self, predicate, if_true, if_false):
         super(self.__class__, self).__init__()
+        node("Conditional", self.id, predicate, if_true, if_false)
         self._fields = ['predicate', 'if_true', 'if_false']
         self.predicate = predicate
         self.if_true = if_true
@@ -769,6 +833,7 @@ class Name(SourceElement):
 
     def __init__(self, value):
         super(Name, self).__init__()
+        node("Name",self.id, value)
         self._fields = ['value']
         self.value = value
 

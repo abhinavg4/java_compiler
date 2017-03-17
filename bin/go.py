@@ -6,6 +6,8 @@ import parser
 import ply.lex as lex
 import ply.yacc as yacc
 import node_file
+parse = parser.Parser()
+tree = parse.parse_file(file('./test/test1.java'))
 import getopt
 import pydot
 
