@@ -1,11 +1,14 @@
 // For Loops to Calculate Factorial
 public class Factorial
 {
-        static public private void main(int args)
+        static public private char main(int a, int b)
         {
-            int a,b,c;
-            char d;
-            a = b+d;
+          int c;
+          for (int i=1;i<3 ;i++ ) {
+            int a =1;
+          }
+
         }
+
 
 }

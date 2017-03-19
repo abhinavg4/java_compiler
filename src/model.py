@@ -1,4 +1,5 @@
 # Base node
+import pdb
 import pydot
 import sys
 import SymbolTable
@@ -161,7 +162,7 @@ class ConstructorDeclaration(SourceElement):
     def __init__(self, name, block, modifiers=None, type_parameters=None,
                  parameters=None, throws=None):
         super(ConstructorDeclaration, self).__init__()
-        node("ConstructorDeclaration",self.id, name,block, modifiers=None, type_parameters=None,parameters=None, throws=None)
+        node("ConstructorDeclaration",self.id, name,block, modifiers, type_parameters,parameters, throws)
         self._fields = ['name', 'block', 'modifiers',
                         'type_parameters', 'parameters', 'throws']
         if modifiers is None:
@@ -193,7 +194,7 @@ class FieldDeclaration(SourceElement):
         self.modifiers = modifiers
         global ST
         for x in self.variable_declarators:
-            ST.AddVar(x.variable.name,x.variable.dimensions,self.type,self.modifiers)
+            ST.Add('variables',x.variable.name,x.variable.dimensions,self.type,self.modifiers)
 
 class MethodDeclaration(SourceElement):
 
@@ -234,6 +235,8 @@ class FormalParameter(SourceElement):
         self.type = type
         self.modifiers = modifiers
         self.vararg = vararg
+        global ST
+        ST.Add('variables',self.variable.name,self.variable.dimensions,self.type,self.modifiers)
 
 
 class Variable(SourceElement):
@@ -465,6 +468,8 @@ class BinaryExpression(Expression):
             self.type = lhs.type
         else:
             sys.exit("type Error")
+            print(lhs.type)
+            print(rhs.type)
 
 class Assignment(BinaryExpression):
     pass
@@ -575,7 +580,7 @@ class ArrayInitializer(SourceElement):
 class MethodInvocation(Expression):
     def __init__(self, name, arguments=None, type_arguments=None, target=None):
         super(MethodInvocation, self).__init__()
-        self._fields = ['name', 'arguments', 'type_arguments', 'target']
+        self._fields = ['name', 'arguments', 'type_arguments', 'target', 'type']
         if arguments is None:
             arguments = []
         if type_arguments is None:
@@ -584,6 +589,15 @@ class MethodInvocation(Expression):
         self.arguments = arguments
         self.type_arguments = type_arguments
         self.target = target
+        #pdb.set_trace()
+        global ST
+        #print("asdfasdfasd"+str(ST.scope))
+        if not ST.Search('methods',name):
+            self.type = None
+            #pass
+            sys.exit(name + ' not declared in current scope')
+        else:
+            self.type = ST.Search('methods',name)
 
 class IfThenElse(Statement):
 
@@ -608,6 +622,7 @@ class For(Statement):
         super(For, self).__init__()
         self._fields = ['init', 'predicate', 'update', 'body']
         self.init = init
+        pdb.set_trace()
         self.predicate = predicate
         self.update = update
         self.body = body
@@ -827,8 +842,12 @@ class Literal(SourceElement):
 
     def __init__(self, value):
         super(Literal, self).__init__()
-        self._fields = ['value']
+        self._fields = ['value' , 'type']
         self.value = value
+        if value[0] == "'":
+            self.type = 'char'
+        else:
+            self.type = 'int'
 
 
 class ClassLiteral(SourceElement):
@@ -847,10 +866,10 @@ class Name(SourceElement):
         self._fields = ['value', 'type']
         self.value = value
         global ST
-        if not ST.SearchVar(value):
+        if not ST.Search('variables',value):
             sys.exit(value + ' not declared in current scope')
         else:
-            self.type = ST.SearchVar(value)
+            self.type = ST.Search('variables',value)
 
     def append_name(self, name):
         try:

@@ -1,5 +1,5 @@
 import sys
-
+import pdb
 class SymbolTable:
 
     def __init__(self):
@@ -14,36 +14,40 @@ class SymbolTable:
         ]
         self.scope = 1
 
-    def AddVar(self, name, dimension, type, modifiers):
-        curr_scope = self.getScopeOfVar(name)
+    def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
+        if less:
+            self.scope -= less
+        curr_scope = self.getScope(key,name)
         if curr_scope != self.scope:
-            self.SymbolTable[self.scope]['variables'][name] = {
+            self.SymbolTable[self.scope][key][name] = {
                 'type' : type,
                 'dimension' : dimension,
                 'modifiers' : modifiers
             }
         else:
             sys.exit(name + 'Already present in current scope')
+        if less:
+            self.scope += less
 
-    def SearchVar(self, name):
-        if(self.getTypeOfVar(name)):
-            return self.getTypeOfVar(name)
+    def Search(self, key, name):
+        if(self.getType(key,name)):
+            return self.getType(key,name)
         else:
             return None
 
-    def getScopeOfVar(self,name):
+    def getScope(self,key,name):
         scope_curr = self.scope
         while scope_curr != 0:
-            if name in self.SymbolTable[scope_curr]['variables']:
+            if name in self.SymbolTable[scope_curr][key]:
                 return scope_curr
             scope_curr = self.SymbolTable[scope_curr]['parent']
         return 0
 
-    def getTypeOfVar(self,name):
+    def getType(self,key,name):
         scope_curr = self.scope
         while scope_curr != 0:
-            if name in self.SymbolTable[scope_curr]['variables']:
-                return self.SymbolTable[scope_curr]['variables'][name]['type']
+            if name in self.SymbolTable[scope_curr][key]:
+                return self.SymbolTable[scope_curr][key][name]['type']
             scope_curr = self.SymbolTable[scope_curr]['parent']
         return None
 

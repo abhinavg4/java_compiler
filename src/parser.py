@@ -375,8 +375,8 @@ class ExpressionParser(object):
 class StatementParser(object):
 
     def p_block(self, p):
-        '''block : '{' inc_scope block_statements_opt dec_scope '}' '''
-        p[0] = Block(p[3])
+        '''block : '{' block_statements_opt dec_scope '}' '''
+        p[0] = Block(p[2])
 
     def p_block_statements_opt(self, p):
         '''block_statements_opt : block_statements'''
@@ -537,32 +537,32 @@ class StatementParser(object):
         p[0] = p[1]
 
     def p_if_then_statement(self, p):
-        '''if_then_statement : IF '(' expression ')' statement'''
-        p[0] = IfThenElse(p[3], p[5])
+        '''if_then_statement : IF '(' inc_scope expression ')' statement'''
+        p[0] = IfThenElse(p[4], p[6])
 
     def p_if_then_else_statement(self, p):
-        '''if_then_else_statement : IF '(' expression ')' statement_no_short_if ELSE statement'''
-        p[0] = IfThenElse(p[3], p[5], p[7])
+        '''if_then_else_statement : IF '(' inc_scope expression ')' statement_no_short_if ELSE statement'''
+        p[0] = IfThenElse(p[4], p[6], p[8])
 
     def p_if_then_else_statement_no_short_if(self, p):
-        '''if_then_else_statement_no_short_if : IF '(' expression ')' statement_no_short_if ELSE statement_no_short_if'''
-        p[0] = IfThenElse(p[3], p[5], p[7])
+        '''if_then_else_statement_no_short_if : IF '(' inc_scope expression ')' statement_no_short_if ELSE statement_no_short_if'''
+        p[0] = IfThenElse(p[4], p[6], p[8])
 
     def p_while_statement(self, p):
-        '''while_statement : WHILE '(' expression ')' statement'''
-        p[0] = While(p[3], p[5])
+        '''while_statement : WHILE '(' inc_scope expression ')' statement'''
+        p[0] = While(p[4], p[6])
 
     def p_while_statement_no_short_if(self, p):
-        '''while_statement_no_short_if : WHILE '(' expression ')' statement_no_short_if'''
-        p[0] = While(p[3], p[5])
+        '''while_statement_no_short_if : WHILE '(' inc_scope expression ')' statement_no_short_if'''
+        p[0] = While(p[4], p[6])
 
     def p_for_statement(self, p):
-        '''for_statement : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement'''
-        p[0] = For(p[3], p[5], p[7], p[9])
+        '''for_statement : FOR '(' inc_scope for_init_opt ';' expression_opt ';' for_update_opt ')' statement'''
+        p[0] = For(p[4], p[6], p[8], p[10])
 
     def p_for_statement_no_short_if(self, p):
-        '''for_statement_no_short_if : FOR '(' for_init_opt ';' expression_opt ';' for_update_opt ')' statement_no_short_if'''
-        p[0] = For(p[3], p[5], p[7], p[9])
+        '''for_statement_no_short_if : FOR '(' inc_scope for_init_opt ';' expression_opt ';' for_update_opt ')' statement_no_short_if'''
+        p[0] = For(p[4], p[6], p[8], p[10])
 
     def p_for_init_opt(self, p):
         '''for_init_opt : for_init
@@ -610,12 +610,12 @@ class StatementParser(object):
         p[0] = p[1]
 
     def p_enhanced_for_statement_header_init(self, p):
-        '''enhanced_for_statement_header_init : FOR '(' type NAME dims_opt'''
-        p[0] = {'modifiers': [], 'type': p[3], 'variable': Variable(p[4], dimensions=p[5])}
+        '''enhanced_for_statement_header_init : FOR '(' inc_scope type NAME dims_opt'''
+        p[0] = {'modifiers': [], 'type': p[4], 'variable': Variable(p[5], dimensions=p[6])}
 
     def p_enhanced_for_statement_header_init2(self, p):
-        '''enhanced_for_statement_header_init : FOR '(' modifiers type NAME dims_opt'''
-        p[0] = {'modifiers': p[3], 'type': p[4], 'variable': Variable(p[5], dimensions=p[6])}
+        '''enhanced_for_statement_header_init : FOR '(' inc_scope modifiers type NAME dims_opt'''
+        p[0] = {'modifiers': p[4], 'type': p[5], 'variable': Variable(p[6], dimensions=p[7])}
 
     def p_statement_no_short_if(self, p):
         '''statement_no_short_if : statement_without_trailing_substatement
@@ -639,24 +639,24 @@ class StatementParser(object):
         p[0] = Empty()
 
     def p_switch_statement(self, p):
-        '''switch_statement : SWITCH '(' expression ')' switch_block'''
-        p[0] = Switch(p[3], p[5])
+        '''switch_statement : SWITCH '(' inc_scope expression ')' switch_block'''
+        p[0] = Switch(p[4], p[6])
 
     def p_switch_block(self, p):
         '''switch_block : '{' '}' '''
         p[0] = []
 
     def p_switch_block2(self, p):
-        '''switch_block : '{' inc_scope switch_block_statements dec_scope '}' '''
-        p[0] = p[3]
+        '''switch_block : '{' switch_block_statements dec_scope '}' '''
+        p[0] = p[2]
 
     def p_switch_block3(self, p):
-        '''switch_block : '{' inc_scope switch_labels dec_scope '}' '''
-        p[0] = [SwitchCase(p[3])]
+        '''switch_block : '{' switch_labels dec_scope '}' '''
+        p[0] = [SwitchCase(p[2])]
 
     def p_switch_block4(self, p):
-        '''switch_block : '{' inc_scope switch_block_statements switch_labels dec_scope '}' '''
-        p[0] = p[3] + [SwitchCase(p[4])]
+        '''switch_block : '{' switch_block_statements switch_labels dec_scope '}' '''
+        p[0] = p[2] + [SwitchCase(p[3])]
 
     def p_switch_block_statements(self, p):
         '''switch_block_statements : switch_block_statement
@@ -1435,8 +1435,8 @@ class ClassParser(object):
         p[0] = p[1]
 
     def p_method_body(self, p):
-        '''method_body : '{' inc_scope block_statements_opt dec_scope '}' '''
-        p[0] = p[3]
+        '''method_body : '{' block_statements_opt dec_scope '}' '''
+        p[0] = p[2]
 
     def p_method_declaration(self, p):
         '''method_declaration : abstract_method_declaration
@@ -1462,14 +1462,17 @@ class ClassParser(object):
         p[1]['extended_dims'] = p[4]
         p[1]['throws'] = p[5]
         p[0] = p[1]
+        global ST
+        ST.Add('methods',p[1]['name'],p[1]['parameters'],p[1]['type'],p[1]['modifiers'],1)
 
     def p_method_header_name(self, p):
-        '''method_header_name : modifiers_opt type_parameters type NAME '('
-                              | modifiers_opt type NAME '(' '''
-        if len(p) == 5:
+        '''method_header_name : modifiers_opt type_parameters type NAME '(' inc_scope
+                              | modifiers_opt type NAME '(' inc_scope '''
+        if len(p) == 6:
             p[0] = {'modifiers': p[1], 'type_parameters': [], 'type': p[2], 'name': p[3]}
         else:
             p[0] = {'modifiers': p[1], 'type_parameters': p[2], 'type': p[3], 'name': p[4]}
+
 
     def p_method_header_extended_dims(self, p):
         '''method_header_extended_dims : dims_opt'''
