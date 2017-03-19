@@ -375,8 +375,8 @@ class ExpressionParser(object):
 class StatementParser(object):
 
     def p_block(self, p):
-        '''block : '{' block_statements_opt '}' '''
-        p[0] = Block(p[2])
+        '''block : '{' inc_scope block_statements_opt dec_scope '}' '''
+        p[0] = Block(p[3])
 
     def p_block_statements_opt(self, p):
         '''block_statements_opt : block_statements'''
@@ -647,16 +647,16 @@ class StatementParser(object):
         p[0] = []
 
     def p_switch_block2(self, p):
-        '''switch_block : '{' switch_block_statements '}' '''
-        p[0] = p[2]
+        '''switch_block : '{' inc_scope switch_block_statements dec_scope '}' '''
+        p[0] = p[3]
 
     def p_switch_block3(self, p):
-        '''switch_block : '{' switch_labels '}' '''
-        p[0] = [SwitchCase(p[2])]
+        '''switch_block : '{' inc_scope switch_labels dec_scope '}' '''
+        p[0] = [SwitchCase(p[3])]
 
     def p_switch_block4(self, p):
-        '''switch_block : '{' switch_block_statements switch_labels '}' '''
-        p[0] = p[2] + [SwitchCase(p[3])]
+        '''switch_block : '{' inc_scope switch_block_statements switch_labels dec_scope '}' '''
+        p[0] = p[3] + [SwitchCase(p[4])]
 
     def p_switch_block_statements(self, p):
         '''switch_block_statements : switch_block_statement
@@ -1319,8 +1319,8 @@ class ClassParser(object):
         p[0] = p[1]
 
     def p_class_body(self, p):
-        '''class_body : '{' class_body_declarations_opt '}' '''
-        p[0] = p[2]
+        '''class_body : '{' inc_scope class_body_declarations_opt dec_scope '}' '''
+        p[0] = p[3]
 
     def p_class_body_declarations_opt(self, p):
         '''class_body_declarations_opt : class_body_declarations'''
@@ -1435,8 +1435,8 @@ class ClassParser(object):
         p[0] = p[1]
 
     def p_method_body(self, p):
-        '''method_body : '{' block_statements_opt '}' '''
-        p[0] = p[2]
+        '''method_body : '{' inc_scope block_statements_opt dec_scope '}' '''
+        p[0] = p[3]
 
     def p_method_declaration(self, p):
         '''method_declaration : abstract_method_declaration
@@ -1912,11 +1912,20 @@ class MyParser(ExpressionParser, NameParser, LiteralParser, TypeParser, ClassPar
     def p_empty(self, p):
         '''empty :'''
 
+    def p_inc_scope(self,p):
+        '''inc_scope : '''
+        global ST
+        ST.inc_scope()
+    def p_dec_scope(self,p):
+        '''dec_scope : '''
+        global ST
+        ST.dec_scope()
+
 class Parser(object):
 
     def __init__(self):
         self.lexer = lex.lex(module=lexRule)
-        self.parser = yacc.yacc(module=MyParser(), start='start', debug = 1)
+        self.parser = yacc.yacc(module=MyParser(), start='start', debug = 0)
 
     def tokenize_string(self, code):
         self.lexer.input(code)
@@ -1931,17 +1940,17 @@ class Parser(object):
             content += line
         return self.tokenize_string(content)
 
-    def parse_expression(self, code, debug=1, lineno=1):
+    def parse_expression(self, code, debug=0, lineno=1):
         return self.parse_string(code, debug, lineno, prefix='--')
 
-    def parse_statement(self, code, debug=1, lineno=1):
+    def parse_statement(self, code, debug=0, lineno=1):
         return self.parse_string(code, debug, lineno, prefix='* ')
 
-    def parse_string(self, code, debug=1, lineno=1, prefix='++'):
+    def parse_string(self, code, debug=0, lineno=1, prefix='++'):
         self.lexer.lineno = lineno
         return self.parser.parse(prefix + code, lexer=self.lexer, debug=debug)
 
-    def parse_file(self, _file, debug=1):
+    def parse_file(self, _file, debug=0):
         if type(_file) == str:
             _file = open(_file)
         content = _file.read()

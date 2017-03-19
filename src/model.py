@@ -1,10 +1,14 @@
 # Base node
 import pydot
+import sys
+import SymbolTable
 global graph
 global outputfile
 
 idg = 0
 graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
+global ST
+ST = SymbolTable.SymbolTable()
 class SourceElement(object):
     '''
     A SourceElement is the base class for all elements that occur in a Java
@@ -60,7 +64,6 @@ class node:
         node_a = pydot.Node(args[1],label=args[0])
         graph.add_node(node_a)
         for x in args[2:]:
-            print(x)
             y = [1,2]
             z = "sdfds"
             if x:
@@ -188,6 +191,9 @@ class FieldDeclaration(SourceElement):
         self.type = type
         self.variable_declarators = variable_declarators
         self.modifiers = modifiers
+        global ST
+        for x in self.variable_declarators:
+            ST.AddVar(x.variable.name,x.variable.dimensions,self.type,self.modifiers)
 
 class MethodDeclaration(SourceElement):
 
@@ -451,10 +457,14 @@ class BinaryExpression(Expression):
     def __init__(self, operator, lhs, rhs):
         super(BinaryExpression, self).__init__()
         node("BinaryExpression", self.id, operator, lhs, rhs)
-        self._fields = ['operator', 'lhs', 'rhs']
+        self._fields = ['operator', 'lhs', 'rhs','type']
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
+        if lhs.type == rhs.type:
+            self.type = lhs.type
+        else:
+            sys.exit("type Error")
 
 class Assignment(BinaryExpression):
     pass
@@ -834,8 +844,13 @@ class Name(SourceElement):
     def __init__(self, value):
         super(Name, self).__init__()
         node("Name",self.id, value)
-        self._fields = ['value']
+        self._fields = ['value', 'type']
         self.value = value
+        global ST
+        if not ST.SearchVar(value):
+            sys.exit(value + ' not declared in current scope')
+        else:
+            self.type = ST.SearchVar(value)
 
     def append_name(self, name):
         try:
