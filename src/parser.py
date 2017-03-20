@@ -1466,12 +1466,13 @@ class ClassParser(object):
         ST.Add('methods',p[1]['name'],p[1]['parameters'],p[1]['type'],p[1]['modifiers'],1)
 
     def p_method_header_name(self, p):
-        '''method_header_name : modifiers_opt type_parameters type NAME '(' inc_scope
-                              | modifiers_opt type NAME '(' inc_scope '''
-        if len(p) == 6:
+        '''method_header_name : modifiers_opt type_parameters type NAME '('
+                              | modifiers_opt type NAME '(' '''
+        if len(p) == 5:
             p[0] = {'modifiers': p[1], 'type_parameters': [], 'type': p[2], 'name': p[3]}
         else:
             p[0] = {'modifiers': p[1], 'type_parameters': p[2], 'type': p[3], 'name': p[4]}
+        ST.inc_scope(p[0]['name'])
 
 
     def p_method_header_extended_dims(self, p):

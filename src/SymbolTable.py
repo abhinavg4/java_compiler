@@ -12,11 +12,19 @@ class SymbolTable:
                 'parent' : 0,
             }
         ]
+        self.SymbolTableFunction = {}
+        self.SymbolTableFunction['start'] = {
+            'variables' : {},
+            'type' : None,
+            'input' : None
+        }
+        self.func = 'start'
         self.scope = 1
-
+        self.new_s = 1
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
         if less:
-            self.scope -= less
+            store_scope = self.scope
+            self.scope = self.SymbolTable[self.scope]['parent']
         curr_scope = self.getScope(key,name)
         if curr_scope != self.scope:
             self.SymbolTable[self.scope][key][name] = {
@@ -26,8 +34,17 @@ class SymbolTable:
             }
         else:
             sys.exit(name + 'Already present in current scope')
+        if key == 'methods':
+            self.SymbolTableFunction[self.func]['type'] = type
+            self.SymbolTableFunction[self.func]['input'] = dimension
+        else:
+            self.SymbolTableFunction[self.func]['variables'][name+"."+str(self.scope)] = {
+                'type' : type,
+                'dimension' : dimension,
+                'modifiers' : modifiers
+            }
         if less:
-            self.scope += less
+            self.scope = store_scope
 
     def Search(self, key, name):
         if(self.getType(key,name)):
@@ -51,7 +68,12 @@ class SymbolTable:
             scope_curr = self.SymbolTable[scope_curr]['parent']
         return None
 
-    def inc_scope(self):
+    def inc_scope(self,name=None):
+        if name:
+            self.SymbolTableFunction[name] = {
+                'variables' : {},
+                }
+            self.func = name
         self.SymbolTable.append({
                 'scope_name' : 'start',
                 'variables' : {},
@@ -60,10 +82,11 @@ class SymbolTable:
                 'type' : 'start',
                 'parent' : self.scope,
             })
-        self.scope +=1
+        self.new_s +=1
+        self.scope = self.new_s
         print(self.scope)
 
     def dec_scope(self):
         self.scope = self.SymbolTable[self.scope]['parent']
-        self.SymbolTable.pop()
+        #self.SymbolTable.pop()
         print("dsfasd"+str(self.scope))

@@ -466,8 +466,8 @@ class BinaryExpression(Expression):
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
-        if lhs.type == rhs.type:
-            self.type = lhs.type
+        if (lhs.type == 'int' or lhs.type == 'float') and (rhs.type == 'int' or rhs.type == 'float'):
+            self.type = 'float'
         else:
             sys.exit("type Error")
             print(lhs.type)
@@ -605,6 +605,13 @@ class MethodInvocation(Expression):
             sys.exit(name + ' not declared in current scope')
         else:
             self.type = ST.Search('methods',name)
+        scope_method = ST.getScope('methods',name)
+        input_method = ST.SymbolTable[scope_method]['methods'][name]['dimension']
+        if not len(input_method) == len(arguments):
+            sys.exit(name + ' is called with incorrect number of arguments')
+        for (x,y) in zip(input_method,arguments):
+            if not x.type == y.type:
+                sys.exit(name + ' not called with correct argument type')
 
 class IfThenElse(Statement):
 
