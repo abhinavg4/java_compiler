@@ -421,6 +421,7 @@ class Wildcard(SourceElement):
 
     def __init__(self, bounds=None):
         super(Wildcard, self).__init__()
+        node("Wildcard", self.id, bounds)
         self._fields = ['bounds']
         if bounds is None:
             bounds = []
@@ -431,6 +432,7 @@ class WildcardBound(SourceElement):
 
     def __init__(self, type, extends=False, _super=False):
         super(WildcardBound, self).__init__()
+        node("WildcardBound", self.id, type, extends)
         self._fields = ['type', 'extends', '_super']
         self.type = type
         self.extends = extends
@@ -439,7 +441,7 @@ class WildcardBound(SourceElement):
 
 class TypeParameter(SourceElement):
 
-    def __init__(self, name, extends=None):
+    def __init__(self, name, extends):
         super(TypeParameter, self).__init__()
         node("TypeParameter", self.id, name, extends)
         self._fields = ['name', 'extends']
@@ -531,6 +533,7 @@ class Unary(Expression):
 
     def __init__(self, sign, expression):
         super(Unary, self).__init__()
+        node("Unary", self.id, sign, expression)
         self._fields = ['sign', 'expression']
         self.sign = sign
         self.expression = expression
@@ -540,6 +543,7 @@ class Cast(Expression):
 
     def __init__(self, target, expression):
         super(Cast, self).__init__()
+        node("Cast", self.id, target, expression)
         self._fields = ['target', 'expression']
         self.target = target
         self.expression = expression
@@ -556,6 +560,7 @@ class Block(Statement):
 
     def __init__(self, statements=None):
         super(Statement, self).__init__()
+        node("Block", self.id, statements)
         self._fields = ['statements']
         if statements is None:
             statements = []
@@ -571,6 +576,7 @@ class VariableDeclaration(Statement, FieldDeclaration):
 class ArrayInitializer(SourceElement):
     def __init__(self, elements=None):
         super(ArrayInitializer, self).__init__()
+        node("ArrayInitializer", self.id, elements)
         self._fields = ['elements']
         if elements is None:
             elements = []
@@ -580,6 +586,7 @@ class ArrayInitializer(SourceElement):
 class MethodInvocation(Expression):
     def __init__(self, name, arguments=None, type_arguments=None, target=None):
         super(MethodInvocation, self).__init__()
+        node("MethodInvocation", self.id, name, arguments, type_arguments, target)
         self._fields = ['name', 'arguments', 'type_arguments', 'target', 'type']
         if arguments is None:
             arguments = []
@@ -603,6 +610,7 @@ class IfThenElse(Statement):
 
     def __init__(self, predicate, if_true=None, if_false=None):
         super(IfThenElse, self).__init__()
+        node("IfThenElse", self.id, predicate, if_true, if_false)
         self._fields = ['predicate', 'if_true', 'if_false']
         self.predicate = predicate
         self.if_true = if_true
@@ -612,6 +620,7 @@ class While(Statement):
 
     def __init__(self, predicate, body=None):
         super(While, self).__init__()
+        node("While", self.id, predicate, body)
         self._fields = ['predicate', 'body']
         self.predicate = predicate
         self.body = body
@@ -620,9 +629,9 @@ class For(Statement):
 
     def __init__(self, init, predicate, update, body):
         super(For, self).__init__()
+        node("For", self.id, init, predicate, update, body)
         self._fields = ['init', 'predicate', 'update', 'body']
         self.init = init
-        pdb.set_trace()
         self.predicate = predicate
         self.update = update
         self.body = body
@@ -631,6 +640,7 @@ class ForEach(Statement):
 
     def __init__(self, type, variable, iterable, body, modifiers=None):
         super(ForEach, self).__init__()
+        node("ForEach", self.id, type, variable, iterable, body, modifiers)
         self._fields = ['type', 'variable', 'iterable', 'body', 'modifiers']
         if modifiers is None:
             modifiers = []
@@ -645,6 +655,7 @@ class Assert(Statement):
 
     def __init__(self, predicate, message=None):
         super(Assert, self).__init__()
+        node("Assert", self.id, predicate, message)
         self._fields = ['predicate', 'message']
         self.predicate = predicate
         self.message = message
@@ -654,6 +665,7 @@ class Switch(Statement):
 
     def __init__(self, expression, switch_cases):
         super(Switch, self).__init__()
+        node("Switch", self.id, expression, switch_cases)
         self._fields = ['expression', 'switch_cases']
         self.expression = expression
         self.switch_cases = switch_cases
@@ -662,6 +674,7 @@ class SwitchCase(SourceElement):
 
     def __init__(self, cases, body=None):
         super(SwitchCase, self).__init__()
+        node("SwitchCase", self.id, cases, body)
         self._fields = ['cases', 'body']
         if body is None:
             body = []
@@ -672,6 +685,7 @@ class DoWhile(Statement):
 
     def __init__(self, predicate, body=None):
         super(DoWhile, self).__init__()
+        node("DoWhile", self.id, predicate, body)
         self._fields = ['predicate', 'body']
         self.predicate = predicate
         self.body = body
@@ -681,6 +695,7 @@ class Continue(Statement):
 
     def __init__(self, label=None):
         super(Continue, self).__init__()
+        node("Continue", self.id, label)
         self._fields = ['label']
         self.label = label
 
@@ -689,6 +704,7 @@ class Break(Statement):
 
     def __init__(self, label=None):
         super(Break, self).__init__()
+        node("Break", self.id, label)
         self._fields = ['label']
         self.label = label
 
@@ -697,6 +713,7 @@ class Return(Statement):
 
     def __init__(self, result=None):
         super(Return, self).__init__()
+        node("Return", self.id, result)
         self._fields = ['result']
         self.result = result
 
@@ -705,6 +722,7 @@ class Synchronized(Statement):
 
     def __init__(self, monitor, body):
         super(Synchronized, self).__init__()
+        node("Synchronized", self.id, monitor, body)
         self._fields = ['monitor', 'body']
         self.monitor = monitor
         self.body = body
@@ -714,6 +732,7 @@ class Throw(Statement):
 
     def __init__(self, exception):
         super(Throw, self).__init__()
+        node("Throw", self.id, exception)
         self._fields = ['exception']
         self.exception = exception
 
@@ -722,6 +741,7 @@ class Try(Statement):
 
     def __init__(self, block, catches=None, _finally=None, resources=None):
         super(Try, self).__init__()
+        node("Try", self.id, block, catches, _finally, resources)
         self._fields = ['block', 'catches', '_finally', 'resources']
         if catches is None:
             catches = []
@@ -746,6 +766,7 @@ class Catch(SourceElement):
 
     def __init__(self, variable, modifiers=None, types=None, block=None):
         super(Catch, self).__init__()
+        node("Catch", self.id, variable, modifiers, types, block)
         self._fields = ['variable', 'modifiers', 'types', 'block']
         if modifiers is None:
             modifiers = []
@@ -761,6 +782,7 @@ class Resource(SourceElement):
 
     def __init__(self, variable, type=None, modifiers=None, initializer=None):
         super(Resource, self).__init__()
+        node("Resource", self.id, variable, type, modifiers, initializer)
         self._fields = ['variable', 'type', 'modifiers', 'initializer']
         if modifiers is None:
             modifiers = []
@@ -777,6 +799,7 @@ class ConstructorInvocation(Statement):
 
     def __init__(self, name, target=None, type_arguments=None, arguments=None):
         super(ConstructorInvocation, self).__init__()
+        node("ConstructorInvocation", self.id, name, target, type_arguments, arguments)
         self._fields = ['name', 'target', 'type_arguments', 'arguments']
         if type_arguments is None:
             type_arguments = []
@@ -793,6 +816,7 @@ class InstanceCreation(Expression):
     def __init__(self, type, type_arguments=None, arguments=None, body=None,
                  enclosed_in=None):
         super(InstanceCreation, self).__init__()
+        node("InstanceCreation", self.id, type, type_arguments, arguments, body, enclosed_in)
         self._fields = [
             'type', 'type_arguments', 'arguments', 'body', 'enclosed_in']
         if type_arguments is None:
@@ -812,6 +836,7 @@ class FieldAccess(Expression):
 
     def __init__(self, name, target):
         super(FieldAccess, self).__init__()
+        node("FieldAccess", self.id, name, target)
         self._fields = ['name', 'target']
         self.name = name
         self.target = target
@@ -821,6 +846,7 @@ class ArrayAccess(Expression):
 
     def __init__(self, index, target):
         super(ArrayAccess, self).__init__()
+        node("ArrayAccess", self.id, index, target)
         self._fields = ['index', 'target']
         self.index = index
         self.target = target
@@ -830,6 +856,7 @@ class ArrayCreation(Expression):
 
     def __init__(self, type, dimensions=None, initializer=None):
         super(ArrayCreation, self).__init__()
+        node("ArrayCreation", self.id, type, dimensions, initializer)
         self._fields = ['type', 'dimensions', 'initializer']
         if dimensions is None:
             dimensions = []
@@ -842,6 +869,7 @@ class Literal(SourceElement):
 
     def __init__(self, value):
         super(Literal, self).__init__()
+        node("Literal", self.id, value)
         self._fields = ['value' , 'type']
         self.value = value
         if value[0] == "'":
@@ -854,6 +882,7 @@ class ClassLiteral(SourceElement):
 
     def __init__(self, type):
         super(ClassLiteral, self).__init__()
+        node("ClassLiteral", self.id, type)
         self._fields = ['type']
         self.type = type
 
@@ -881,5 +910,6 @@ class Name(SourceElement):
 class ExpressionStatement(Statement):
     def __init__(self, expression):
         super(ExpressionStatement, self).__init__()
+        node("ExpressionStatement", self.id, expression)
         self._fields = ['expression']
         self.expression = expression
