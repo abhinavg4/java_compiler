@@ -66,7 +66,7 @@ class node:
         graph.add_node(node_a)
         for x in args[2:]:
             y = [1,2]
-            z = "sdfds"
+            z = "Abhinav and Anuj were here!!"
             if x:
                 if type(x) == type(y):
                     for k in x:
@@ -95,7 +95,7 @@ class CompilationUnit(SourceElement):
         super(CompilationUnit, self).__init__()
         node("CompilationUnit",self.id,package_declaration, import_declarations, type_declarations)
         self._fields = [
-            'package_declaration', 'import_declarations', 'type_declarations']
+            'package_declaration', 'import_declarations', 'type_declarations','type']
         if import_declarations is None:
             import_declarations = []
         if type_declarations is None:
@@ -103,29 +103,30 @@ class CompilationUnit(SourceElement):
         self.package_declaration = package_declaration
         self.import_declarations = import_declarations
         self.type_declarations = type_declarations
+        self.type = 'void'
 
 class PackageDeclaration(SourceElement):
 
     def __init__(self, name, modifiers=None):
         super(PackageDeclaration, self).__init__()
         node("PackageDeclaration",self.id, name,modifiers)
-        self._fields = ['name', 'modifiers']
+        self._fields = ['name', 'modifiers', 'type']
         if modifiers is None:
             modifiers = []
         self.name = name
         self.modifiers = modifiers
-
+        self.type = 'void'
 
 class ImportDeclaration(SourceElement):
 
     def __init__(self, name, static=False, on_demand=False):
         super(ImportDeclaration, self).__init__()
         node("ImportDeclaration",self.id, name)
-        self._fields = ['name', 'static', 'on_demand']
+        self._fields = ['name', 'static', 'on_demand', 'type']
         self.name = name
         self.static = static
         self.on_demand = on_demand
-
+        self.type = 'void'
 
 class ClassDeclaration(SourceElement):
 
@@ -134,7 +135,7 @@ class ClassDeclaration(SourceElement):
         super(ClassDeclaration, self).__init__()
         node("ClassDeclaration",self.id, name,body, modifiers, type_parameters,extends, implements)
         self._fields = ['name', 'body', 'modifiers',
-                        'type_parameters', 'extends', 'implements']
+                        'type_parameters', 'extends', 'implements', 'type']
         if modifiers is None:
             modifiers = []
         if type_parameters is None:
@@ -147,15 +148,17 @@ class ClassDeclaration(SourceElement):
         self.type_parameters = type_parameters
         self.extends = extends
         self.implements = implements
+        self.type = 'void'
 
 class ClassInitializer(SourceElement):
 
     def __init__(self, block, static=False):
         super(ClassInitializer, self).__init__()
         node("ClassInitializer",self.id, block)
-        self._fields = ['block', 'static']
+        self._fields = ['block', 'static', 'type']
         self.block = block
         self.static = static
+        self.type = 'void'
 
 class ConstructorDeclaration(SourceElement):
 
@@ -164,7 +167,7 @@ class ConstructorDeclaration(SourceElement):
         super(ConstructorDeclaration, self).__init__()
         node("ConstructorDeclaration",self.id, name,block, modifiers, type_parameters,parameters, throws)
         self._fields = ['name', 'block', 'modifiers',
-                        'type_parameters', 'parameters', 'throws']
+                        'type_parameters', 'parameters', 'throws', 'type']
         if modifiers is None:
             modifiers = []
         if type_parameters is None:
@@ -177,6 +180,7 @@ class ConstructorDeclaration(SourceElement):
         self.type_parameters = type_parameters
         self.parameters = parameters
         self.throws = throws
+        self.type = 'void'
 
 class EmptyDeclaration(SourceElement):
     pass
@@ -206,7 +210,7 @@ class MethodDeclaration(SourceElement):
         node("MethodDeclaration",self.id, name, modifiers, type_parameters,parameters, body, throws)
         self._fields = ['name', 'modifiers', 'type_parameters', 'parameters',
                         'return_type', 'body', 'abstract', 'extended_dims',
-                        'throws']
+                        'throws','type']
         if modifiers is None:
             modifiers = []
         if type_parameters is None:
@@ -222,6 +226,7 @@ class MethodDeclaration(SourceElement):
         self.abstract = abstract
         self.extended_dims = extended_dims
         self.throws = throws
+        self.type = 'void'
 
 class FormalParameter(SourceElement):
 
@@ -250,9 +255,10 @@ class Variable(SourceElement):
     def __init__(self, name, dimensions=0):
         super(Variable, self).__init__()
         node("Variable",self.id, name)
-        self._fields = ['name', 'dimensions']
+        self._fields = ['name', 'dimensions','type']
         self.name = name
         self.dimensions = dimensions
+        self.type = 'void'
 
 
 class VariableDeclarator(SourceElement):
@@ -260,9 +266,10 @@ class VariableDeclarator(SourceElement):
     def __init__(self, variable, initializer=None):
         super(VariableDeclarator, self).__init__()
         node("VariableDeclarator",self.id, variable, initializer)
-        self._fields = ['variable', 'initializer']
+        self._fields = ['variable', 'initializer','type']
         self.variable = variable
         self.initializer = initializer
+        self.type = 'void'
 
 class Throws(SourceElement):
 
@@ -279,7 +286,7 @@ class InterfaceDeclaration(SourceElement):
         super(InterfaceDeclaration, self).__init__()
         node("InterfaceDeclaration",self.id, name, modifiers, extends, type_parameters,body)
         self._fields = [
-            'name', 'modifiers', 'extends', 'type_parameters', 'body']
+            'name', 'modifiers', 'extends', 'type_parameters', 'body', 'type']
         if modifiers is None:
             modifiers = []
         if extends is None:
@@ -293,6 +300,7 @@ class InterfaceDeclaration(SourceElement):
         self.extends = extends
         self.type_parameters = type_parameters
         self.body = body
+        self.type = 'void'
 
 class EnumDeclaration(SourceElement):
 
@@ -301,7 +309,7 @@ class EnumDeclaration(SourceElement):
         super(EnumDeclaration, self).__init__()
         node("EnumDeclaration",self.id,  name, implements, modifiers,type_parameters, body)
         self._fields = [
-            'name', 'implements', 'modifiers', 'type_parameters', 'body']
+            'name', 'implements', 'modifiers', 'type_parameters', 'body', 'type']
         if implements is None:
             implements = []
         if modifiers is None:
@@ -315,13 +323,14 @@ class EnumDeclaration(SourceElement):
         self.modifiers = modifiers
         self.type_parameters = type_parameters
         self.body = body
+        self.type = 'void'
 
 class EnumConstant(SourceElement):
 
     def __init__(self, name, arguments=None, modifiers=None, body=None):
         super(EnumConstant, self).__init__()
         node("Throws",self.id,  name, arguments, modifiers, body)
-        self._fields = ['name', 'arguments', 'modifiers', 'body']
+        self._fields = ['name', 'arguments', 'modifiers', 'body', 'type']
         if arguments is None:
             arguments = []
         if modifiers is None:
@@ -332,6 +341,7 @@ class EnumConstant(SourceElement):
         self.arguments = arguments
         self.modifiers = modifiers
         self.body = body
+        self.type = 'void'
 
 class AnnotationDeclaration(SourceElement):
 
@@ -341,7 +351,7 @@ class AnnotationDeclaration(SourceElement):
         node("AnnotationDeclaration",self.id, name, modifiers, type_parameters, extends,implements, body)
         self._fields = [
             'name', 'modifiers', 'type_parameters', 'extends', 'implements',
-            'body']
+            'body', 'type']
         if modifiers is None:
             modifiers = []
         if type_parameters is None:
@@ -356,6 +366,7 @@ class AnnotationDeclaration(SourceElement):
         self.extends = extends
         self.implements = implements
         self.body = body
+        self.type = 'void'
 
 class AnnotationMethodDeclaration(SourceElement):
 
