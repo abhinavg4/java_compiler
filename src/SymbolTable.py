@@ -21,6 +21,7 @@ class SymbolTable:
         self.func = 'start'
         self.scope = 1
         self.new_s = 1
+        
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
         if less:
             store_scope = self.scope

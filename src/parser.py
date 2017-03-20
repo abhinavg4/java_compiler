@@ -1283,6 +1283,7 @@ class ClassParser(object):
         else:
             p[1]['type_parameters'] = p[2]
         p[0] = p[1]
+        ST.Add('classes',p[0]['name'],None,p[0]['type_parameters'],p[0]['modifiers'])
 
     def p_class_header_name1(self, p):
         '''class_header_name1 : modifiers_opt CLASS NAME'''

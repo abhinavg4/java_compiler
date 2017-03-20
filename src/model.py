@@ -198,7 +198,10 @@ class FieldDeclaration(SourceElement):
         self.modifiers = modifiers
         global ST
         for x in self.variable_declarators:
-            ST.Add('variables',x.variable.name,x.variable.dimensions,self.type,self.modifiers)
+            if self.type.__class__ is str:
+                ST.Add('variables',x.variable.name,x.variable.dimensions,self.type,self.modifiers)
+            else:
+                ST.Add('variables',x.variable.name,x.variable.dimensions,self.type.name.value,self.modifiers)
 
 class MethodDeclaration(SourceElement):
 
@@ -226,7 +229,6 @@ class MethodDeclaration(SourceElement):
         self.abstract = abstract
         self.extended_dims = extended_dims
         self.throws = throws
-        self.type = 'void'
 
 class FormalParameter(SourceElement):
 
@@ -477,11 +479,13 @@ class BinaryExpression(Expression):
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
-        if (lhs.type == 'int' or lhs.type == 'float') and (rhs.type == 'int' or rhs.type == 'float'):
-            self.type = 'float'
+        if lhs.type == rhs.type:
+            if not lhs.type == 'char':
+                self.type = lhs.type
         else:
-            pdb.set_trace()
-            sys.exit("type Error")
+            #pdb.set_trace()
+            self.type = 'error'
+            print("type Error")
             print(lhs.type)
             print(rhs.type)
 
@@ -609,21 +613,25 @@ class MethodInvocation(Expression):
         self.type_arguments = type_arguments
         self.target = target
         #pdb.set_trace()
-        global ST
-        #print("asdfasdfasd"+str(ST.scope))
-        if not ST.Search('methods',name):
-            self.type = None
-            #pass
-            sys.exit(name + ' not declared in current scope')
+        if not target:
+            global ST
+            #print("asdfasdfasd"+str(ST.scope))
+            if not ST.Search('methods',name):
+                self.type = None
+                #pass
+                #pdb.set_trace()
+                print(name + ' not declared in current scope')
+            else:
+                self.type = ST.Search('methods',name)
+            scope_method = ST.getScope('methods',name)
+            input_method = ST.SymbolTable[scope_method]['methods'][name]['dimension']
+            if not len(input_method) == len(arguments):
+                print(name + ' is called with incorrect number of arguments')
+            for (x,y) in zip(input_method,arguments):
+                if not x.type == y.type:
+                    print(name + ' not called with correct argument type')
         else:
-            self.type = ST.Search('methods',name)
-        scope_method = ST.getScope('methods',name)
-        input_method = ST.SymbolTable[scope_method]['methods'][name]['dimension']
-        if not len(input_method) == len(arguments):
-            sys.exit(name + ' is called with incorrect number of arguments')
-        for (x,y) in zip(input_method,arguments):
-            if not x.type == y.type:
-                sys.exit(name + ' not called with correct argument type')
+            self.type = 'undefined'
 
 class IfThenElse(Statement):
 
@@ -636,7 +644,7 @@ class IfThenElse(Statement):
         self.if_false = if_false
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            sys.exit("boolean not provided inside if Statement")
+            print("boolean not provided inside if Statement")
 class While(Statement):
 
     def __init__(self, predicate, body=None):
@@ -647,7 +655,7 @@ class While(Statement):
         self.body = body
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            sys.exit("boolean not provided inside if Statement")
+            print("boolean not provided inside if Statement")
 class For(Statement):
 
     def __init__(self, init, predicate, update, body):
@@ -660,7 +668,7 @@ class For(Statement):
         self.body = body
         self.type = predicate.type
         if not predicate.type in ['int','float','boolean','long','double']:
-            sys.exit("boolean not provided inside if Statement")
+            print("boolean not provided inside if Statement")
 
 class ForEach(Statement):
 
@@ -922,7 +930,9 @@ class Name(SourceElement):
         self.value = value
         global ST
         if not ST.Search('variables',value):
-            sys.exit(value + ' not declared in current scope')
+            #pdb.set_trace()
+            self.type = 'error'
+            print(value + ' not declared in current scope')
         else:
             self.type = ST.Search('variables',value)
 
