@@ -469,6 +469,7 @@ class BinaryExpression(Expression):
         if (lhs.type == 'int' or lhs.type == 'float') and (rhs.type == 'int' or rhs.type == 'float'):
             self.type = 'float'
         else:
+            pdb.set_trace()
             sys.exit("type Error")
             print(lhs.type)
             print(rhs.type)
@@ -544,10 +545,10 @@ class Cast(Expression):
     def __init__(self, target, expression):
         super(Cast, self).__init__()
         node("Cast", self.id, target, expression)
-        self._fields = ['target', 'expression']
+        self._fields = ['target', 'expression','type']
         self.target = target
         self.expression = expression
-
+        self.type = target.name
 
 class Statement(SourceElement):
     pass
@@ -618,30 +619,37 @@ class IfThenElse(Statement):
     def __init__(self, predicate, if_true=None, if_false=None):
         super(IfThenElse, self).__init__()
         node("IfThenElse", self.id, predicate, if_true, if_false)
-        self._fields = ['predicate', 'if_true', 'if_false']
+        self._fields = ['predicate', 'if_true', 'if_false','type']
         self.predicate = predicate
         self.if_true = if_true
         self.if_false = if_false
-
+        self.type = 'void'
+        if not predicate.type in ['int','float','boolean','long','double']:
+            sys.exit("boolean not provided inside if Statement")
 class While(Statement):
 
     def __init__(self, predicate, body=None):
         super(While, self).__init__()
         node("While", self.id, predicate, body)
-        self._fields = ['predicate', 'body']
+        self._fields = ['predicate', 'body', 'type']
         self.predicate = predicate
         self.body = body
-
+        self.type = 'void'
+        if not predicate.type in ['int','float','boolean','long','double']:
+            sys.exit("boolean not provided inside if Statement")
 class For(Statement):
 
     def __init__(self, init, predicate, update, body):
         super(For, self).__init__()
         node("For", self.id, init, predicate, update, body)
-        self._fields = ['init', 'predicate', 'update', 'body']
+        self._fields = ['init', 'predicate', 'update', 'body', 'type']
         self.init = init
         self.predicate = predicate
         self.update = update
         self.body = body
+        self.type = predicate.type
+        if not predicate.type in ['int','float','boolean','long','double']:
+            sys.exit("boolean not provided inside if Statement")
 
 class ForEach(Statement):
 
