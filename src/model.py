@@ -486,10 +486,12 @@ class BinaryExpression(Expression):
         if lhs.type == rhs.type:
             if not lhs.type == 'char':
                 self.type = lhs.type
+        elif ((lhs.type == 'float' or 'double') and (rhs.type == 'float' or 'double' or 'int')):
+            self.type = lhs.type
         else:
             #pdb.set_trace()
             self.type = 'error'
-            print("Type Error")
+            print("Type Error In Binary Expression")
             print(lhs.type)
             print(rhs.type)
 
@@ -568,7 +570,7 @@ class Unary(Expression):
         self._fields = ['sign', 'expression','type']
         self.sign = sign
         self.expression = expression
-        self.type = 'void'
+        self.type = expression.type
         if not expression.type in ['int','float','boolean','long','double']:
             print("Type Error")
             self.type = "error"
@@ -675,7 +677,7 @@ class While(Statement):
         self.body = body
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            print("boolean not provided inside if Statement")
+            print("boolean not provided inside while Statement")
 
 class For(Statement):
 
@@ -687,9 +689,9 @@ class For(Statement):
         self.predicate = predicate
         self.update = update
         self.body = body
-        self.type = predicate.type
-        if not predicate.type in ['int','float','boolean','long','double']:
-            print("boolean not provided inside if Statement")
+        self.type = 'void'
+        #if predicate.type != update.type or update.type != init.type:
+        #    print("Type Error : For Loops")
 
 class ForEach(Statement):
 
