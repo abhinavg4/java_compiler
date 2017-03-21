@@ -21,7 +21,7 @@ class SymbolTable:
         self.func = 'start'
         self.scope = 1
         self.new_s = 1
-        
+
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
         if less:
             store_scope = self.scope
@@ -85,9 +85,7 @@ class SymbolTable:
             })
         self.new_s +=1
         self.scope = self.new_s
-        print(self.scope)
 
     def dec_scope(self):
         self.scope = self.SymbolTable[self.scope]['parent']
         #self.SymbolTable.pop()
-        print("dsfasd"+str(self.scope))

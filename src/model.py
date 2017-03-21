@@ -482,7 +482,6 @@ class BinaryExpression(Expression):
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
-        pdb.set_trace()
         if lhs.type == rhs.type:
             if not lhs.type == 'char':
                 self.type = lhs.type
@@ -492,8 +491,8 @@ class BinaryExpression(Expression):
             #pdb.set_trace()
             self.type = 'error'
             print("Type Error In Binary Expression")
-            print(lhs.type)
-            print(rhs.type)
+            print("LHS is " + lhs.type)
+            print("RHS is " + rhs.type)
 
 class Assignment(BinaryExpression):
     pass
@@ -572,7 +571,7 @@ class Unary(Expression):
         self.expression = expression
         self.type = expression.type
         if not expression.type in ['int','float','boolean','long','double']:
-            print("Type Error")
+            print("Type Error In Unary Expression")
             self.type = "error"
 
 class Cast(Expression):
@@ -665,7 +664,7 @@ class IfThenElse(Statement):
         self.if_false = if_false
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            print("boolean not provided inside if Statement")
+            print("Boolean not provided inside if Statement")
 
 class While(Statement):
 
@@ -677,7 +676,7 @@ class While(Statement):
         self.body = body
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            print("boolean not provided inside while Statement")
+            print("Boolean not provided inside while Statement")
 
 class For(Statement):
 
@@ -924,7 +923,7 @@ class ArrayAccess(Expression):
             scope_method = ST.getScope('variables',target.value)
             self.dimension = ST.SymbolTable[scope_method]['variables'][target.value]['dimension']
         if self.depth > self.dimension:
-            print("chutiyo dimension shi se access karo")
+            print("More than allowed dimension accessed")
         #pdb.set_trace()
         if index.type is not 'int':
             print("Type Error : Array Indices Must Be Integer")
