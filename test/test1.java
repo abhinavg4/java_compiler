@@ -4,6 +4,6 @@ public class Factorial
 
         static public private char main(int a, int b)
         {
-          b = 4 + 4.3;
+           d = 3;
         }
 }

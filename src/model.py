@@ -492,7 +492,7 @@ class BinaryExpression(Expression):
             self.type = 'error'
             print("Type Error In Binary Expression")
             print("LHS is " + lhs.type)
-            print("RHS is " + rhs.type)
+            sys.exit("RHS is " + rhs.type)
 
 class Assignment(BinaryExpression):
     pass
@@ -512,12 +512,12 @@ class Conditional(Expression):
         elif predicate.type in ['int','float','boolean','long','double']:
             self.type = 'error'
             print("Type Error : Predicate Must Be A Boolean")
-            print(predicate.type)
+            sys.exit(predicate.type)
         else:
             self.type = 'error'
             print("Type Error")
             print(if_true.type)
-            print(if_false.type)
+            sys.exit(if_false.type)
 
 class ConditionalOr(BinaryExpression):
     pass
@@ -571,8 +571,8 @@ class Unary(Expression):
         self.expression = expression
         self.type = expression.type
         if not expression.type in ['int','float','boolean','long','double']:
-            print("Type Error In Unary Expression")
             self.type = "error"
+            sys.exit("Type Error In Unary Expression")
 
 class Cast(Expression):
 
@@ -635,21 +635,19 @@ class MethodInvocation(Expression):
         #pdb.set_trace()
         if not target:
             global ST
-            #print("asdfasdfasd"+str(ST.scope))
             if not ST.Search('methods',name):
                 self.type = None
-                #pass
                 #pdb.set_trace()
-                print(name + ' not declared in current scope')
+                sys.exit(name + ' not declared in current scope')
             else:
                 self.type = ST.Search('methods',name)
             scope_method = ST.getScope('methods',name)
             input_method = ST.SymbolTable[scope_method]['methods'][name]['dimension']
             if not len(input_method) == len(arguments):
-                print(name + ' is called with incorrect number of arguments')
+                sys.exit(name + ' is called with incorrect number of arguments')
             for (x,y) in zip(input_method,arguments):
                 if not x.type == y.type:
-                    print(name + ' not called with correct argument type')
+                    sys.exit(name + ' not called with correct argument type')
         else:
             self.type = 'undefined'
 
@@ -664,7 +662,7 @@ class IfThenElse(Statement):
         self.if_false = if_false
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            print("Boolean not provided inside if Statement")
+            sys.exit("Boolean not provided inside if Statement")
 
 class While(Statement):
 
@@ -676,7 +674,7 @@ class While(Statement):
         self.body = body
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
-            print("Boolean not provided inside while Statement")
+            sys.exit("Boolean not provided inside while Statement")
 
 class For(Statement):
 
@@ -923,10 +921,9 @@ class ArrayAccess(Expression):
             scope_method = ST.getScope('variables',target.value)
             self.dimension = ST.SymbolTable[scope_method]['variables'][target.value]['dimension']
         if self.depth > self.dimension:
-            print("More than allowed dimension accessed")
-        #pdb.set_trace()
+            sys.exit("More than allowed dimension accessed")
         if index.type is not 'int':
-            print("Type Error : Array Indices Must Be Integer")
+            sys.exit("Type Error : Array Indices Must Be Integer")
 
 class ArrayCreation(Expression):
 
@@ -975,7 +972,7 @@ class Name(SourceElement):
         if not ST.Search('variables',value):
             #pdb.set_trace()
             self.type = 'error'
-            print(value + ' not declared in current scope')
+            sys.exit(value + ' not declared in current scope')
         else:
             self.type = ST.Search('variables',value)
 

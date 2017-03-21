@@ -34,7 +34,7 @@ class SymbolTable:
                 'modifiers' : modifiers
             }
         else:
-            sys.exit(name + 'Already present in current scope')
+            sys.exit('Scope Error : ' + name + ' already present in current scope')
         if key == 'methods':
             self.SymbolTableFunction[self.func]['type'] = type
             self.SymbolTableFunction[self.func]['input'] = dimension
