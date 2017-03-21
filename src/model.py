@@ -209,7 +209,6 @@ class MethodDeclaration(SourceElement):
                  parameters=None, return_type='void', body=None, abstract=False,
                  extended_dims=0, throws=None):
         super(MethodDeclaration, self).__init__()
-        print("sg")
         node("MethodDeclaration",self.id, name, modifiers, type_parameters,parameters, body, throws)
         self._fields = ['name', 'modifiers', 'type_parameters', 'parameters',
                         'return_type', 'body', 'abstract', 'extended_dims',
@@ -483,11 +482,12 @@ class BinaryExpression(Expression):
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
+        pdb.set_trace()
         if lhs.type == rhs.type:
             if not lhs.type == 'char':
                 self.type = lhs.type
-        elif ((lhs.type == 'float' or 'double') and (rhs.type == 'float' or 'double' or 'int')):
-            self.type = lhs.type
+        elif ((lhs.type in ['double']) and (rhs.type in ['double','int']) or (rhs.type in ['double']) and (lhs.type in ['double','int'])) and operator != '=' :
+            self.type = 'double'
         else:
             #pdb.set_trace()
             self.type = 'error'
@@ -911,10 +911,21 @@ class ArrayAccess(Expression):
     def __init__(self, index, target):
         super(ArrayAccess, self).__init__()
         node("ArrayAccess", self.id, index, target)
-        self._fields = ['index', 'target','type']
+        self._fields = ['index', 'target','type','depth','dimension']
         self.index = index
         self.target = target
         self.type = target.type
+        global ST
+        if target.__class__ == ArrayAccess:
+            self.depth = target.depth +1
+            self.dimension = target.dimension
+        else:
+            self.depth = 1
+            scope_method = ST.getScope('variables',target.value)
+            self.dimension = ST.SymbolTable[scope_method]['variables'][target.value]['dimension']
+        if self.depth > self.dimension:
+            print("chutiyo dimension shi se access karo")
+        #pdb.set_trace()
         if index.type is not 'int':
             print("Type Error : Array Indices Must Be Integer")
 
@@ -941,7 +952,7 @@ class Literal(SourceElement):
         if value[0] == "'":
             self.type = 'char'
         elif self.value.find('.') == 1:
-            self.type = 'float'
+            self.type = 'double'
         else:
             self.type = 'int'
 
