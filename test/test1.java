@@ -1,11 +1,10 @@
 // For Loops to Calculate Factorial
 public class Factorial
 {
-        int a,b,c;
+        float b,c;
         static public private char main(int a, int b)
         {
-          Abhinav garg;
-          garg = garg + (Abhinav)garg;
-          c = a+b;
+            int e[][] = new int[2][3];
+            e[0][2.3] = 1;
         }
 }

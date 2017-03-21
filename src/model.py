@@ -913,7 +913,8 @@ class ArrayAccess(Expression):
         self.index = index
         self.target = target
         self.type = target.type
-
+        if index.type is not 'int':
+            print("Type Error : Array Indices Must Be Integer")
 
 class ArrayCreation(Expression):
 
@@ -937,9 +938,10 @@ class Literal(SourceElement):
         self.value = value
         if value[0] == "'":
             self.type = 'char'
+        elif self.value.find('.') == 1:
+            self.type = 'float'
         else:
             self.type = 'int'
-
 
 class ClassLiteral(SourceElement):
 
