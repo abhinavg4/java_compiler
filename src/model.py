@@ -86,7 +86,7 @@ class node:
                     graph.add_edge(pydot.Edge(node_a,pydot.Node(x.id)))
 def printing():
     global graph
-    graph.write_png('./string.png')
+    graph.write_png('./AST.png')
 
 class CompilationUnit(SourceElement):
 
