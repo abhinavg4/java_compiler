@@ -10,9 +10,11 @@ DESCRIPTION
     To draw the trees, we have used pydot package
 
 USAGE
-    ./bin/go.py [options][-d/-s/-e/-f/-h/-l/-z/-t] [string]
+    Milestone 1 : ./bin/go.py [options][-d/-s/-e/-f/-h/-l/-z/-t] [string]
+    Milestone 2 : ./bin/milestone2.py
 
 OPTIONS
+[For ./bin/go.py]
     -d, --debug
         To print debugging statements while parsing. Set value 0 to disable and 1 to enable
     -e, --expression
@@ -31,6 +33,7 @@ OPTIONS
         To generate all lex tokens for given input string
 
 SAMPLE COMMAND
+[For ./bin/go.py]
     ./bin/go.py -d 1 -f ./test/test.java
     
     This will generate syntax tree for the java code in test.java file in test directory and output the graph in "file_tree.png".
