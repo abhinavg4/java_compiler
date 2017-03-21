@@ -279,8 +279,9 @@ class Throws(SourceElement):
     def __init__(self, types):
         super(Throws, self).__init__()
         node("Throws",self.id, types)
-        self._fields = ['types']
+        self._fields = ['types','type']
         self.types = types
+        self.type = 'void'
 
 class InterfaceDeclaration(SourceElement):
 
@@ -611,12 +612,11 @@ class ArrayInitializer(SourceElement):
     def __init__(self, elements=None):
         super(ArrayInitializer, self).__init__()
         node("ArrayInitializer", self.id, elements)
-        self._fields = ['elements']
+        self._fields = ['elements','type']
         if elements is None:
             elements = []
         self.elements = elements
-        print("YoLo")
-
+        self.type = elements.type
 
 class MethodInvocation(Expression):
     def __init__(self, name, arguments=None, type_arguments=None, target=None):
@@ -711,9 +711,10 @@ class Assert(Statement):
     def __init__(self, predicate, message=None):
         super(Assert, self).__init__()
         node("Assert", self.id, predicate, message)
-        self._fields = ['predicate', 'message']
+        self._fields = ['predicate', 'message','type']
         self.predicate = predicate
         self.message = message
+        self.type = 'void'
 
 
 class Switch(Statement):
@@ -721,29 +722,32 @@ class Switch(Statement):
     def __init__(self, expression, switch_cases):
         super(Switch, self).__init__()
         node("Switch", self.id, expression, switch_cases)
-        self._fields = ['expression', 'switch_cases']
+        self._fields = ['expression', 'switch_cases','type']
         self.expression = expression
         self.switch_cases = switch_cases
+        self.type = 'void'
 
 class SwitchCase(SourceElement):
 
     def __init__(self, cases, body=None):
         super(SwitchCase, self).__init__()
         node("SwitchCase", self.id, cases, body)
-        self._fields = ['cases', 'body']
+        self._fields = ['cases', 'body','type']
         if body is None:
             body = []
         self.cases = cases
         self.body = body
+        self.type = 'void'
 
 class DoWhile(Statement):
 
     def __init__(self, predicate, body=None):
         super(DoWhile, self).__init__()
         node("DoWhile", self.id, predicate, body)
-        self._fields = ['predicate', 'body']
+        self._fields = ['predicate', 'body','type']
         self.predicate = predicate
         self.body = body
+        self.type = 'void'
 
 
 class Continue(Statement):
@@ -751,8 +755,9 @@ class Continue(Statement):
     def __init__(self, label=None):
         super(Continue, self).__init__()
         node("Continue", self.id, label)
-        self._fields = ['label']
+        self._fields = ['label','type']
         self.label = label
+        self.type = 'void'
 
 
 class Break(Statement):
@@ -760,16 +765,17 @@ class Break(Statement):
     def __init__(self, label=None):
         super(Break, self).__init__()
         node("Break", self.id, label)
-        self._fields = ['label']
+        self._fields = ['label','type']
         self.label = label
-
+        self.type = 'void'
 
 class Return(Statement):
 
     def __init__(self, result=None):
         super(Return, self).__init__()
         node("Return", self.id, result)
-        self._fields = ['result']
+        self._fields = ['result','type']
+        self.type = 'void'
         self.result = result
 
 
@@ -778,26 +784,26 @@ class Synchronized(Statement):
     def __init__(self, monitor, body):
         super(Synchronized, self).__init__()
         node("Synchronized", self.id, monitor, body)
-        self._fields = ['monitor', 'body']
+        self._fields = ['monitor', 'body', 'type']
         self.monitor = monitor
         self.body = body
-
+        self.type = 'void'
 
 class Throw(Statement):
 
     def __init__(self, exception):
         super(Throw, self).__init__()
         node("Throw", self.id, exception)
-        self._fields = ['exception']
+        self._fields = ['exception','type']
         self.exception = exception
-
+        self.type = 'void'
 
 class Try(Statement):
 
     def __init__(self, block, catches=None, _finally=None, resources=None):
         super(Try, self).__init__()
         node("Try", self.id, block, catches, _finally, resources)
-        self._fields = ['block', 'catches', '_finally', 'resources']
+        self._fields = ['block', 'catches', '_finally', 'resources','type']
         if catches is None:
             catches = []
         if resources is None:
@@ -806,6 +812,7 @@ class Try(Statement):
         self.catches = catches
         self._finally = _finally
         self.resources = resources
+        self.type = 'void'
 
     def accept(self, visitor):
         if visitor.visit_Try(self):
@@ -822,7 +829,7 @@ class Catch(SourceElement):
     def __init__(self, variable, modifiers=None, types=None, block=None):
         super(Catch, self).__init__()
         node("Catch", self.id, variable, modifiers, types, block)
-        self._fields = ['variable', 'modifiers', 'types', 'block']
+        self._fields = ['variable', 'modifiers', 'types', 'block','type']
         if modifiers is None:
             modifiers = []
         if types is None:
@@ -831,7 +838,7 @@ class Catch(SourceElement):
         self.modifiers = modifiers
         self.types = types
         self.block = block
-
+        self.type = 'void'
 
 class Resource(SourceElement):
 
@@ -855,7 +862,7 @@ class ConstructorInvocation(Statement):
     def __init__(self, name, target=None, type_arguments=None, arguments=None):
         super(ConstructorInvocation, self).__init__()
         node("ConstructorInvocation", self.id, name, target, type_arguments, arguments)
-        self._fields = ['name', 'target', 'type_arguments', 'arguments']
+        self._fields = ['name', 'target', 'type_arguments', 'arguments','type']
         if type_arguments is None:
             type_arguments = []
         if arguments is None:
@@ -864,7 +871,7 @@ class ConstructorInvocation(Statement):
         self.target = target
         self.type_arguments = type_arguments
         self.arguments = arguments
-
+        self.type = 'void'
 
 class InstanceCreation(Expression):
 
@@ -892,19 +899,20 @@ class FieldAccess(Expression):
     def __init__(self, name, target):
         super(FieldAccess, self).__init__()
         node("FieldAccess", self.id, name, target)
-        self._fields = ['name', 'target']
+        self._fields = ['name', 'target', 'type']
         self.name = name
         self.target = target
-
+        self.type = name.type
 
 class ArrayAccess(Expression):
 
     def __init__(self, index, target):
         super(ArrayAccess, self).__init__()
         node("ArrayAccess", self.id, index, target)
-        self._fields = ['index', 'target']
+        self._fields = ['index', 'target','type']
         self.index = index
         self.target = target
+        self.type = target.type
 
 
 class ArrayCreation(Expression):
