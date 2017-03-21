@@ -203,6 +203,7 @@ class FieldDeclaration(SourceElement):
             else:
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type.name.value,self.modifiers)
 
+
 class MethodDeclaration(SourceElement):
 
     def __init__(self, name, modifiers=None, type_parameters=None,
@@ -261,6 +262,7 @@ class Variable(SourceElement):
         self.name = name
         self.dimensions = dimensions
         self.type = 'void'
+        print(name)
 
 
 class VariableDeclarator(SourceElement):
@@ -272,6 +274,7 @@ class VariableDeclarator(SourceElement):
         self.variable = variable
         self.initializer = initializer
         self.type = 'void'
+        
 
 class Throws(SourceElement):
 

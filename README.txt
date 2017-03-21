@@ -6,8 +6,9 @@
 \* another century :P
 
 DESCRIPTION
-    This program is a Java scanner and  parser written in python which outputs the syntax tree in a graphical form.
-    To draw the trees, we have used pydot package
+    Milestone 1 - Java scanner and  parser written in python which outputs the syntax tree in a graphical form.
+                  To draw the trees, we have used pydot package.
+    Milestone 2 - Java Abstract Syntax Tree and Symbol Table Implementation. Tells some basic compilation errors also.
 
 USAGE
     Milestone 1 : ./bin/go.py [options][-d/-s/-e/-f/-h/-l/-z/-t] [string]
