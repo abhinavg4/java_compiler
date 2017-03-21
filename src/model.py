@@ -198,6 +198,8 @@ class FieldDeclaration(SourceElement):
         self.modifiers = modifiers
         global ST
         for x in self.variable_declarators:
+            if self.type != x.initializer.type:
+                sys.exit("Variable "+x.variable.name+" not initialized properly")
             if self.type.__class__ is str:
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type,self.modifiers)
             else:

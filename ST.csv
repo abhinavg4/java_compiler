@@ -1,0 +1,5 @@
+function,variable,modifiers,type,dimension
+start,Factorial.1,['public'],[],
+main,b.3,[],int,0
+main,d.3,[],int,0
+main,a.3,[],int,0
