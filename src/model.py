@@ -262,7 +262,6 @@ class Variable(SourceElement):
         self.name = name
         self.dimensions = dimensions
         self.type = 'void'
-        print(name)
 
 
 class VariableDeclarator(SourceElement):
@@ -274,7 +273,6 @@ class VariableDeclarator(SourceElement):
         self.variable = variable
         self.initializer = initializer
         self.type = 'void'
-        
 
 class Throws(SourceElement):
 
