@@ -229,6 +229,7 @@ class MethodDeclaration(SourceElement):
         self.abstract = abstract
         self.extended_dims = extended_dims
         self.throws = throws
+        self.type = 'void'
 
 class FormalParameter(SourceElement):
 
@@ -397,12 +398,13 @@ class Annotation(SourceElement):
     def __init__(self, name, members=None, single_member=None):
         super(Annotation, self).__init__()
         node("Annotation", self.id, name, members, single_member)
-        self._fields = ['name', 'members', 'single_member']
+        self._fields = ['name', 'members', 'single_member', 'type']
         if members is None:
             members = []
         self.name = name
         self.members = members
         self.single_member = single_member
+        self.type = 'void'
 
 
 class AnnotationMember(SourceElement):
@@ -410,10 +412,10 @@ class AnnotationMember(SourceElement):
     def __init__(self, name, value):
         super(SourceElement, self).__init__()
         node("AnnotationMember", self.id, name, value)
-        self._fields = ['name', 'value']
+        self._fields = ['name', 'value', 'type']
         self.name = name
         self.value = value
-
+        self.type = 'void'
 
 class Type(SourceElement):
 
@@ -435,10 +437,11 @@ class Wildcard(SourceElement):
     def __init__(self, bounds=None):
         super(Wildcard, self).__init__()
         node("Wildcard", self.id, bounds)
-        self._fields = ['bounds']
+        self._fields = ['bounds', 'type']
         if bounds is None:
             bounds = []
         self.bounds = bounds
+        self.type = 'void'
 
 
 class WildcardBound(SourceElement):
@@ -485,7 +488,7 @@ class BinaryExpression(Expression):
         else:
             #pdb.set_trace()
             self.type = 'error'
-            print("type Error")
+            print("Type Error")
             print(lhs.type)
             print(rhs.type)
 
@@ -498,10 +501,21 @@ class Conditional(Expression):
     def __init__(self, predicate, if_true, if_false):
         super(self.__class__, self).__init__()
         node("Conditional", self.id, predicate, if_true, if_false)
-        self._fields = ['predicate', 'if_true', 'if_false']
+        self._fields = ['predicate', 'if_true', 'if_false', 'type']
         self.predicate = predicate
         self.if_true = if_true
         self.if_false = if_false
+        if predicate.type in ['int','float','boolean','long','double'] and if_true.type == if_false.type:
+            self.type = if_true.type
+        elif predicate.type in ['int','float','boolean','long','double']:
+            self.type = 'error'
+            print("Type Error : Predicate Must Be A Boolean")
+            print(predicate.type)
+        else:
+            self.type = 'error'
+            print("Type Error")
+            print(if_true.type)
+            print(if_false.type)
 
 class ConditionalOr(BinaryExpression):
     pass
@@ -550,10 +564,13 @@ class Unary(Expression):
     def __init__(self, sign, expression):
         super(Unary, self).__init__()
         node("Unary", self.id, sign, expression)
-        self._fields = ['sign', 'expression']
+        self._fields = ['sign', 'expression','type']
         self.sign = sign
         self.expression = expression
-
+        self.type = 'void'
+        if not expression.type in ['int','float','boolean','long','double']:
+            print("Type Error")
+            self.type = "error"
 
 class Cast(Expression):
 
@@ -577,10 +594,11 @@ class Block(Statement):
     def __init__(self, statements=None):
         super(Statement, self).__init__()
         node("Block", self.id, statements)
-        self._fields = ['statements']
+        self._fields = ['statements','type']
         if statements is None:
             statements = []
         self.statements = statements
+        self.type = 'void'
 
     def __iter__(self):
         for s in self.statements:
@@ -597,6 +615,7 @@ class ArrayInitializer(SourceElement):
         if elements is None:
             elements = []
         self.elements = elements
+        print("YoLo")
 
 
 class MethodInvocation(Expression):
@@ -645,6 +664,7 @@ class IfThenElse(Statement):
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
             print("boolean not provided inside if Statement")
+
 class While(Statement):
 
     def __init__(self, predicate, body=None):
@@ -656,6 +676,7 @@ class While(Statement):
         self.type = 'void'
         if not predicate.type in ['int','float','boolean','long','double']:
             print("boolean not provided inside if Statement")
+
 class For(Statement):
 
     def __init__(self, init, predicate, update, body):
@@ -947,5 +968,6 @@ class ExpressionStatement(Statement):
     def __init__(self, expression):
         super(ExpressionStatement, self).__init__()
         node("ExpressionStatement", self.id, expression)
-        self._fields = ['expression']
+        self._fields = ['expression','type']
         self.expression = expression
+        self.type = 'void'
