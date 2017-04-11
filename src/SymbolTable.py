@@ -21,6 +21,7 @@ class SymbolTable:
         self.func = 'start'
         self.scope = 1
         self.new_s = 1
+        self.tempNo = 1
 
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
         if less:
@@ -52,6 +53,12 @@ class SymbolTable:
             return self.getType(key,name)
         else:
             return None
+
+    def getTemp(self,type):
+        name = 'temp' + str(self.tempNo)
+        self.tempNo += 1
+        self.Add('variables',name,0,type,None)
+        return name
 
     def getScope(self,key,name):
         scope_curr = self.scope

@@ -4,7 +4,7 @@ import lexRule
 import ply.lex as lex
 import ply.yacc as yacc
 from model import *
-
+import pdb
 global tokens
 
 class ExpressionParser(object):
@@ -410,6 +410,7 @@ class StatementParser(object):
     def p_local_variable_declaration(self, p):
         '''local_variable_declaration : type variable_declarators'''
         p[0] = VariableDeclaration(p[1], p[2])
+        
 
     def p_local_variable_declaration2(self, p):
         '''local_variable_declaration : modifiers type variable_declarators'''
@@ -1270,7 +1271,7 @@ class ClassParser(object):
                                 type_parameters=p[1]['type_parameters'])
 
     def p_class_header(self, p):
-        '''class_header : class_header_name class_header_extends_opt class_header_implements_opt'''
+        '''class_header : class_header_name empty empty'''
         p[1]['extends'] = p[2]
         p[1]['implements'] = p[3]
         p[0] = p[1]
@@ -1465,6 +1466,7 @@ class ClassParser(object):
         p[0] = p[1]
         global ST
         ST.Add('methods',p[1]['name'],p[1]['parameters'],p[1]['type'],p[1]['modifiers'],1)
+        tac.emit('func',p[1]['name']+str(len(p[2])),p[2],'')
 
     def p_method_header_name(self, p):
         '''method_header_name : modifiers_opt type_parameters type NAME '('

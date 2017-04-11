@@ -5,11 +5,13 @@ import sys
 import SymbolTable
 global graph
 global outputfile
-
+import tac
 idg = 0
 graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
 global ST
 ST = SymbolTable.SymbolTable()
+global tac
+tac = tac.TAC()
 class SourceElement(object):
     '''
     A SourceElement is the base class for all elements that occur in a Java
@@ -202,9 +204,15 @@ class FieldDeclaration(SourceElement):
                 sys.exit("Variable "+x.variable.name+" not initialized properly")
             if self.type.__class__ is str:
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type,self.modifiers)
+                scope_var = ST.scope
+                tac.emit(x.variable.name+'_'+str(scope_var),x.initializer.place,'','=')
             else:
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type.name.value,self.modifiers)
+                scope_var = ST.scope
+                tac.emit(x.variable.name+'_'+str(scope_var),x.initializer.place,'','=')
 
+        pdb.set_trace()
+        print("sadf")
 
 class MethodDeclaration(SourceElement):
 
@@ -481,7 +489,7 @@ class BinaryExpression(Expression):
     def __init__(self, operator, lhs, rhs):
         super(BinaryExpression, self).__init__()
         node("BinaryExpression", self.id, operator, lhs, rhs)
-        self._fields = ['operator', 'lhs', 'rhs','type']
+        self._fields = ['operator', 'lhs', 'rhs','type','place']
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
@@ -496,6 +504,9 @@ class BinaryExpression(Expression):
             print("Type Error In Binary Expression")
             print("LHS is " + lhs.type)
             sys.exit("RHS is " + rhs.type)
+        name = ST.getTemp(self.type)
+        self.place = name
+        tac.emit(name, lhs.place, rhs.place, operator)
 
 class Assignment(BinaryExpression):
     pass
@@ -946,8 +957,9 @@ class Literal(SourceElement):
     def __init__(self, value):
         super(Literal, self).__init__()
         node("Literal", self.id, value)
-        self._fields = ['value' , 'type']
+        self._fields = ['value' , 'type', 'place']
         self.value = value
+        self.place = value
         if value[0] == "'":
             self.type = 'char'
         elif self.value.find('.') == 1:
