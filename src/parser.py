@@ -410,7 +410,7 @@ class StatementParser(object):
     def p_local_variable_declaration(self, p):
         '''local_variable_declaration : type variable_declarators'''
         p[0] = VariableDeclaration(p[1], p[2])
-        
+
 
     def p_local_variable_declaration2(self, p):
         '''local_variable_declaration : modifiers type variable_declarators'''
@@ -1466,7 +1466,10 @@ class ClassParser(object):
         p[0] = p[1]
         global ST
         ST.Add('methods',p[1]['name'],p[1]['parameters'],p[1]['type'],p[1]['modifiers'],1)
-        tac.emit('func',p[1]['name']+str(len(p[2])),p[2],'')
+        q = []
+        for x in p[2]:
+            q = q + [x.variable.name + '_'+str(ST.scope)]
+        tac.emit('func',p[1]['name']+str(len(p[2])),q,'')
 
     def p_method_header_name(self, p):
         '''method_header_name : modifiers_opt type_parameters type NAME '('

@@ -211,8 +211,8 @@ class FieldDeclaration(SourceElement):
                 scope_var = ST.scope
                 tac.emit(x.variable.name+'_'+str(scope_var),x.initializer.place,'','=')
 
-        pdb.set_trace()
-        print("sadf")
+        #pdb.set_trace()
+        #print("sadf")
 
 class MethodDeclaration(SourceElement):
 
@@ -981,7 +981,7 @@ class Name(SourceElement):
     def __init__(self, value):
         super(Name, self).__init__()
         node("Name",self.id, value)
-        self._fields = ['value', 'type']
+        self._fields = ['value', 'type', 'place']
         self.value = value
         global ST
         if not ST.Search('variables',value):
@@ -990,6 +990,7 @@ class Name(SourceElement):
             sys.exit(value + ' not declared in current scope')
         else:
             self.type = ST.Search('variables',value)
+        self.place = value + '_'+str(ST.scope)
 
     def append_name(self, name):
         try:

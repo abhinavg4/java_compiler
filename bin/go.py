@@ -8,6 +8,7 @@ import ply.yacc as yacc
 import node_file
 parse = parser.Parser()
 tree = parse.parse_file(file('./test/test1.java'))
+t = parser.tac.code
 import getopt
 import pydot
 
