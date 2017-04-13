@@ -22,6 +22,7 @@ class SymbolTable:
         self.scope = 1
         self.new_s = 1
         self.tempNo = 1
+        self.labelNo = 1
 
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
         if less:
@@ -96,3 +97,7 @@ class SymbolTable:
     def dec_scope(self):
         self.scope = self.SymbolTable[self.scope]['parent']
         #self.SymbolTable.pop()
+    def new_label(self):
+        label = 'label'+str(self.labelNo)
+        self.labelNo+=1
+        return label

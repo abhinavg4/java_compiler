@@ -200,18 +200,19 @@ class FieldDeclaration(SourceElement):
         self.modifiers = modifiers
         global ST
         for x in self.variable_declarators:
-            if self.type != x.initializer.type:
+            if x.initializer and self.type != x.initializer.type:
                 sys.exit("Variable "+x.variable.name+" not initialized properly")
             if self.type.__class__ is str:
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type,self.modifiers)
-                scope_var = ST.scope
-                tac.emit(x.variable.name+'_'+str(scope_var),x.initializer.place,'','=')
             else:
+                #to handle type casting
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type.name.value,self.modifiers)
+
+            if x.initializer:
+                #if x has a initializer than add it
                 scope_var = ST.scope
                 tac.emit(x.variable.name+'_'+str(scope_var),x.initializer.place,'','=')
-
-        #pdb.set_trace()
+       #pdb.set_trace()
         #print("sadf")
 
 class MethodDeclaration(SourceElement):
@@ -504,9 +505,13 @@ class BinaryExpression(Expression):
             print("Type Error In Binary Expression")
             print("LHS is " + lhs.type)
             sys.exit("RHS is " + rhs.type)
-        name = ST.getTemp(self.type)
-        self.place = name
-        tac.emit(name, lhs.place, rhs.place, operator)
+        if operator != '=':
+            name = ST.getTemp(self.type)
+            self.place = name
+            tac.emit(name, lhs.place, rhs.place, operator)
+        else:
+            self.place = rhs.place
+            tac.emit(lhs.place,rhs.place,'',operator)
 
 class Assignment(BinaryExpression):
     pass
@@ -593,10 +598,11 @@ class Cast(Expression):
     def __init__(self, target, expression):
         super(Cast, self).__init__()
         node("Cast", self.id, target, expression)
-        self._fields = ['target', 'expression','type']
+        self._fields = ['target', 'expression','type','place']
         self.target = target
         self.expression = expression
         self.type = target.name
+        self.place = expression.place
 
 class Statement(SourceElement):
     pass
@@ -637,7 +643,7 @@ class MethodInvocation(Expression):
     def __init__(self, name, arguments=None, type_arguments=None, target=None):
         super(MethodInvocation, self).__init__()
         node("MethodInvocation", self.id, name, arguments, type_arguments, target)
-        self._fields = ['name', 'arguments', 'type_arguments', 'target', 'type']
+        self._fields = ['name', 'arguments', 'type_arguments', 'target', 'type', 'place']
         if arguments is None:
             arguments = []
         if type_arguments is None:
@@ -664,6 +670,13 @@ class MethodInvocation(Expression):
                     sys.exit(name + ' not called with correct argument type')
         else:
             self.type = 'undefined'
+
+        for x in self.arguments:
+            tac.emit('push',x.place,'','')
+        tac.emit('call',name+str(len(arguments)),'','')
+        temp = ST.getTemp(self.type)
+        tac.emit('pop',temp,'','');
+        self.place = temp
 
 class IfThenElse(Statement):
 
@@ -790,7 +803,7 @@ class Return(Statement):
         self._fields = ['result','type']
         self.type = 'void'
         self.result = result
-
+        tac.emit('ret',result.place,'','')
 
 class Synchronized(Statement):
 

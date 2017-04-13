@@ -1,13 +1,20 @@
 // For Loops to Calculate Factorial
 public class Factorial
 {
-
-        static public private char main(int a, int b)
-        {
-           int d = 2+3;
-            d = a = a+b;
+        static public char abhi(int a,int b){
+          if(2==3){
+            a=a+4;
+            if(a==b){
+                a=b;
+              }
+            else
+            {
+              a=b+4;
+            }
+          }
+          return a+b;
         }
-        static private int maini(int a,int b){
-          char q = 'a';
+        static public int main(int a,int b){
+
         }
 }
