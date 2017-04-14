@@ -67,29 +67,64 @@ class ExpressionParser(object):
         if len(p) == 2:
             p[0] = p[1]
         else:
+            #Here i have chnged p[3] to p[4] and not handling bitwise | and &
             p[0] = ctor(p[2], p[1], p[3])
+
+    def binopmy(self, p, ctor):
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+            #Here i have chnged p[3] to p[4] and not handling bitwise | and &
+            p[0] = ctor(p[2], p[1], p[4])
 
     def p_conditional_or_expression(self, p):
         '''conditional_or_expression : conditional_and_expression
-                                     | conditional_or_expression OR conditional_and_expression'''
-        self.binop(p, ConditionalOr)
+                                     | conditional_or_expression OR marker_next_quad conditional_and_expression'''
+        self.binopmy(p, ConditionalOr)
+        if len(p) == 5:
+            print("or");print(p[1].falselist);print('_');print(p[3])
+            tac.backpatch(p[1].falselist,p[3])
+            p[0].truelist = p[1].truelist+p[4].truelist
+            p[0].falselist = p[4].falselist
 
     def p_conditional_or_expression_not_name(self, p):
         '''conditional_or_expression_not_name : conditional_and_expression_not_name
-                                              | conditional_or_expression_not_name OR conditional_and_expression
-                                              | name OR conditional_and_expression'''
-        self.binop(p, ConditionalOr)
+                                              | conditional_or_expression_not_name OR marker_next_quad conditional_and_expression
+                                              | name OR marker_next_quad conditional_and_expression'''
+        self.binopmy(p, ConditionalOr)
+        if len(p) == 5:
+            print("or")
+            print(p[1].falselist)
+            print('_');print(p[3])
+            tac.backpatch(p[1].falselist,p[3])
+            p[0].truelist = p[1].truelist+p[4].truelist
+            p[0].falselist = p[4].falselist
 
     def p_conditional_and_expression(self, p):
         '''conditional_and_expression : inclusive_or_expression
-                                      | conditional_and_expression AND inclusive_or_expression'''
-        self.binop(p, ConditionalAnd)
+                                      | conditional_and_expression AND marker_next_quad inclusive_or_expression'''
+        self.binopmy(p, ConditionalAnd)
+        if len(p) == 5:
+            print("and");print(p[1].falselist);print('_');print(p[4].falselist);
+            tac.backpatch(p[1].truelist,p[3])
+            p[0].truelist = p[4].truelist
+            p[0].falselist = p[1].falselist+p[4].falselist
 
     def p_conditional_and_expression_not_name(self, p):
         '''conditional_and_expression_not_name : inclusive_or_expression_not_name
-                                               | conditional_and_expression_not_name AND inclusive_or_expression
-                                               | name AND inclusive_or_expression'''
-        self.binop(p, ConditionalAnd)
+                                               | conditional_and_expression_not_name AND marker_next_quad inclusive_or_expression
+                                               | name AND marker_next_quad inclusive_or_expression'''
+        self.binopmy(p, ConditionalAnd)
+        if len(p) == 5:
+            print("and");print(p[1].falselist);print('_');print(p[4].falselist);
+            tac.backpatch(p[1].truelist,p[3])
+            p[0].truelist = p[4].truelist
+            p[0].falselist = p[1].falselist+p[4].falselist
+
+    def p_marker_next_quad(self, p):
+        '''marker_next_quad : '''
+        p[0] = tac.newLabel()
+        tac.emit('label :',p[0],'','')
 
     def p_inclusive_or_expression(self, p):
         '''inclusive_or_expression : exclusive_or_expression
@@ -538,37 +573,49 @@ class StatementParser(object):
         p[0] = p[1]
 
     def p_if_then_statement(self, p):
-        '''if_then_statement : IF '(' inc_scope expression ')' label_for_if1 statement label_for_if2'''
+        '''if_then_statement : IF '(' inc_scope expression ')' label_for_if1 statement label_for_if1'''
         p[0] = IfThenElse(p[4], p[7])
+        tac.backpatch(p[4].truelist,p[6])
+        tac.backpatch(p[4].falselist,p[8])
 
     def p_label_for_if1(self,p):
         '''label_for_if1 : '''
         l1 = ST.new_label()
         #handle array here
         #pdb.set_trace()
-        tac.emit('ifgoto', p[-2].place, 'eq0', l1)
+        #tac.emit('ifgoto', p[-2].place, 'eq0', l1)
         p[0] = l1
+        tac.emit('label :','', '', l1)
 
     def p_label_for_if2(self,p):
         '''label_for_if2 : '''
         #handle array here
         #pdb.set_trace()
-        tac.emit('label :', p[-2], '', '')
+        tac.emit('label :', '', '',  p[-2][0])
 
     def p_label_for_if3(self,p):
         '''label_for_if3 : '''
+        #l1 = ST.new_label()
+        #tac.emit('goto',l1,'','')
+        #tac.emit('label : ',p[-3],'','')
+        #p[0] = l1
         l1 = ST.new_label()
-        tac.emit('goto',l1,'','')
-        tac.emit('label : ',p[-3],'','')
-        p[0] = l1
+        l2 = ST.new_label()
+        p[0] = [l1, l2]
+        tac.emit('goto','','',l1)
+        tac.emit('label :','', '', l2)
 
     def p_if_then_else_statement(self, p):
         '''if_then_else_statement : IF '(' inc_scope expression ')' label_for_if1 statement_no_short_if ELSE label_for_if3 statement label_for_if2'''
         p[0] = IfThenElse(p[4], p[7], p[10])
+        tac.backpatch(p[4].truelist,p[6])
+        tac.backpatch(p[4].falselist,p[9][1])
 
     def p_if_then_else_statement_no_short_if(self, p):
         '''if_then_else_statement_no_short_if : IF '(' inc_scope expression ')' label_for_if1 statement_no_short_if ELSE label_for_if3 statement_no_short_if label_for_if2'''
         p[0] = IfThenElse(p[4], p[7], p[10])
+        tac.backpatch(p[4].truelist,p[6])
+        tac.backpatch(p[4].falselist,p[9][1])
 
     def p_while_statement(self, p):
         '''while_statement : WHILE '(' inc_scope expression ')' statement'''

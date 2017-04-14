@@ -490,7 +490,7 @@ class BinaryExpression(Expression):
     def __init__(self, operator, lhs, rhs):
         super(BinaryExpression, self).__init__()
         node("BinaryExpression", self.id, operator, lhs, rhs)
-        self._fields = ['operator', 'lhs', 'rhs','type','place']
+        self._fields = ['operator', 'lhs', 'rhs','type','place','truelist','falselist']
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
@@ -512,6 +512,16 @@ class BinaryExpression(Expression):
         else:
             self.place = rhs.place
             tac.emit(lhs.place,rhs.place,'',operator)
+
+        relop = ['==','!=','<','>','<=','>=']
+        if operator in relop:
+            self.falselist = [len(tac.code)]
+            tac.emit("ifgoto",self.place,'eq0','')
+            self.truelist = [len(tac.code)]
+            tac.emit("goto",'','','')
+        else:
+            self.truelist = []
+            self.falselist =[]
 
 class Assignment(BinaryExpression):
     pass
@@ -1003,7 +1013,7 @@ class Name(SourceElement):
             sys.exit(value + ' not declared in current scope')
         else:
             self.type = ST.Search('variables',value)
-        self.place = value + '_'+str(ST.scope)
+        self.place = value + '_'+str(ST.getScope('variables',value))
 
     def append_name(self, name):
         try:
