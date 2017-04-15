@@ -602,6 +602,10 @@ class Unary(Expression):
         if not expression.type in ['int','float','boolean','long','double']:
             self.type = "error"
             sys.exit("Type Error In Unary Expression")
+        if "++" in sign:
+            tac.emit(expression.place, 1, '', '+')
+        elif "--" in sign:
+            tac.emit(expression.place, 1, '', '-')
 
 class Cast(Expression):
 
