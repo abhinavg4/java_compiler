@@ -603,9 +603,9 @@ class Unary(Expression):
             self.type = "error"
             sys.exit("Type Error In Unary Expression")
         if "++" in sign:
-            tac.emit(expression.place, 1, '', '+')
+            tac.emit(expression.place, expression.place, '1' , '+')
         elif "--" in sign:
-            tac.emit(expression.place, 1, '', '-')
+            tac.emit(expression.place, expression.place, '1', '-')
 
 class Cast(Expression):
 
