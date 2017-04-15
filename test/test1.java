@@ -1,9 +1,9 @@
-// For Loops to Calculate Factorial
+// For Loops to Calculate Fa=ctorial
 public class Factorial
 {
-        static public int main(int a,int b){
-            if(((a+3==b)&&(b+5==3))||(a>b+5)){
-              a = a+b;
-            }
-        }
-}
+        static private char main(int a)
+        {
+            int A[][] = new int[3][5];
+            int b[][][] = new int[2][3][4];
+            A[b[1][2][3]][4] = 2;
+}}

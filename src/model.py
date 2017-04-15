@@ -208,7 +208,19 @@ class FieldDeclaration(SourceElement):
                 #to handle type casting
                 ST.Add('variables',x.variable.name,x.variable.dimensions,self.type.name.value,self.modifiers)
 
-            if x.initializer:
+            #code to give symbol table the exact dimensions of an array
+            if x.initializer and x.initializer.__class__ == ArrayCreation:
+                dimensions = []
+                width = 1
+                for individual_dimension in x.initializer.dimensions:
+                    dimensions = dimensions + [individual_dimension.place]
+                    width *= int(individual_dimension.place)
+                ST.SymbolTable[ST.scope]['variables'][x.variable.name]['dimension'] = dimensions
+                ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'.'+str(ST.scope)]['dimension'] = dimensions
+                scope_var = ST.scope
+                tac.emit(x.variable.name+'_'+str(scope_var),width,'','declare')
+
+            elif x.initializer:
                 #if x has a initializer than add it
                 scope_var = ST.scope
                 tac.emit(x.variable.name+'_'+str(scope_var),x.initializer.place,'','=')
@@ -945,7 +957,7 @@ class ArrayAccess(Expression):
     def __init__(self, index, target):
         super(ArrayAccess, self).__init__()
         node("ArrayAccess", self.id, index, target)
-        self._fields = ['index', 'target','type','depth','dimension']
+        self._fields = ['index', 'target','type','depth','dimension','place','len','pass_dimension']
         self.index = index
         self.target = target
         self.type = target.type
@@ -959,8 +971,42 @@ class ArrayAccess(Expression):
             self.dimension = ST.SymbolTable[scope_method]['variables'][target.value]['dimension']
         if self.depth > self.dimension:
             sys.exit("More than allowed dimension accessed")
-        if index.type is not 'int':
+        if index.type not in 'int':
             sys.exit("Type Error : Array Indices Must Be Integer")
+
+        # this is tac code
+        if self.depth == 1:
+            #this line is for array name to get propogated to all array access
+            self.array = target.place
+            scope_method = ST.getScope('variables',target.value)
+            dimensions = ST.SymbolTable[scope_method]['variables'][target.value]['dimension']
+            self.pass_dimension = dimensions
+
+            length = 1
+            for x in dimensions[self.depth:]:
+                length *= int(x)
+            temp = ST.getTemp('int')
+            tac.emit(temp,index.place,length,'*')
+
+            self.len = temp
+            self.place = self.array + '['+temp+']'
+
+        else:
+            dimensions = target.pass_dimension
+            length = 1
+            for x in dimensions[self.depth:]:
+                length *= int(x)
+            temp = ST.getTemp('int')
+            tac.emit(temp,index.place,length,'*')
+            temp1  =ST.getTemp('int')
+            #here we can optimize by using temo again
+            tac.emit(temp1,temp,target.len,'+')
+            self.place = temp1
+            self.array = target.array
+            if self.depth == len(dimensions):
+                self.place = self.array + '['+temp1+']'
+            self.pass_dimension = dimensions
+            self.len = temp1
 
 class ArrayCreation(Expression):
 
