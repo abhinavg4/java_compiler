@@ -710,6 +710,7 @@ class While(Statement):
         self.predicate = predicate
         self.body = body
         self.type = 'void'
+        #pdb.set_trace()
         if not predicate.type in ['int','float','boolean','long','double']:
             sys.exit("Boolean not provided inside while Statement")
 

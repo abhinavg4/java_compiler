@@ -618,8 +618,23 @@ class StatementParser(object):
         tac.backpatch(p[4].falselist,p[9][1])
 
     def p_while_statement(self, p):
-        '''while_statement : WHILE '(' inc_scope expression ')' statement'''
-        p[0] = While(p[4], p[6])
+        '''while_statement : WHILE '(' label_for_while1 inc_scope expression ')' label_for_while1 statement label_for_while2'''
+        p[0] = While(p[5], p[8])
+        tac.backpatch(p[5].truelist,p[7])
+        tac.backpatch(p[5].falselist,p[9])
+
+    def p_label_for_while1(self,p):
+        '''label_for_while1 : '''
+        l1 = ST.new_label()
+        p[0] = l1
+        tac.emit('label :','', '', l1)
+
+    def p_label_for_while2(self,p):
+        '''label_for_while2 : '''
+        l1 = ST.new_label()
+        p[0] = l1
+        tac.emit('goto','', '', p[-6])
+        tac.emit('label :','', '', l1)
 
     def p_while_statement_no_short_if(self, p):
         '''while_statement_no_short_if : WHILE '(' inc_scope expression ')' statement_no_short_if'''
