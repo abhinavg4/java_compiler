@@ -618,21 +618,55 @@ class StatementParser(object):
         tac.backpatch(p[4].falselist,p[9][1])
 
     def p_while_statement(self, p):
-        '''while_statement : WHILE '(' inc_scope expression ')' statement'''
-        p[0] = While(p[4], p[6])
+        '''while_statement : WHILE '(' label_for_while1 inc_scope expression ')' label_for_while1 statement label_for_while2'''
+        p[0] = While(p[5], p[8])
+        tac.backpatch(p[5].truelist,p[7])
+        tac.backpatch(p[5].falselist,p[9])
 
     def p_while_statement_no_short_if(self, p):
-        '''while_statement_no_short_if : WHILE '(' inc_scope expression ')' statement_no_short_if'''
+        '''while_statement_no_short_if : WHILE '(' label_for_while1 inc_scope expression ')' label_for_while1 statement_no_short_if label_for_while2'''
         p[0] = While(p[4], p[6])
 
+    def p_label_for_while1(self,p):
+        '''label_for_while1 : '''
+        l1 = ST.new_label()
+        p[0] = l1
+        tac.emit('label :','', '', l1)
+
+    def p_label_for_while2(self,p):
+        '''label_for_while2 : '''
+        l1 = ST.new_label()
+        p[0] = l1
+        tac.emit('goto','', '', p[-6])
+        tac.emit('label :','', '', l1)
+
     def p_for_statement(self, p):
-        '''for_statement : FOR '(' inc_scope for_init_opt ';' expression_opt ';' for_update_opt ')' statement'''
-        p[0] = For(p[4], p[6], p[8], p[10])
+        '''for_statement : FOR '(' inc_scope for_init_opt ';' label_for_for1 expression_opt ';' label_for_for1 for_update_opt label_for_for3 ')' label_for_for1 statement label_for_for2'''
+        p[0] = For(p[4], p[7], p[10], p[14])
+        tac.backpatch(p[7].truelist,p[13])
+        tac.backpatch(p[7].falselist,p[15])
 
     def p_for_statement_no_short_if(self, p):
-        '''for_statement_no_short_if : FOR '(' inc_scope for_init_opt ';' expression_opt ';' for_update_opt ')' statement_no_short_if'''
+        '''for_statement_no_short_if : FOR '(' inc_scope for_init_opt ';' label_for_for1 expression_opt ';' label_for_for1 for_update_opt label_for_for3 ')' label_for_for1 statement_no_short_if label_for_for2'''
         p[0] = For(p[4], p[6], p[8], p[10])
 
+    def p_label_for_for1(self,p):
+        '''label_for_for1 : '''
+        l1 = ST.new_label()
+        p[0] = l1
+        tac.emit('label :','', '', l1)
+
+    def p_label_for_for2(self,p):
+        '''label_for_for2 : '''
+        l1 = ST.new_label()
+        p[0] = l1
+        tac.emit('goto','', '', p[-6])
+        tac.emit('label :','', '', l1)
+
+    def p_label_for_for3(self,p):
+        '''label_for_for3 : '''
+        tac.emit('goto','', '', p[-5])
+    
     def p_for_init_opt(self, p):
         '''for_init_opt : for_init
                         | empty'''

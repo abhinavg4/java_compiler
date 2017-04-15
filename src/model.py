@@ -614,6 +614,10 @@ class Unary(Expression):
         if not expression.type in ['int','float','boolean','long','double']:
             self.type = "error"
             sys.exit("Type Error In Unary Expression")
+        if "++" in sign:
+            tac.emit(expression.place, expression.place, '1' , '+')
+        elif "--" in sign:
+            tac.emit(expression.place, expression.place, '1', '-')
 
 class Cast(Expression):
 
@@ -722,6 +726,7 @@ class While(Statement):
         self.predicate = predicate
         self.body = body
         self.type = 'void'
+        #pdb.set_trace()
         if not predicate.type in ['int','float','boolean','long','double']:
             sys.exit("Boolean not provided inside while Statement")
 
