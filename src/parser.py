@@ -10,6 +10,7 @@ global tokens
 WhileForBreak=[]
 WhileForContinue=[]
 
+
 class ExpressionParser(object):
 
     def p_expression(self, p):
@@ -623,12 +624,15 @@ class StatementParser(object):
     def p_while_statement(self, p):
         '''while_statement : WHILE inc_for_while_stack '(' inc_scope label_for_while1 expression ')' label_for_while1 statement label_for_while2'''
         p[0] = While(p[6], p[9])
+        print(p[5])
+        #pdb.set_trace()
         tac.backpatch(WhileForContinue[-1],p[5])
         tac.backpatch(WhileForBreak[-1],p[10])
         tac.backpatch(p[6].truelist,p[8])
         tac.backpatch(p[6].falselist,p[10])
-        WhileForContinue.pop()
+
         WhileForBreak.pop()
+        WhileForContinue.pop()
 
     def p_while_statement_no_short_if(self, p):
         '''while_statement_no_short_if : WHILE inc_for_while_stack '(' inc_scope label_for_while1 expression ')' label_for_while1 statement_no_short_if label_for_while2'''
@@ -844,7 +848,7 @@ class StatementParser(object):
         '''continue_statement : CONTINUE ';'
                               | CONTINUE NAME ';' '''
         if len(p) == 3:
-            WhileForBreak[-1].append(len(tac.code))
+            WhileForContinue[-1].append(len(tac.code))
             tac.emit('goto','','','')
             p[0] = Continue()
         else:
