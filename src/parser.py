@@ -7,6 +7,9 @@ from model import *
 import pdb
 global tokens
 
+WhileForBreak=[]
+WhileForContinue=[]
+
 class ExpressionParser(object):
 
     def p_expression(self, p):
@@ -82,7 +85,7 @@ class ExpressionParser(object):
                                      | conditional_or_expression OR marker_next_quad conditional_and_expression'''
         self.binopmy(p, ConditionalOr)
         if len(p) == 5:
-            print("or");print(p[1].falselist);print('_');print(p[3])
+            #print("or");print(p[1].falselist);print('_');print(p[3])
             tac.backpatch(p[1].falselist,p[3])
             p[0].truelist = p[1].truelist+p[4].truelist
             p[0].falselist = p[4].falselist
@@ -93,9 +96,9 @@ class ExpressionParser(object):
                                               | name OR marker_next_quad conditional_and_expression'''
         self.binopmy(p, ConditionalOr)
         if len(p) == 5:
-            print("or")
-            print(p[1].falselist)
-            print('_');print(p[3])
+            #print("or")
+            #print(p[1].falselist)
+            #print('_');print(p[3])
             tac.backpatch(p[1].falselist,p[3])
             p[0].truelist = p[1].truelist+p[4].truelist
             p[0].falselist = p[4].falselist
@@ -105,7 +108,7 @@ class ExpressionParser(object):
                                       | conditional_and_expression AND marker_next_quad inclusive_or_expression'''
         self.binopmy(p, ConditionalAnd)
         if len(p) == 5:
-            print("and");print(p[1].falselist);print('_');print(p[4].falselist);
+            #print("and");print(p[1].falselist);print('_');print(p[4].falselist);
             tac.backpatch(p[1].truelist,p[3])
             p[0].truelist = p[4].truelist
             p[0].falselist = p[1].falselist+p[4].falselist
@@ -116,7 +119,7 @@ class ExpressionParser(object):
                                                | name AND marker_next_quad inclusive_or_expression'''
         self.binopmy(p, ConditionalAnd)
         if len(p) == 5:
-            print("and");print(p[1].falselist);print('_');print(p[4].falselist);
+            #print("and");print(p[1].falselist);print('_');print(p[4].falselist);
             tac.backpatch(p[1].truelist,p[3])
             p[0].truelist = p[4].truelist
             p[0].falselist = p[1].falselist+p[4].falselist
@@ -618,14 +621,29 @@ class StatementParser(object):
         tac.backpatch(p[4].falselist,p[9][1])
 
     def p_while_statement(self, p):
-        '''while_statement : WHILE '(' label_for_while1 inc_scope expression ')' label_for_while1 statement label_for_while2'''
-        p[0] = While(p[5], p[8])
-        tac.backpatch(p[5].truelist,p[7])
-        tac.backpatch(p[5].falselist,p[9])
+        '''while_statement : WHILE inc_for_while_stack '(' inc_scope label_for_while1 expression ')' label_for_while1 statement label_for_while2'''
+        p[0] = While(p[6], p[9])
+        tac.backpatch(WhileForContinue[-1],p[5])
+        tac.backpatch(WhileForBreak[-1],p[10])
+        tac.backpatch(p[6].truelist,p[8])
+        tac.backpatch(p[6].falselist,p[10])
+        WhileForContinue.pop()
+        WhileForBreak.pop()
 
     def p_while_statement_no_short_if(self, p):
-        '''while_statement_no_short_if : WHILE '(' label_for_while1 inc_scope expression ')' label_for_while1 statement_no_short_if label_for_while2'''
-        p[0] = While(p[4], p[6])
+        '''while_statement_no_short_if : WHILE inc_for_while_stack '(' inc_scope label_for_while1 expression ')' label_for_while1 statement_no_short_if label_for_while2'''
+        p[0] = While(p[6], p[9])
+        tac.backpatch(WhileForContinue[-1],p[5])
+        tac.backpatch(WhileForBreak[-1],p[10])
+        tac.backpatch(p[6].truelist,p[8])
+        tac.backpatch(p[6].falselist,p[10])
+        WhileForContinue.pop()
+        WhileForBreak.pop()
+
+    def p_inc_for_while_stack(self,p):
+        '''inc_for_while_stack : '''
+        WhileForContinue.append([])
+        WhileForBreak.append([])
 
     def p_label_for_while1(self,p):
         '''label_for_while1 : '''
@@ -637,18 +655,29 @@ class StatementParser(object):
         '''label_for_while2 : '''
         l1 = ST.new_label()
         p[0] = l1
-        tac.emit('goto','', '', p[-6])
+        tac.emit('goto','', '', p[-5])
         tac.emit('label :','', '', l1)
 
     def p_for_statement(self, p):
-        '''for_statement : FOR '(' inc_scope for_init_opt ';' label_for_for1 expression_opt ';' label_for_for1 for_update_opt label_for_for3 ')' label_for_for1 statement label_for_for2'''
-        p[0] = For(p[4], p[7], p[10], p[14])
-        tac.backpatch(p[7].truelist,p[13])
-        tac.backpatch(p[7].falselist,p[15])
+        '''for_statement : FOR inc_for_while_stack '(' inc_scope for_init_opt ';' label_for_for1 expression_opt ';' label_for_for1 for_update_opt label_for_for3 ')' label_for_for1 statement label_for_for2'''
+        p[0] = For(p[5], p[8], p[11], p[15])
+        #pdb.set_trace()
+        tac.backpatch(WhileForContinue[-1],p[10])
+        tac.backpatch(WhileForBreak[-1],p[16])
+        tac.backpatch(p[8].truelist,p[14])
+        tac.backpatch(p[8].falselist,p[16])
+        WhileForContinue.pop()
+        WhileForBreak.pop()
 
     def p_for_statement_no_short_if(self, p):
-        '''for_statement_no_short_if : FOR '(' inc_scope for_init_opt ';' label_for_for1 expression_opt ';' label_for_for1 for_update_opt label_for_for3 ')' label_for_for1 statement_no_short_if label_for_for2'''
-        p[0] = For(p[4], p[6], p[8], p[10])
+        '''for_statement_no_short_if : FOR inc_for_while_stack '(' inc_scope for_init_opt ';' label_for_for1 expression_opt ';' label_for_for1 for_update_opt label_for_for3 ')' label_for_for1 statement_no_short_if label_for_for2'''
+        p[0] = For(p[5], p[8], p[11], p[15])
+        tac.backpatch(WhileForContinue[-1],p[10])
+        tac.backpatch(WhileForBreak[-1],p[16])
+        tac.backpatch(p[8].truelist,p[14])
+        tac.backpatch(p[8].falselist,p[16])
+        WhileForContinue.pop()
+        WhileForBreak.pop()
 
     def p_label_for_for1(self,p):
         '''label_for_for1 : '''
@@ -666,7 +695,7 @@ class StatementParser(object):
     def p_label_for_for3(self,p):
         '''label_for_for3 : '''
         tac.emit('goto','', '', p[-5])
-    
+
     def p_for_init_opt(self, p):
         '''for_init_opt : for_init
                         | empty'''
@@ -713,12 +742,16 @@ class StatementParser(object):
         p[0] = p[1]
 
     def p_enhanced_for_statement_header_init(self, p):
-        '''enhanced_for_statement_header_init : FOR '(' inc_scope type NAME dims_opt'''
-        p[0] = {'modifiers': [], 'type': p[4], 'variable': Variable(p[5], dimensions=p[6])}
+        '''enhanced_for_statement_header_init : FOR inc_for_while_stack '(' inc_scope type NAME dims_opt'''
+        p[0] = {'modifiers': [], 'type': p[5], 'variable': Variable(p[6], dimensions=p[7])}
+        WhileForContinue.pop()
+        WhileForBreak.pop()
 
     def p_enhanced_for_statement_header_init2(self, p):
-        '''enhanced_for_statement_header_init : FOR '(' inc_scope modifiers type NAME dims_opt'''
-        p[0] = {'modifiers': p[4], 'type': p[5], 'variable': Variable(p[6], dimensions=p[7])}
+        '''enhanced_for_statement_header_init : FOR inc_for_while_stack '(' inc_scope modifiers type NAME dims_opt'''
+        p[0] = {'modifiers': p[5], 'type': p[6], 'variable': Variable(p[7], dimensions=p[8])}
+        WhileForContinue.pop()
+        WhileForBreak.pop()
 
     def p_statement_no_short_if(self, p):
         '''statement_no_short_if : statement_without_trailing_substatement
@@ -801,6 +834,8 @@ class StatementParser(object):
         '''break_statement : BREAK ';'
                            | BREAK NAME ';' '''
         if len(p) == 3:
+            WhileForBreak[-1].append(len(tac.code))
+            tac.emit('goto','','','')
             p[0] = Break()
         else:
             p[0] = Break(p[2])
@@ -809,6 +844,8 @@ class StatementParser(object):
         '''continue_statement : CONTINUE ';'
                               | CONTINUE NAME ';' '''
         if len(p) == 3:
+            WhileForBreak[-1].append(len(tac.code))
+            tac.emit('goto','','','')
             p[0] = Continue()
         else:
             p[0] = Continue(p[2])
