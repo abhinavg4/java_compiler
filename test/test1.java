@@ -2,18 +2,11 @@
 public class Factorial
 {
 
-        static private char main(int a)
+        static private char main()
         {
-          int b;
-          while(12==345||(23==34&&1==1)){
-            if(19==48&&4==5){
-              if(1==2||12==2&&45==89){
-                continue;
-              }
-            }
-            else{
-              break;
-            }
+          int a = 3;
+          while(a<2){
+            a = a-1;
           }
-        }
+          }
 }

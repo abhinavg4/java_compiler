@@ -6,9 +6,12 @@ import parser
 import ply.lex as lex
 import ply.yacc as yacc
 import node_file
+import genAssembly as ga
 parse = parser.Parser()
 tree = parse.parse_file(file('./test/test1.java'))
 t = parser.tac.code
+ga.generate()
+
 import getopt
 import pydot
 

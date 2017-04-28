@@ -1,3 +1,4 @@
+
 import sys
 import pdb
 class SymbolTable:
@@ -21,7 +22,7 @@ class SymbolTable:
         self.func = 'start'
         self.scope = 1
         self.new_s = 1
-        self.tempNo = 1
+        self.tempNo = [0]*500 #0 implies available
         self.labelNo = 1
 
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
@@ -56,9 +57,12 @@ class SymbolTable:
             return None
 
     def getTemp(self,type):
-        name = 'temp' + str(self.tempNo)
-        self.tempNo += 1
-        self.Add('variables',name,0,type,None)
+        ind = 0
+        while self.tempNo[ind]!=0:
+            ind = ind + 1
+        self.tempNo[ind]=1 #mark this index as occupied
+        name = 'temp' + str(ind)
+        #self.Add('variables',name,0,type,None) Not adding temporaries t SymbolTable
         return name
 
     def getScope(self,key,name):

@@ -127,8 +127,8 @@ class ExpressionParser(object):
 
     def p_marker_next_quad(self, p):
         '''marker_next_quad : '''
-        p[0] = tac.newLabel()
-        tac.emit('label :',p[0],'','')
+        p[0] = ST.new_label()
+        tac.emit('label :','','',p[0])
 
     def p_inclusive_or_expression(self, p):
         '''inclusive_or_expression : exclusive_or_expression

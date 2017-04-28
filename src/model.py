@@ -5,13 +5,14 @@ import sys
 import SymbolTable
 global graph
 global outputfile
-import tac
+from tac import *
+
+global tac
+tac = TAC()
+
 idg = 0
 graph = pydot.Dot(graph_type='digraph',ranksep=0.02,nodesep=0.02,size="8.5,11")
-global ST
-ST = SymbolTable.SymbolTable()
-global tac
-tac = tac.TAC()
+
 class SourceElement(object):
     '''
     A SourceElement is the base class for all elements that occur in a Java
@@ -614,10 +615,13 @@ class Unary(Expression):
         if not expression.type in ['int','float','boolean','long','double']:
             self.type = "error"
             sys.exit("Type Error In Unary Expression")
+        temp = ST.getTemp(self.type)
         if "++" in sign:
-            tac.emit(expression.place, expression.place, '1' , '+')
+            tac.emit(temp,expression.place,'1','+')
+            tac.emit(expression.place, temp, ' ' , '=')
         elif "--" in sign:
-            tac.emit(expression.place, expression.place, '1', '-')
+            tac.emit(temp,expression.place,'1','+')
+            tac.emit(expression.place, temp, ' ' , '=')
 
 class Cast(Expression):
 
