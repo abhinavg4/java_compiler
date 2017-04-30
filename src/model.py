@@ -218,6 +218,8 @@ class FieldDeclaration(SourceElement):
                     width *= int(individual_dimension.place)
                 ST.SymbolTable[ST.scope]['variables'][x.variable.name]['dimension'] = dimensions
                 ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'.'+str(ST.scope)]['dimension'] = dimensions
+                ST.offset = ST.offset + 4*(width-1)
+                ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'.'+str(ST.scope)]['offset'] = ST.offset
                 scope_var = ST.scope
                 tac.emit(x.variable.name+'_'+str(scope_var),width,'','declare')
 

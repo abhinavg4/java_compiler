@@ -19,6 +19,8 @@ class TAC:
         return label
 
     def emit(self, lhs, rhs, rhs1, operator):
+        rhs = str(rhs)
+        rhs1 = str(rhs1)
         self.code.append([lhs,rhs,rhs1,operator])
         if 'temp' in rhs:
             ind = int(rhs[4])
