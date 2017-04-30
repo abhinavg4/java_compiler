@@ -1,6 +1,7 @@
 from model import *
 
 regalloc = ['-1']*6
+curr_procedure = ['empty']
 
 def isInt(x):
     x=str(x).strip(' ')
@@ -49,7 +50,7 @@ def regNo(regname):
 
 
 # This function should return a register after allocationg
-def getreg(i, var, load=0):
+def getreg(i, var):
     q=-1
     #if var == "b_3":
     #    import pdb; pdb.set_trace()
@@ -66,14 +67,23 @@ def getreg(i, var, load=0):
                 q = x
                 regalloc[x] = '-1'
                 break
+
     if q != -1:
         return q
 
-    for q in range(7):
+    for q in range(6):
         if regalloc[q] == '-1':
             return q
-    #Cooment by Abhinav:- #need to handle register spliiling here
 
+    # Register Spilling
+    for q in range(6):
+        if(regalloc[q] != tac.code[i][0] and regalloc[q] != tac.code[i][1] and regalloc[q] != tac.code[i][2] and "temp" not in regalloc[q]):
+            print('\tmovl '+ regname(q) + ' , ' + '[%ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset']) + ']')
+            regalloc[q] = var
+            return q
+
+def loadreg(a, var):
+        print('\tmovl '+ '[%ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']) + ']' + ' , ' + regname(a))
 
 # Assigns a register to varisble, var, if not already assigned and returns register name
 def regs(i, var, load=0):
@@ -82,7 +92,9 @@ def regs(i, var, load=0):
     if(tmp!="-1"):
         a=regname(tmp)
     else:
-        a=getreg(i, var, load)
+        a=getreg(i, var)
+        if load == 1:
+            loadreg(a, var)
         regalloc[a] = var
         a = regname(a)
     return a

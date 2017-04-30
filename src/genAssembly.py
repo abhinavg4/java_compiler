@@ -3,6 +3,7 @@ from regalloc import *
 
 frodNo = 0 #used for label numbering of COMPARE
 reloplatest='-1' #used to store info for compare and jump
+
 def printins(ins,op1,op2='0'):
     if ins == 'M':
         if op1 != op2: # To skip some redundant code like movl %ebx, %ebx
@@ -105,6 +106,7 @@ def MUL(insNo):
         a=regs(i,tac.code[i][0])
         printins("M",c,a)
         printins("I",b,a)
+        
 def EQUAL(insNo):
     i = insNo
     #Abhinav - Need to handle array here
@@ -158,6 +160,8 @@ def generate():
     #print_functions()
     #import pdb; pdb.set_trace()
     for i in range(len(tac.code)):
+        if(tac.code[i][0]=="func"):
+            curr_procedure[0] = tac.code[i][1][:-1]
         if(tac.code[i][1][:4]=="main"):
             print "\n_start:"
             flag=1

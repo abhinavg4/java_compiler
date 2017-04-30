@@ -106,6 +106,7 @@ class SymbolTable:
     def dec_scope(self):
         self.scope = self.SymbolTable[self.scope]['parent']
         #self.SymbolTable.pop()
+
     def new_label(self):
         label = 'label'+str(self.labelNo)
         self.labelNo+=1
