@@ -17,13 +17,15 @@ class SymbolTable:
         self.SymbolTableFunction['start'] = {
             'variables' : {},
             'type' : None,
-            'input' : None
+            'input' : None,
+            'offset' : 0
         }
         self.func = 'start'
         self.scope = 1
         self.new_s = 1
         self.tempNo = [0]*500 #0 implies available
         self.labelNo = 1
+        self.offset = 0
 
     def Add(self,key, name, dimension, type, modifiers,less=0):#dimension wil have input parameters for a function
         if less:
@@ -39,13 +41,16 @@ class SymbolTable:
         else:
             sys.exit('Scope Error : ' + name + ' already present in current scope')
         if key == 'methods':
+            self.offset = 0
             self.SymbolTableFunction[self.func]['type'] = type
             self.SymbolTableFunction[self.func]['input'] = dimension
         else:
+            self.offset = self.offset + 4
             self.SymbolTableFunction[self.func]['variables'][name+"."+str(self.scope)] = {
                 'type' : type,
                 'dimension' : dimension,
-                'modifiers' : modifiers
+                'modifiers' : modifiers,
+                'offset' : self.offset
             }
         if less:
             self.scope = store_scope
