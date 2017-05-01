@@ -6,19 +6,21 @@ reloplatest='-1' #used to store info for compare and jump
 def printins(ins,op1,op2='0'):
     if ins == 'M':
         if op1 != op2: # To skip some redundant code like mov ebx, ebx
-            print('\tmov '+ op1 +' , '+op2)
+            print('\tmov '+ op2 +' , '+op1)
     elif ins == 'A':
-        print('\tadd '+op1+' , '+op2)
+        print('\tadd '+op2+' , '+op1)
     elif ins == 'S':
-        print('\tsub '+op1+' , '+op2)
+        print('\tsub '+op2+' , '+op1)
     elif ins == "MUL":
-        print('\timult '+op1+' , '+op2)
+        print('\timult '+op2+' , '+op1)
     elif ins == "L":
         print('\n'+op1+':')
     elif ins == "J":
         print('\tjmp '+op1)
     elif ins == "C":
-        print('\tcmp '+op1+' , '+op2)
+        if isInt(op2):
+            op1,op2 = op2,op1
+        print('\tcmp '+op2+' , '+op1)
     elif ins == ">=":
         print('\tjge '+op1)
     elif ins == ">":
@@ -31,10 +33,12 @@ def printins(ins,op1,op2='0'):
         print('\tje '+op1)
     elif ins == "!=":
         print('\tjne '+op1)
+    elif ins == "P":
+        print('\tpush ' +op1)
+
 
 def nrelop(relop): #outputs the negation of reloplatest
     if relop == "==":
-        printins("M",c,a)
         return "!="
     if relop == "!=":
         return "=="
@@ -52,27 +56,27 @@ def ADDSUB(insNo,isadd=1):
     if(isInt(tac.code[i][1]) or isInt(tac.code[i][2])):
         if(isInt(tac.code[i][1]) and isInt(tac.code[i][2])  ):
             a=regs(i,tac.code[i][0])
-            printins("M",a,tac.code[i][1])
+            printins("M",tac.code[i][1],a)
             if(isadd==1):
-                printins("A",a,tac.code[i][2])
+                printins("A",tac.code[i][2],a)
             else:
-                printins("S",a,tac.code[i][2])
+                printins("S",tac.code[i][2],a)
         elif(isInt(tac.code[i][1])):
             b=regs(i,tac.code[i][2], 1)
             a=regs(i,tac.code[i][0])
             printins("M",b,a)
             if(isadd==1):
-                printins("A",a,tac.code[i][2])
+                printins("A",tac.code[i][2],a)
             else:
-                printins("S",a,tac.code[i][2])
+                printins("S",tac.code[i][2],a)
         else:
             b=regs(i,tac.code[i][1], 1)
             a=regs(i,tac.code[i][0])
             printins("M",b,a)
             if(isadd==1):
-                printins("A",a,tac.code[i][2])
+                printins("A",tac.code[i][2],a)
             else:
-                printins("S",a,tac.code[i][2])
+                printins("S",tac.code[i][2],a)
     else:
         b=regs(i,tac.code[i][1], 1)
         c=regs(i,tac.code[i][2], 1)
@@ -88,22 +92,23 @@ def MUL(insNo):
     if(isInt(tac.code[i][1]) or isInt(tac.code[i][2])):
         if(isInt(tac.code[i][1]) and isInt(tac.code[i][2])):
             a=regs(i,tac.code[i][0])
-            printins("M",a,tac.code[i][1])
-            printins("MUL",a,tac.code[i][2])
+            printins("M",tac.code[i][1],a)
+            printins("MUL",tac.code[i][2],a)
         elif(isInt(tac.code[i][1])):
             b=regs(i,tac.code[i][2], 1)
             a=regs(i,tac.code[i][0])
             printins("M",b,a)
-            printins("MUL",a,tac.code[i][1])
+            printins("MUL",tac.code[i][1],a)
         else:
             b=regs(i,tac.code[i][1], 1)
             a=regs(i,tac.code[i][0])
             printins("M",b,a)
-            printins("MUL",a,tac.code[i][2])
+            printins("MUL",tac.code[i][2],a)
     else:
         b=regs(i,tac.code[i][1], 1)
         c=regs(i,tac.code[i][2], 1)
         a=regs(i,tac.code[i][0])
+        printins("M",c,a)
         printins("I",b,a)
 
 def EQUAL(insNo):
@@ -111,8 +116,8 @@ def EQUAL(insNo):
     #Abhinav - Need to handle array here
     if(isInt(tac.code[i][1])):
         a=regs(i,tac.code[i][0])
-        printins("M",a,tac.code[i][1])
-        # print("mov $"+ g.splitins[i].src1 + " , " + str(a))
+        printins("M",tac.code[i][1],a)
+        # print("movl $"+ g.splitins[i].src1 + " , " + str(a))
     else:
         if "temp" in tac.code[i][1]:
             b= regs(i, tac.code[i][1], 1)
@@ -121,7 +126,7 @@ def EQUAL(insNo):
 
         a=regs(i, tac.code[i][0])
         b=regs(i, tac.code[i][1], 1)
-        # print("mov "+ str(b) + " , " + str(a))
+        # print("movl "+ str(b) + " , " + str(a))
         printins("M",b,a)
 
 def COMPARE(insNo):
@@ -132,7 +137,7 @@ def COMPARE(insNo):
             printins("C",tac.code[i][1],tac.code[i][2])
         elif(isInt(tac.code[i][1])):
             b=regs(i, tac.code[i][2], 1)
-            printins("C",b,tac.code[i][1])
+            printins("C",tac.code[i][1],b)
         else:
             b=regs(i, tac.code[i][1], 1)
             printins("C",b, tac.code[i][2])
@@ -148,6 +153,7 @@ def IFGOTO(insNo):
     #import pdb; pdb.set_trace()
     global reloplatest
     printins(reloplatest,tac.code[i][3])
+
 #Converts every instruction to corresponding assembly code
 def generate():
     flag=0
@@ -175,22 +181,34 @@ def generate():
             print"\tmov ebp , esp"
             print"\tsub esp , 50"
         elif(tac.code[i][0]=="call"):
+            spillbeforecall()
             print"\tcall " + tac.code[i][1]
             #curr_procedure[1] = curr_procedure[0]
             #curr_procedure[0] = tac.code[i][1][:-1]
         elif(tac.code[i][0]=="ret"):
-            spillall()
+            #import pdb; pdb.set_trace()
             if curr_procedure[0] != "main":
                 regalloc[4] = tac.code[i][1]
                 if ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'] > 0:
-                    print('\tmov ' + 'eax' + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']))
+                    print('\tmov ' + 'eax' + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])+']')
                 else:
-                    print('\tmov ' + 'eax' + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])))
+                    print('\tmov ' + 'eax' + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']))+']')
+                printins("M","ebp","esp")
                 print"\tpop ebp"
                 print"\tret"
             else:
                 print"\tpop ebp"
             #curr_procedure[0] = curr_procedure[1]
+            spillall()
+        elif(tac.code[i][0]=='push'):
+            if(isInt(tac.code[i][1])):
+                printins("P",tac.code[i][1])
+                # print("mov $"+ g.splitins[i].src1 + " , " + str(a))
+            else:
+                a=regs(i, tac.code[i][1])
+                # print("mov "+ str(b) + " , " + str(a))
+                printins("P",a)
+
         elif(tac.code[i][3]=='+'):
             ADDSUB(i)
         elif(tac.code[i][3]=='-'):

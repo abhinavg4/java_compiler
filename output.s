@@ -1,27 +1,31 @@
 section .text
 	global main
 
-anuj1:
-	push ebp
-	mov ebp , esp
-	sub esp , 50
-	mov ebx , [ebp-4]
-	mov [ebp+8] , ebx
-	mov ecx , [ebp-4]
-	mov ebx , ecx
-	add ecx , 5
-	mov [ebp-4] , ecx
-	pop ebp
-	ret
-
-abhi2:
+abhi1:
 	push ebp
 	mov ebp , esp
 	sub esp , 50
 	mov ebx , [ebp+8]
-	mov esi , ebx
-	add ebx , 10
-	mov [ebp+8] , eax
+	cmp ebx , 15
+	jle label2
+	jmp label1
+
+label1:
+	mov eax , [ebp+8]
+	mov esp , ebp
+	pop ebp
+	ret
+
+label2:
+	mov ebx , [ebp+8]
+	mov ecx , ebx
+	add ecx , 5
+	push ecx
+	mov [ebp+8] , ebx
+	mov [ebp-4] , ecx
+	call abhi1
+	mov eax , [ebp+8]
+	mov esp , ebp
 	pop ebp
 	ret
 
@@ -29,13 +33,11 @@ main:
 	push ebp
 	mov ebp , esp
 	sub esp , 50
-	mov edx , 5
-	mov ebx , [ebp+12]
-	mov edx , ebx
-	add ebx , 4
-	call abhi2
+	mov ebx , 5
+	push 5
+	mov [ebp-4] , ebx
+	call abhi1
 	pop ebp
-	ret
 
 	mov eax , 1
 	mov ebx , 0

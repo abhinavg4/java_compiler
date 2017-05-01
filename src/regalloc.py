@@ -51,17 +51,17 @@ def regNo(regname):
 
 def spillall(): #function o spill all the registers
     for q in range(6):
-        if(regalloc[q]!='-1'):
+        regalloc[q] = '-1'
+    return
+def spillbeforecall():
+    for q in range(6):
+        if(regalloc[q]!='-1') and not "temp" in regalloc[q]:
         #Search for the function where the variable in that register was defined
-            for proc in ST.SymbolTableFunction:
-                for var_names in ST.SymbolTableFunction[proc]['variables']:
-                    if regalloc[q] == var_names:
-                        req_procedure = proc
-                        break
-            if(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']<0):
-                print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
+            if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset']<0):
+                print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
             else:
-                print('\tmov '+ '[ebp-' + str(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']) + ']' + ' , ' + regname(q))
+                print('\tmov '+ '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset']) + ']' + ' , ' + regname(q))
+        regalloc[q] = '-1'
 
 
 # This function should return a register after allocationg
@@ -91,6 +91,7 @@ def getreg(i, var):
             return q
     flag_for_load[0] = 1;
     # Register Spilling
+    br = 0
     for q in range(6):
         if(regalloc[q] != tac.code[i][0] and regalloc[q] != tac.code[i][1] and regalloc[q] != tac.code[i][2] and "temp" not in regalloc[q]):
             #Search for the function where the variable in that register was defined
@@ -98,7 +99,11 @@ def getreg(i, var):
                 for var_names in ST.SymbolTableFunction[proc]['variables']:
                     if regalloc[q] == var_names:
                         req_procedure = proc
+                        br = 1
                         break
+                if ( br ==1 ):
+                    break
+
             if(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']<0):
                 print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
             else:
@@ -122,6 +127,7 @@ def regs(i, var, load=0):
         a=regname(tmp)
     else:
         a=getreg(i, var)
+        #import pdb; pdb.set_trace()
         if load == 1:
             loadreg(a, var)
         regalloc[a] = var
