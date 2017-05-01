@@ -10,7 +10,7 @@ public class Factorial
 
         static private int abhi(int c, int d)
         {
-            c = c + 10;
+            d = d + 10;
             return c;
         }
 
