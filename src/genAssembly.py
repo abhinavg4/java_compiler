@@ -150,7 +150,6 @@ def IFGOTO(insNo):
     printins(reloplatest,tac.code[i][3])
 #Converts every instruction to corresponding assembly code
 def generate():
-    print(tac.code)
     flag=0
     fgl =0
     #Create data section of Assembly Code
@@ -182,7 +181,10 @@ def generate():
             if curr_procedure[0] != "main":
                 a = regs(i, tac.code[i][1], 0)
                 regalloc[regNo(a)] = tac.code[i][1]
-                print('\tmov ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']) + ']' + ' , ' + a)
+                if ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'] > 0:
+                    print('\tmov ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']) + ']' + ' , ' + a)
+                else:
+                    print('\tmov ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])) + ']' + ' , ' + a)
             print"\tpop ebp"
             print"\tret"
             #curr_procedure[0] = curr_procedure[1]
