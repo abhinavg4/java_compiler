@@ -17,7 +17,7 @@ public class Factorial
         static private int main()
         {
             int d=5;
-            d = abhi(2 , d);
+            d = abhi(d+4 , d);
             return 0;
         }
 }

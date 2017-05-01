@@ -703,7 +703,7 @@ class MethodInvocation(Expression):
         else:
             self.type = 'undefined'
 
-        for x in self.arguments:
+        for x in reversed(self.arguments):
             tac.emit('push',x.place,'','')
         tac.emit('call',name+str(len(arguments)),'','')
         temp = ST.getTemp(self.type)

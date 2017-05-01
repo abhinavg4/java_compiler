@@ -41,9 +41,9 @@ class SymbolTable:
         else:
             sys.exit('Scope Error : ' + name + ' already present in current scope')
         if key == 'methods':
-            self.offset = 0
             self.SymbolTableFunction[self.func]['type'] = type
             self.SymbolTableFunction[self.func]['input'] = dimension
+
         else:
             self.offset = self.offset + 4
             self.SymbolTableFunction[self.func]['variables'][name+"_"+str(self.scope)] = {
@@ -92,6 +92,7 @@ class SymbolTable:
                 'variables' : {},
                 }
             self.func = name
+            self.offset = 0
         self.SymbolTable.append({
                 'scope_name' : 'start',
                 'variables' : {},
@@ -106,7 +107,10 @@ class SymbolTable:
     def dec_scope(self):
         self.scope = self.SymbolTable[self.scope]['parent']
         #self.SymbolTable.pop()
-
+    def makeMethodArgument(self):
+        self.offset = 0;
+        for x in self.SymbolTableFunction[self.func]['variables']:
+            self.SymbolTableFunction[self.func]['variables'][x]['offset']= -1*self.SymbolTableFunction[self.func]['variables'][x]['offset']
     def new_label(self):
         label = 'label'+str(self.labelNo)
         self.labelNo+=1

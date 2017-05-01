@@ -1593,6 +1593,7 @@ class ClassParser(object):
         for x in p[2]:
             q = q + [x.variable.name + '_'+str(ST.scope)]
         tac.emit('func',p[1]['name']+str(len(p[2])),q,'')
+        ST.makeMethodArgument()
 
     def p_method_header_name(self, p):
         '''method_header_name : modifiers_opt type_parameters type NAME '('
