@@ -55,7 +55,7 @@ def ADDSUB(insNo,isadd=1):
     i=insNo
     if(isInt(tac.code[i][1]) or isInt(tac.code[i][2])):
         if(isInt(tac.code[i][1]) and isInt(tac.code[i][2])  ):
-            a=regs(i,tac.code[i][0])
+            a=regs(i,tac.code[i][0],0,1)
             printins("M",tac.code[i][1],a)
             if(isadd==1):
                 printins("A",tac.code[i][2],a)
@@ -63,7 +63,7 @@ def ADDSUB(insNo,isadd=1):
                 printins("S",tac.code[i][2],a)
         elif(isInt(tac.code[i][1])):
             b=regs(i,tac.code[i][2], 1)
-            a=regs(i,tac.code[i][0])
+            a=regs(i,tac.code[i][0],0,1)
             printins("M",b,a)
             if(isadd==1):
                 printins("A",tac.code[i][2],a)
@@ -71,7 +71,7 @@ def ADDSUB(insNo,isadd=1):
                 printins("S",tac.code[i][2],a)
         else:
             b=regs(i,tac.code[i][1], 1)
-            a=regs(i,tac.code[i][0])
+            a=regs(i,tac.code[i][0],0,1)
             printins("M",b,a)
             if(isadd==1):
                 printins("A",tac.code[i][2],a)
@@ -80,7 +80,7 @@ def ADDSUB(insNo,isadd=1):
     else:
         b=regs(i,tac.code[i][1], 1)
         c=regs(i,tac.code[i][2], 1)
-        a=regs(i,tac.code[i][0])
+        a=regs(i,tac.code[i][0],0,1)
         printins("M",c,a)
         if(isadd==1):
             printins("A",b,a)
@@ -91,23 +91,23 @@ def MUL(insNo):
     i=insNo
     if(isInt(tac.code[i][1]) or isInt(tac.code[i][2])):
         if(isInt(tac.code[i][1]) and isInt(tac.code[i][2])):
-            a=regs(i,tac.code[i][0])
+            a=regs(i,tac.code[i][0],0,1)
             printins("M",tac.code[i][1],a)
             printins("MUL",tac.code[i][2],a)
         elif(isInt(tac.code[i][1])):
             b=regs(i,tac.code[i][2], 1)
-            a=regs(i,tac.code[i][0])
+            a=regs(i,tac.code[i][0],0,1)
             printins("M",b,a)
             printins("MUL",tac.code[i][1],a)
         else:
             b=regs(i,tac.code[i][1], 1)
-            a=regs(i,tac.code[i][0])
+            a=regs(i,tac.code[i][0],0,1)
             printins("M",b,a)
             printins("MUL",tac.code[i][2],a)
     else:
         b=regs(i,tac.code[i][1], 1)
         c=regs(i,tac.code[i][2], 1)
-        a=regs(i,tac.code[i][0])
+        a=regs(i,tac.code[i][0],0,1)
         printins("M",c,a)
         printins("I",b,a)
 
@@ -115,7 +115,7 @@ def EQUAL(insNo):
     i = insNo
     #Abhinav - Need to handle array here
     if(isInt(tac.code[i][1])):
-        a=regs(i,tac.code[i][0])
+        a=regs(i,tac.code[i][0],0,1)
         printins("M",tac.code[i][1],a)
         # print("movl $"+ g.splitins[i].src1 + " , " + str(a))
     else:
@@ -124,7 +124,7 @@ def EQUAL(insNo):
             regalloc[regNo(b)] = tac.code[i][0]
             return
 
-        a=regs(i, tac.code[i][0])
+        a=regs(i, tac.code[i][0],0,1)
         b=regs(i, tac.code[i][1], 1)
         # print("movl "+ str(b) + " , " + str(a))
         printins("M",b,a)
@@ -156,7 +156,7 @@ def IFGOTO(insNo):
 
 #Converts every instruction to corresponding assembly code
 def generate():
-    flag=0
+    flag_for_pop=0
     fgl =0
     #Create data section of Assembly Code
     #g.debug(g.marker)
@@ -174,7 +174,6 @@ def generate():
         if(tac.code[i][0]=="func"):
             if(tac.code[i][1][:4]=="main"):
                 print "\nmain:"
-                flag=1
             else:
                 print"\n" + tac.code[i][1] + ":"
             print"\tpush ebp"
@@ -183,16 +182,29 @@ def generate():
         elif(tac.code[i][0]=="call"):
             spillbeforecall()
             print"\tcall " + tac.code[i][1]
+            flag_for_pop = 1
+            #import pdb; pdb.set_trace()
             #curr_procedure[1] = curr_procedure[0]
             #curr_procedure[0] = tac.code[i][1][:-1]
+        elif(tac.code[i][0]=="pop" and flag_for_pop != 0):
+            #import pdb; pdb.set_trace()
+            regalloc[4] = tac.code[i][1]
+            flag_for_pop = 0
         elif(tac.code[i][0]=="ret"):
             #import pdb; pdb.set_trace()
+            spillall()
             if curr_procedure[0] != "main":
-                regalloc[4] = tac.code[i][1]
-                if ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'] > 0:
-                    print('\tmov ' + 'eax' + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])+']')
+                if isInt(tac.code[i][1]):
+                    printins("M",tac.code[i][1],"eax")
                 else:
-                    print('\tmov ' + 'eax' + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']))+']')
+                    tmp = isAssigned(tac.code[i][1])
+                    if(tmp!='-1'):
+                        printins("M",regname(tmp),"eax")
+                    else:
+                        if ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'] > 0:
+                            print('\tmov ' + 'eax' + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])+']')
+                        else:
+                            print('\tmov ' + 'eax' + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']))+']')
                 printins("M","ebp","esp")
                 print"\tpop ebp"
                 print"\tret"
@@ -205,11 +217,12 @@ def generate():
                 printins("P",tac.code[i][1])
                 # print("mov $"+ g.splitins[i].src1 + " , " + str(a))
             else:
-                a=regs(i, tac.code[i][1])
+                a=regs(i, tac.code[i][1],1,0)
                 # print("mov "+ str(b) + " , " + str(a))
                 printins("P",a)
 
         elif(tac.code[i][3]=='+'):
+            #import pdb; pdb.set_trace()
             ADDSUB(i)
         elif(tac.code[i][3]=='-'):
             ADDSUB(i,0)

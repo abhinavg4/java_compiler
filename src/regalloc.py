@@ -57,6 +57,8 @@ def spillbeforecall():
     for q in range(6):
         if(regalloc[q]!='-1') and not "temp" in regalloc[q]:
         #Search for the function where the variable in that register was defined
+            if str(regalloc[q])=='i_11':
+                import pdb; pdb.set_trace()
             if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset']<0):
                 print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
             else:
@@ -69,19 +71,6 @@ def getreg(i, var):
     q=-1
     #if var == "b_3":
     #    import pdb; pdb.set_trace()
-    if "temp" in tac.code[i][1]:
-        for x in range(0,6):
-            if(regalloc[x]==tac.code[i][1]):
-                q = x
-                regalloc[x] = '-1'
-                break
-
-    if "temp" in tac.code[i][2]:
-        for x in range(0,6):
-            if(regalloc[x]==tac.code[i][2]):
-                q = x
-                regalloc[x] = '-1'
-                break
 
     if q != -1:
         return q
@@ -114,22 +103,37 @@ def getreg(i, var):
 def loadreg(a, var):
         if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']<0):
             print('\tmov '+ regname(a) + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset'])) + ']')
-        elif flag_for_load[0] == 0:
-            return
         else:
             print('\tmov '+ regname(a) + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']) + ']')
 
 # Assigns a register to varisble, var, if not already assigned and returns register name
-def regs(i, var, load=0):
+def regs(i, var, load=0, lhs=0):
     flag_for_load[0] = 0
     tmp=isAssigned(var)
+    #import pdb; pdb.set_trace()
     if(tmp!="-1"):
         a=regname(tmp)
     else:
         a=getreg(i, var)
         #import pdb; pdb.set_trace()
         if load == 1:
+            #if(var=="temp0"):
+                #import pdb; pdb.set_trace()
             loadreg(a, var)
         regalloc[a] = var
         a = regname(a)
+    if lhs == 1:
+        if "temp" in tac.code[i][1] and tac.code[i][1] != tac.code[i][0]:
+            for x in range(0,6):
+                if(regalloc[x]==tac.code[i][1]):
+                    q = x
+                    regalloc[x] = '-1'
+                    break
+
+        if "temp" in tac.code[i][2]and tac.code[i][2] != tac.code[i][0]:
+            for x in range(0,6):
+                if(regalloc[x]==tac.code[i][2]):
+                    q = x
+                    regalloc[x] = '-1'
+                    break
     return a

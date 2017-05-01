@@ -217,9 +217,9 @@ class FieldDeclaration(SourceElement):
                     dimensions = dimensions + [individual_dimension.place]
                     width *= int(individual_dimension.place)
                 ST.SymbolTable[ST.scope]['variables'][x.variable.name]['dimension'] = dimensions
-                ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'.'+str(ST.scope)]['dimension'] = dimensions
+                ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'_'+str(ST.scope)]['dimension'] = dimensions
                 ST.offset = ST.offset + 4*(width-1)
-                ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'.'+str(ST.scope)]['offset'] = ST.offset
+                ST.SymbolTableFunction[ST.func]['variables'][x.variable.name+'_'+str(ST.scope)]['offset'] = ST.offset
                 scope_var = ST.scope
                 tac.emit(x.variable.name+'_'+str(scope_var),width,'','declare')
 
@@ -707,7 +707,8 @@ class MethodInvocation(Expression):
             tac.emit('push',x.place,'','')
         tac.emit('call',name+str(len(arguments)),'','')
         temp = ST.getTemp(self.type)
-        tac.emit('pop',temp,'','');
+        if ST.SymbolTableFunction[name]['type'] != 'void':
+            tac.emit('pop',temp,'','')
         self.place = temp
 
 class IfThenElse(Statement):

@@ -1,17 +1,20 @@
-// For Loops to Calculate Factorial
-public class Factorial
-{
-
-        static private void abhi(int d)
-        {
-            int e = d+5;
-            abhi(e);
+class ackermann{
+    int Ack(int m,int n) {
+        int i,j;
+        if (m>=0 && n>=0) {
+            if (m == 0) {
+                i = n + 1;
+            } else if (n == 0) {
+                i = Ack(m - 1, 1);
+            } else {
+                j = m-1;
+                i = Ack(j, Ack(m, n - 1));
+            }
         }
-
-        static private int main()
-        {
-            int d=5;
-            abhi(5);
-            return 0;
-        }
+        return i;
+    }
+    public static void main(){
+        int i = Ack(1,2);
+        i = 5;
+    }
 }
