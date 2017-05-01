@@ -1,8 +1,9 @@
 from model import *
 
 regalloc = ['-1']*6
-curr_procedure = ['empty']
+curr_procedure = ['empty','main']
 flag_for_load = [0]
+
 def isInt(x):
     x=str(x).strip(' ')
     if(x[0]=='-'):
@@ -78,7 +79,15 @@ def getreg(i, var):
     # Register Spilling
     for q in range(6):
         if(regalloc[q] != tac.code[i][0] and regalloc[q] != tac.code[i][1] and regalloc[q] != tac.code[i][2] and "temp" not in regalloc[q]):
-            print('\tmov '+ regname(q) + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset']) + ']')
+            #Search for the function where the variable in that register was defined
+            for proc in ST.SymbolTableFunction:
+                for var_names in ST.SymbolTableFunction[proc]['variables']:
+                    if regalloc[q] == var_names:
+                        req_procedure = proc
+                        break
+
+            #print(ST.SymbolTableFunction)
+            print('\tmov '+ regname(q) + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']) + ']')
             regalloc[q] = var
             return q
 

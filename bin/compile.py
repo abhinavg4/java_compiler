@@ -11,6 +11,9 @@ parse = parser.Parser()
 tree = parse.parse_file(file('./test/test1.java'))
 t = parser.tac.code
 
+#for i in t:
+#    print i
+
 old_target = sys.stdout
 ga.generate()
 
