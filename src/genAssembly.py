@@ -186,8 +186,10 @@ def generate():
                     print('\tmov ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']) + ']' + ' , ' + a)
                 else:
                     print('\tmov ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])) + ']' + ' , ' + a)
-            print"\tpop ebp"
-            print"\tret"
+                print"\tpop ebp"
+                print"\tret"
+            else:
+                print"\tpop ebp"        
             #curr_procedure[0] = curr_procedure[1]
         elif(tac.code[i][3]=='+'):
             ADDSUB(i)
