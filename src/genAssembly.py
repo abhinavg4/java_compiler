@@ -14,24 +14,34 @@ def printins(ins,op1,op2='0'):
     elif ins == "MUL":
         print('\timult '+op2+' , '+op1)
     elif ins == "L":
+        spillbeforecall()
         print('\n'+op1+':')
+        spillall()
     elif ins == "J":
+        #import pdb; pdb.set_trace()
+        spillbeforecall()
         print('\tjmp '+op1)
     elif ins == "C":
         if isInt(op2):
             op1,op2 = op2,op1
         print('\tcmp '+op2+' , '+op1)
     elif ins == ">=":
+        spillbeforecall()
         print('\tjge '+op1)
     elif ins == ">":
+        spillbeforecall()
         print('\tjg '+op1)
     elif ins == "<=":
+        spillbeforecall()
         print('\tjle '+op1)
     elif ins == "<":
+        spillbeforecall()
         print('\tjl '+op1)
     elif ins == "==":
+        spillbeforecall()
         print('\tje '+op1)
     elif ins == "!=":
+        spillbeforecall()
         print('\tjne '+op1)
     elif ins == "P":
         print('\tpush ' +op1)
@@ -192,7 +202,7 @@ def generate():
             flag_for_pop = 0
         elif(tac.code[i][0]=="ret"):
             #import pdb; pdb.set_trace()
-            spillall()
+            #spillall()
             if curr_procedure[0] != "main":
                 if isInt(tac.code[i][1]):
                     printins("M",tac.code[i][1],"eax")

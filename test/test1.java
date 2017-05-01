@@ -1,20 +1,12 @@
-class ackermann{
-    int Ack(int m,int n) {
-        int i,j;
-        if (m>=0 && n>=0) {
-            if (m == 0) {
-                i = n + 1;
-            } else if (n == 0) {
-                i = Ack(m - 1, 1);
-            } else {
-                j = m-1;
-                i = Ack(j, Ack(m, n - 1));
-            }
+class mutual_recursion{
+    int fact(int n){
+        if (n==1){
+          return 1;
         }
-        return i;
+        int q = n + fact(n-1);
+        return q;
     }
     public static void main(){
-        int i = Ack(1,2);
-        i = 5;
+        int i = fact(2);
     }
 }

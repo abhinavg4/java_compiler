@@ -17,10 +17,10 @@ t = parser.tac.code
 #old_target = sys.stdout
 #ga.generate()
 
-#sys.stdout = open('output.s', 'w')
-#ga.generate()
+sys.stdout = open('output.s', 'w')
+ga.generate()
 
-#sys.stdout.close()
+sys.stdout.close()
 
 os.system("nasm -f elf32 output.s")
 os.system("gcc -m32 output.o")
