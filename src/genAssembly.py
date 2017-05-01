@@ -179,17 +179,17 @@ def generate():
             #curr_procedure[1] = curr_procedure[0]
             #curr_procedure[0] = tac.code[i][1][:-1]
         elif(tac.code[i][0]=="ret"):
+            spillall()
             if curr_procedure[0] != "main":
-                a = regs(i, tac.code[i][1], 0)
-                regalloc[regNo(a)] = tac.code[i][1]
+                regalloc[4] = tac.code[i][1]
                 if ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'] > 0:
-                    print('\tmov ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']) + ']' + ' , ' + a)
+                    print('\tmov ' + 'eax' + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset']))
                 else:
-                    print('\tmov ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])) + ']' + ' , ' + a)
+                    print('\tmov ' + 'eax' + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][tac.code[i][1]]['offset'])))
                 print"\tpop ebp"
                 print"\tret"
             else:
-                print"\tpop ebp"        
+                print"\tpop ebp"
             #curr_procedure[0] = curr_procedure[1]
         elif(tac.code[i][3]=='+'):
             ADDSUB(i)

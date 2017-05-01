@@ -49,6 +49,20 @@ def regNo(regname):
     if(regname=="edx"):
         return 5
 
+def spillall(): #function o spill all the registers
+    for q in range(6):
+        if(regalloc[q]!='-1'):
+        #Search for the function where the variable in that register was defined
+            for proc in ST.SymbolTableFunction:
+                for var_names in ST.SymbolTableFunction[proc]['variables']:
+                    if regalloc[q] == var_names:
+                        req_procedure = proc
+                        break
+            if(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']<0):
+                print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
+            else:
+                print('\tmov '+ '[ebp-' + str(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']) + ']' + ' , ' + regname(q))
+
 
 # This function should return a register after allocationg
 def getreg(i, var):
@@ -86,19 +100,19 @@ def getreg(i, var):
                         req_procedure = proc
                         break
             if(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']<0):
-                print('\tmov '+ regname(q) + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset'])) + ']')
+                print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
             else:
-                print('\tmov '+ regname(q) + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']) + ']')    
+                print('\tmov '+ '[ebp-' + str(ST.SymbolTableFunction[req_procedure]['variables'][str(regalloc[q])]['offset']) + ']' + ' , ' + regname(q))
             regalloc[q] = var
             return q
 
 def loadreg(a, var):
         if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']<0):
-            print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset'])) + ']' + ' , ' + regname(a))
+            print('\tmov '+ regname(a) + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset'])) + ']')
         elif flag_for_load[0] == 0:
             return
         else:
-            print('\tmov '+ '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']) + ']' + ' , ' + regname(a))
+            print('\tmov '+ regname(a) + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']) + ']')
 
 # Assigns a register to varisble, var, if not already assigned and returns register name
 def regs(i, var, load=0):
