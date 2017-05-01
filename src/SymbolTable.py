@@ -110,7 +110,7 @@ class SymbolTable:
     def makeMethodArgument(self):
         self.offset = 0;
         for x in self.SymbolTableFunction[self.func]['variables']:
-            self.SymbolTableFunction[self.func]['variables'][x]['offset']= -1*self.SymbolTableFunction[self.func]['variables'][x]['offset']
+            self.SymbolTableFunction[self.func]['variables'][x]['offset']= -1*self.SymbolTableFunction[self.func]['variables'][x]['offset'] - 4
     def new_label(self):
         label = 'label'+str(self.labelNo)
         self.labelNo+=1
