@@ -12,7 +12,7 @@ def printins(ins,op1,op2='0'):
     elif ins == 'S':
         print('\tsub '+op2+' , '+op1)
     elif ins == "MUL":
-        print('\timult '+op2+' , '+op1)
+        print('\timul '+ op1)
     elif ins == "L":
         spillbeforecall()
         print('\n'+op1+':')
@@ -99,27 +99,51 @@ def ADDSUB(insNo,isadd=1):
 
 def MUL(insNo):
     i=insNo
-    if(isInt(tac.code[i][1]) or isInt(tac.code[i][2])):
-        if(isInt(tac.code[i][1]) and isInt(tac.code[i][2])):
-            a=regs(i,tac.code[i][0],0,1)
-            printins("M",tac.code[i][1],a)
-            printins("MUL",tac.code[i][2],a)
-        elif(isInt(tac.code[i][1])):
-            b=regs(i,tac.code[i][2], 1)
-            a=regs(i,tac.code[i][0],0,1)
-            printins("M",b,a)
-            printins("MUL",tac.code[i][1],a)
+    b = -1
+    c = -1
+    b1 = getreg(i)
+    c1 = getreg(i)
+    if(c1==4 or b1==5):
+        b1,c1 = c1,b1
+    if (b1==4 or regalloc[4]=='-1'):
+        b = 4
+    if (c1==5 or regalloc[5]=='-1'):
+        c = 5
+    if(b==-1):
+        printins("M","eax",regname(b1))
+        regalloc[b1]=regalloc[4]
+        regalloc[4]='-1'
+    if(c==-1):
+        printins("M","edx",regname(c1))
+        regalloc[c1]=regalloc[5]
+        regalloc[5]='-1'
+    tmp=isAssigned(tac.code[i][1])
+    if(tmp!="-1"):
+        printins("M",regname(tmp),"eax")
+        regalloc[4] = tac.code[i][1]
+    tmp=isAssigned(tac.code[i][2])
+    if(tmp!="-1"):
+        printins("M",regname(tmp),"edx")
+        regalloc[5] = tac.code[i][2]
+    if(regalloc[4]=='-1'):
+        if(isInt(tac.code[i][1])):
+            printins("M",tac.code[i][1],"eax")
         else:
-            b=regs(i,tac.code[i][1], 1)
-            a=regs(i,tac.code[i][0],0,1)
-            printins("M",b,a)
-            printins("MUL",tac.code[i][2],a)
-    else:
-        b=regs(i,tac.code[i][1], 1)
-        c=regs(i,tac.code[i][2], 1)
-        a=regs(i,tac.code[i][0],0,1)
-        printins("M",c,a)
-        printins("I",b,a)
+            loadreg(4,tac.code[i][1])
+    if(regalloc[5]=='-1'):
+        if(isInt(tac.code[i][2])):
+            printins("M",tac.code[i][2],"edx")
+        else:
+            loadreg(5,tac.code[i][2])
+    spillaregister(4)
+    spillaregister(5)
+
+    printins("MUL","edx")
+    regalloc[4] = tac.code[i][0]
+    removeregalloc(tac.code[i][0],4)
+    regalloc[5] = '-1'
+
+
 
 def EQUAL(insNo):
     i = insNo
@@ -132,6 +156,7 @@ def EQUAL(insNo):
         if "temp" in tac.code[i][1]:
             b= regs(i, tac.code[i][1], 1)
             regalloc[regNo(b)] = tac.code[i][0]
+            removeregalloc(tac.code[i][0], regNo(b))
             return
 
         a=regs(i, tac.code[i][0],0,1)
