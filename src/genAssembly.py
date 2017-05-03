@@ -4,6 +4,7 @@ frodNo = 0 #used for label numbering of COMPARE
 reloplatest='-1' #used to store info for compare and jump
 
 
+
 def nrelop(relop): #outputs the negation of reloplatest
     if relop == "==":
         return "!="
@@ -86,18 +87,12 @@ def MUL(insNo):
         if(isInt(tac.code[i][1])):
             printins("M",tac.code[i][1],"eax")
         else:
-            if '[' in tac.code[i][1]:
-                regsarrmul(4,tac.code[i][1])
-            else:
-                loadreg(4,tac.code[i][1])
+            loadreg(4,tac.code[i][1])
     if(regalloc[5]=='-1'):
         if(isInt(tac.code[i][2])):
             printins("M",tac.code[i][2],"edx")
         else:
-            if '[' in tac.code[i][1]:
-                regsarrmul(5,tac.code[i][1])
-            else:
-                loadreg(5,tac.code[i][1])
+            loadreg(5,tac.code[i][2])
     spillaregister(4)
     spillaregister(5)
 
@@ -116,15 +111,14 @@ def EQUAL(insNo):
         printins("M",tac.code[i][1],a)
         # print("movl $"+ g.splitins[i].src1 + " , " + str(a))
     else:
-        #import pdb; pdb.set_trace()
-        if "temp" == tac.code[i][1][0:4] and '[' not in tac.code[i][0]:
+        if "temp" in tac.code[i][1]:
             b= regs(i, tac.code[i][1], 1)
             regalloc[regNo(b)] = tac.code[i][0]
             removeregalloc(tac.code[i][0], regNo(b))
             return
 
-        b=regs(i, tac.code[i][1], 1)
         a=regs(i, tac.code[i][0],0,1)
+        b=regs(i, tac.code[i][1], 1)
         # print("movl "+ str(b) + " , " + str(a))
         printins("M",b,a)
 
@@ -178,7 +172,7 @@ def generate():
                 print"\n" + tac.code[i][1] + ":"
             print"\tpush ebp"
             print"\tmov ebp , esp"
-            print"\tsub esp , 100"
+            print"\tsub esp , 50"
         elif(tac.code[i][0]=="call"):
             spillbeforecall()
             print"\tcall " + tac.code[i][1]
@@ -228,6 +222,8 @@ def generate():
             ADDSUB(i,0)
         elif(tac.code[i][3]=='*'):
             MUL(i)
+        elif(tac.code[i][3]=="/"):
+            DIV(i)
         elif(tac.code[i][3]=='='):
             #import pdb; pdb.set_trace()
             EQUAL(i)
@@ -243,7 +239,8 @@ def generate():
             COMPARE(i)
         elif(tac.code[i][0]=="neg"):
             printins("neg",tac.code[1])
-            pass
+	else:            
+	    pass
         for arr in array_access:
             #import pdb; pdb.set_trace()
             printins("A","ebp",regname(arr[1]))
