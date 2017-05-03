@@ -14,8 +14,8 @@ t = parser.tac.code
 #for i in t:
 #    print i
 
-#old_target = sys.stdout
-#ga.generate()
+old_target = sys.stdout
+ga.generate()
 
 sys.stdout = open('output.s', 'w')
 ga.generate()

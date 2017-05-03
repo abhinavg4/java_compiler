@@ -133,6 +133,8 @@ def getreg(i):
 
 
 def loadreg(a, var):
+    if "temp" in var:
+        import pdb; pdb.set_trace()
     if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']<0):
         print('\tmov '+ regname(a) + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset'])) + ']')
     else:

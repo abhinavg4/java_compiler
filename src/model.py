@@ -610,21 +610,31 @@ class Unary(Expression):
     def __init__(self, sign, expression):
         super(Unary, self).__init__()
         node("Unary", self.id, sign, expression)
-        self._fields = ['sign', 'expression','type']
+        self._fields = ['sign', 'expression','type', 'place']
         self.sign = sign
         self.expression = expression
         self.type = expression.type
+        self.place = expression.place
         if not expression.type in ['int','float','boolean','long','double']:
             self.type = "error"
             sys.exit("Type Error In Unary Expression")
         temp = ST.getTemp(self.type)
-        if "++" in sign:
-            tac.emit(temp,expression.place,'1','+')
-            tac.emit(expression.place, temp, ' ' , '=')
-        elif "--" in sign:
-            tac.emit(temp,expression.place,'1','+')
-            tac.emit(expression.place, temp, ' ' , '=')
-
+        if "++" in sign or "--" in sign:
+            if "++" == sign[1:3] or "--" == sign[1:3]:
+                temp1 = ST.getTemp(self.type)
+                tac.emit(temp1,expression.place,' ','=')
+                self.place = temp1
+            if "++" in sign:
+                tac.emit(temp,expression.place,'1','+')
+                tac.emit(expression.place, temp, ' ' , '=')
+            elif "--" in sign:
+                tac.emit(temp,expression.place,'1','+')
+                tac.emit(expression.place, temp, ' ' , '=')
+        elif "-" in sign:
+            if self.expression.__class__ is Literal:
+                self.place = '-' + self.expression.place
+            else:
+                tac.emit('neg',expression.place,' ',' ')
 class Cast(Expression):
 
     def __init__(self, target, expression):
