@@ -13,6 +13,8 @@ def printins(ins,op1,op2='0'):
         print('\tsub '+op2+' , '+op1)
     elif ins == "MUL":
         print('\timul '+ op1)
+    elif ins == "DIV":
+        print('\tdiv ' + op1)
     elif ins == "L":
         spillbeforecall()
         print('\n'+op1+':')
@@ -143,7 +145,51 @@ def MUL(insNo):
     removeregalloc(tac.code[i][0],4)
     regalloc[5] = '-1'
 
+def DIV(insNo):
+    i=insNo
+    b = -1
+    c = -1
+    b1 = getreg(i)
+    c1 = getreg(i)
+    if(c1==4 or b1==1):
+        b1,c1 = c1,b1
+    if (b1==4 or regalloc[4]=='-1'):
+        b = 4
+    if (c1==1 or regalloc[1]=='-1'):
+        c = 1
+    if(b==-1):
+        printins("M","eax",regname(b1))
+        regalloc[b1]=regalloc[4]
+        regalloc[4]='-1'
+    if(c==-1):
+        printins("M","ecx",regname(c1))
+        regalloc[c1]=regalloc[1]
+        regalloc[1]='-1'
+    tmp=isAssigned(tac.code[i][1])
+    if(tmp!="-1"):
+        printins("M",regname(tmp),"eax")
+        regalloc[4] = tac.code[i][1]
+    tmp=isAssigned(tac.code[i][2])
+    if(tmp!="-1"):
+        printins("M",regname(tmp),"ecx")
+        regalloc[1] = tac.code[i][2]
+    if(regalloc[4]=='-1'):
+        if(isInt(tac.code[i][1])):
+            printins("M",tac.code[i][1],"eax")
+        else:
+            loadreg(4,tac.code[i][1])
+    if(regalloc[1]=='-1'):
+        if(isInt(tac.code[i][2])):
+            printins("M",tac.code[i][2],"ecx")
+        else:
+            loadreg(1,tac.code[i][2])
+    spillaregister(4)
+    spillaregister(1)
 
+    printins("DIV","ecx")
+    regalloc[4] = tac.code[i][0]
+    removeregalloc(tac.code[i][0],4)
+    regalloc[1] = '-1'
 
 def EQUAL(insNo):
     i = insNo
@@ -264,6 +310,8 @@ def generate():
             ADDSUB(i,0)
         elif(tac.code[i][3]=='*'):
             MUL(i)
+        elif(tac.code[i][3]=="/"):
+            DIV(i)
         elif(tac.code[i][3]=='='):
             EQUAL(i)
         elif(tac.code[i][0]=='goto'):

@@ -42,4 +42,23 @@ next:
 	jmp  next
 
 exit:
+	call printNewLine
 	ret
+
+printNewLine:
+  push ebp
+  mov ebp, esp
+  sub esp, 4
+
+  ; Print newline
+  mov dword [ebp - 4], 0x0a
+  mov eax, 4
+  mov ebx, 1
+  mov ecx, ebp
+  sub ecx, 4
+  mov edx, 1
+  int 80h
+
+  mov esp, ebp
+  pop ebp
+  ret	
