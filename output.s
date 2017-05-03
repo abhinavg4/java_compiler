@@ -5,33 +5,111 @@ section .text
 main:
 	push ebp
 	mov ebp , esp
-	sub esp , 50
-	mov ebx , 5
+	sub esp , 100
+	mov eax , 0
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 0
+	mov edx , 4
+	imul edx
 	mov ecx , ebx
-	add ecx , 1
-	push ecx
-	mov [ebp-4] , ecx
-	call printInt1
-	mov ebx , 5
-	mov ecx , ebx
-	mov eax , ebx
-	add eax , 1
-	push ecx
-	mov [ebp-4] , eax
-	call printInt1
-	mov ebx , 5
-	mov eax , ebx
-	sub eax , 1
-	push eax
-	mov [ebp-4] , ebx
-	call printInt1
-	mov ebx , -5
-	mov ecx , ebx
-	sub ecx , 10
-	push ecx
-	mov [ebp-4] , ebx
-	call printInt1
-
+	add ecx , eax
+	mov ebx , 1
+	add ecx , ebp
+	sub ecx , 28
+	mov [ecx] , ebx
+	mov eax , 0
+	mov edx , 8
+	imul edx
+	mov ebx , eax
 	mov eax , 1
-	mov ebx , 0
-	int 0x80
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 2
+	add ecx , ebp
+	sub ecx , 28
+	mov [ecx] , ebx
+	mov eax , 1
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 0
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 3
+	add ecx , ebp
+	sub ecx , 28
+	mov [ecx] , ebx
+	mov eax , 1
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 1
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 4
+	add ecx , ebp
+	sub ecx , 28
+	mov [ecx] , ebx
+	mov eax , 0
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 0
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 5
+	add ecx , ebp
+	sub ecx , 44
+	mov [ecx] , ebx
+	mov eax , 0
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 1
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 6
+	add ecx , ebp
+	sub ecx , 44
+	mov [ecx] , ebx
+	mov eax , 1
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 0
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 7
+	add ecx , ebp
+	sub ecx , 44
+	mov [ecx] , ebx
+	mov eax , 1
+	mov edx , 8
+	imul edx
+	mov ebx , eax
+	mov eax , 1
+	mov edx , 4
+	imul edx
+	mov ecx , ebx
+	add ecx , eax
+	mov ebx , 8
+	add ecx , ebp
+	sub ecx , 44
+	mov [ecx] , ebx
+> /home/abhigarg/bitbucket/java_compiler/src/regalloc.py(236)regs()
+-> regalloc[a] = var
+(Pdb) 

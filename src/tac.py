@@ -22,10 +22,11 @@ class TAC:
         rhs = str(rhs)
         rhs1 = str(rhs1)
         self.code.append([lhs,rhs,rhs1,operator])
-        if 'temp' in rhs:
+        #import pdb; pdb.set_trace()
+        if 'temp' == rhs[0:5]:
             ind = int(rhs[4])
             ST.tempNo[ind] = 0 #Free this temporary
-        if 'temp' in rhs1:
+        if 'temp' in rhs1[0:5]:
             ind = int(rhs1[4])
             ST.tempNo[ind] = 0 #Free this temporary
 

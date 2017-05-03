@@ -1008,7 +1008,7 @@ class ArrayAccess(Expression):
             for x in dimensions[self.depth:]:
                 length *= int(x)
             temp = ST.getTemp('int')
-            tac.emit(temp,index.place,length,'*')
+            tac.emit(temp,index.place,4*length,'*')
 
             self.len = temp
             self.place = self.array + '['+temp+']'
@@ -1019,7 +1019,7 @@ class ArrayAccess(Expression):
             for x in dimensions[self.depth:]:
                 length *= int(x)
             temp = ST.getTemp('int')
-            tac.emit(temp,index.place,length,'*')
+            tac.emit(temp,index.place,4*length,'*')
             temp1  =ST.getTemp('int')
             #here we can optimize by using temo again
             tac.emit(temp1,temp,target.len,'+')
