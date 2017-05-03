@@ -11,8 +11,8 @@ parse = parser.Parser()
 tree = parse.parse_file(file('./test/test1.java'))
 t = parser.tac.code
 
-for i in t:
-    print i
+#for i in t:
+#    print i
 
 #old_target = sys.stdout
 #ga.generate()
@@ -22,5 +22,7 @@ ga.generate()
 
 sys.stdout.close()
 
+os.system("nasm -f elf32 printInt1.s")
 os.system("nasm -f elf32 output.s")
-os.system("gcc -m32 output.o")
+os.system("gcc -m32 output.o printInt1.o")
+os.system("./a.out")

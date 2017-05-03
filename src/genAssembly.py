@@ -201,6 +201,7 @@ def generate():
     #import pdb; pdb.set_trace()
     print "section .text"
     print "\tglobal main"
+    print("\textern printInt1")
 
     for i in range(len(tac.code)):
         #import pdb; pdb.set_trace()
@@ -281,43 +282,3 @@ def generate():
     print("\n\tmov eax , 1")
     print("\tmov ebx , 0")
     print("\tint 0x80")
-
-    print"\nprintInt1:"
-    print"\tmov eax, [esp+4]"
-    print"\txor esi, esi"
-    print"\tcmp eax, 0"
-    print"\tjge loop"
-    print"\tneg eax"
-    print"\tpush eax"
-    print"\tmov eax, 45"
-    print"\tpush eax"
-    print"\tmov eax, 4 ; Print '-'"
-    print"\tmov edx, 1"
-    print"\tmov ecx, esp"
-    print"\tmov ebx, 1"
-    print"\tint 0x80"
-    print"\tpop eax"
-    print"\tpop eax"
-    print"\nloop:"
-    print"\tmov edx, 0"
-    print"\tmov ebx, 10"
-    print"\tdiv ebx"
-    print"\tadd edx, 48"
-    print"\tpush edx"
-    print"\tinc esi"
-    print"\tcmp eax, 0"
-    print"\tjz next"
-    print"\tjmp loop"
-    print"\nnext:"
-    print"\tcmp  esi, 0"
-    print"\tjz   exit"
-    print"\tdec  esi"
-    print"\tmov  eax, 4"
-    print"\tmov  ecx, esp"
-    print"\tmov  ebx, 1"
-    print"\tmov  edx, 1"
-    print"\tint  0x80"
-    print"\tadd  esp, 4"
-    print"\tjmp  next"
-    print"\nexit:"
-    print"\tret"
