@@ -282,8 +282,8 @@ def generate():
     print("\tmov ebx , 0")
     print("\tint 0x80")
 
-    print"\nprintInt:"
-    print"\tmov eax, [esp+8]"
+    print"\nprintInt1:"
+    print"\tmov eax, [esp+4]"
     print"\txor esi, esi"
     print"\tcmp eax, 0"
     print"\tjge loop"

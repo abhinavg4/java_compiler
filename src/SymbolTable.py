@@ -32,7 +32,7 @@ class SymbolTable:
             store_scope = self.scope
             self.scope = self.SymbolTable[self.scope]['parent']
         curr_scope = self.getScope(key,name)
-        if curr_scope != self.scope:
+        if curr_scope != self.scope or (key == 'methods' and self.SymbolTable[self.scope][key][name]['modifiers'] == 'abstract'):
             self.SymbolTable[self.scope][key][name] = {
                 'type' : type,
                 'dimension' : dimension,
