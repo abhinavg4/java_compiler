@@ -5,7 +5,7 @@ curr_procedure = ['empty','main']
 flag_for_load = [0]
 array_access = []
 counter = [0]
-
+array_in_argument =[0]
 def printins(ins,op1,op2='0'):
     if ins == 'M':
         if op1 != op2: # To skip some redundant code like mov ebx, ebx
@@ -25,8 +25,8 @@ def printins(ins,op1,op2='0'):
         spillbeforecall()
         print('\tjmp '+op1)
     elif ins == "C":
-        if isInt(op2):
-            op1,op2 = op2,op1
+        #if isInt(op2):
+        #    op1,op2 = op2,op1
         print('\tcmp '+op2+' , '+op1)
     elif ins == ">=":
         spillbeforecall()
@@ -50,6 +50,10 @@ def printins(ins,op1,op2='0'):
         print('\tpush ' +op1)
     elif ins=="neg":
         print('\tneg '+op1)
+    elif ins=="AND":
+        print('\tand '+op1 + ' , '+op2)
+    elif ins == "DIV":
+        print('\tdiv '+op1)
 
 def isInt(x):
     x=str(x).strip(' ')
@@ -108,8 +112,8 @@ def spillbeforecall():
     for q in range(6):
         if(regalloc[q]!='-1') and not "temp" in regalloc[q]:
         #Search for the function where the variable in that register was defined
-            if str(regalloc[q])=='i_11':
-                import pdb; pdb.set_trace()
+            #if str(regalloc[q])=='i_11':
+            #    import pdb; pdb.set_trace()
             if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset']<0):
                 print('\tmov '+ '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][str(regalloc[q])]['offset'])) + ']' + ' , ' + regname(q))
             else:
@@ -180,17 +184,26 @@ def getreg(i):
 
 
 def loadreg(a, var):
-    if "temp" in var:
-        import pdb; pdb.set_trace()
+    #if "temp" in var:
+    #    import pdb; pdb.set_trace()
     if(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']<0):
         print('\tmov '+ regname(a) + ' , ' + '[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset'])) + ']')
     else:
         print('\tmov '+ regname(a) + ' , ' + '[ebp-' + str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']) + ']')
 
 def loadregarr(a, temp, var):
-        printins("A","ebp",regname(temp))
-        printins("S",str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']),regname(temp))
-        printins("M",'['+ regname(temp)+ ']',regname(a))
+        if not regname(temp):
+            import pdb; pdb.set_trace()
+        if array_in_argument[0] == 1:
+            printins("A",'[ebp+' + str(abs(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']))+']',regname(temp))
+            printins("M",'['+ regname(temp)+ ']',regname(a))
+        else:
+            printins("A","ebp",regname(temp))
+            printins("S",str(ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset']),regname(temp))
+            printins("M",'['+ regname(temp)+ ']',regname(a))
+        regalloc[temp] = '-1'
+        array_access.append([a,"NOA",var])
+        array_in_argument[0] = 0
 # Assigns a register to varisble, var, if not already assigned and returns register name
 def regsarrmul(a,var):
     counter[0] = counter[0] +1
@@ -199,16 +212,23 @@ def regsarrmul(a,var):
     var = vari[0]
         #if(var=="temp0"):
             #import pdb; pdb.set_trace()
+    if isAssigned(temp) == '-1':
+        import pdb; pdb.set_trace()
     loadregarr(a, isAssigned(temp),var)
     regalloc[a] = var + 'temp' + str(counter[0])
 
 def regs(i, var, load=0, lhs=0):
     flag_for_load[0] = 0
+    #if var == "r_4[temp35]":
+        #import pdb; pdb.set_trace()
     if "[" in var:
+        #import pdb; pdb.set_trace()
         counter[0] = counter[0] +1
         temp = var.partition('[')[-1].rpartition(']')[0]
         vari = var.split('[')
         var = vari[0]
+        if ST.SymbolTableFunction[curr_procedure[0]]['variables'][var]['offset'] < 0:
+            array_in_argument[0] = 1
         a=getreg(i)
         if load == 0:
             array_access.append([a,isAssigned(temp),var])
@@ -216,7 +236,7 @@ def regs(i, var, load=0, lhs=0):
             #if(var=="temp0"):
                 #import pdb; pdb.set_trace()
             loadregarr(a, isAssigned(temp),var)
-        regalloc[a] = var + 'temp' + str(counter[0])
+        regalloc[a] = var + 'temp' + temp
         a = regname(a)
     else:
         tmp=isAssigned(var)
@@ -231,8 +251,8 @@ def regs(i, var, load=0, lhs=0):
                 #if(var=="temp0"):
                     #import pdb; pdb.set_trace()
                 loadreg(a, var)
-            if not a:
-                import pdb; pdb.set_trace()
+            #if not a:
+            #    import pdb; pdb.set_trace()
             regalloc[a] = var
             a = regname(a)
     if lhs == 1:

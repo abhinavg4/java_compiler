@@ -270,7 +270,7 @@ class FormalParameter(SourceElement):
         self.modifiers = modifiers
         self.vararg = vararg
         global ST
-        ST.Add('variables',self.variable.name,self.variable.dimensions,self.type,self.modifiers)
+        ST.Add('variables',self.variable.name,[self.variable.dimensions],self.type,self.modifiers)
 
 
 class Variable(SourceElement):
@@ -512,7 +512,7 @@ class BinaryExpression(Expression):
         if lhs.type == rhs.type:
             if not lhs.type == 'char':
                 self.type = lhs.type
-        elif ((lhs.type in ['double']) and (rhs.type in ['double','int']) or (rhs.type in ['double']) and (lhs.type in ['double','int'])) and operator != '=' :
+        elif ((lhs.type in ['double']) and (rhs.type in ['double','int'])) or ((rhs.type in ['double']) and (lhs.type in ['double','int'])) and operator != '=' :
             self.type = 'double'
         else:
             #pdb.set_trace()
@@ -628,7 +628,7 @@ class Unary(Expression):
                 tac.emit(temp,expression.place,'1','+')
                 tac.emit(expression.place, temp, ' ' , '=')
             elif "--" in sign:
-                tac.emit(temp,expression.place,'1','+')
+                tac.emit(temp,expression.place,'1','-')
                 tac.emit(expression.place, temp, ' ' , '=')
         elif "-" in sign:
             if self.expression.__class__ is Literal:
@@ -995,7 +995,7 @@ class ArrayAccess(Expression):
             sys.exit("More than allowed dimension accessed")
         if index.type not in 'int':
             sys.exit("Type Error : Array Indices Must Be Integer")
-
+        #import pdb; pdb.set_trace()
         # this is tac code
         if self.depth == 1:
             #this line is for array name to get propogated to all array access
@@ -1005,6 +1005,7 @@ class ArrayAccess(Expression):
             self.pass_dimension = dimensions
 
             length = 1
+            #import pdb; pdb.set_trace()
             for x in dimensions[self.depth:]:
                 length *= int(x)
             temp = ST.getTemp('int')

@@ -1,6 +1,7 @@
 class bubblesort {
     int printInt(int n);
-    void sort(int arr[], int len) {
+
+    int sort(int arr[], int len) {
         int n = len;
         int temp, i, j;
         for(i=0; i < n; i++){
@@ -12,6 +13,7 @@ class bubblesort {
                 }
             }
         }
+        return 0;
     }
     public static void main() {
                 int arr[] = new int[7];
@@ -22,13 +24,8 @@ class bubblesort {
                 arr[4] = 3;
                 arr[5] = 2;
                 arr[6] = 1;
-                for(int i=0; i < 7; i++){
-                        printInt(arr[i]);
-                        if (arr[i] > 5) {
-                            break;
-                        }
-                }
-                sort(arr, 7);//sorting array elements using bubble sort
+                sort(arr, 7);
+                //sort(arr, 'a');//sorting array elements using bubble sort
                 for(int i=0; i < 7; i++){
                         printInt(arr[i]);
                 }
