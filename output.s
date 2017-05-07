@@ -86,6 +86,7 @@ label7:
 	cmp ebx , 5
 	mov [ebp-16] , ebx
 	jne label9
+	jmp label8
 
 label8:
 	push 1
