@@ -18,6 +18,7 @@ In this step, we took the raw Java code and converted it to its alternative repr
 To draw the trees we used pydot. This step also checks for syntax errors
 
   Note:- graphical representation (made using pydot) is just to our soul satisfaction and is not needed in next steps. This step returned us a python class representation of parse tree that we use in next step.
+
 2. In this step, we used our class represented tree and converted it to AST and also built symbol table using our parse tree. This step also checks for some compilation errors
 
 3. In this step, we used AST and symbol table to generate an efficient TAC. We tried to optimise the number of TAC instructions wherever possible.
