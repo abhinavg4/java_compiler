@@ -8,7 +8,7 @@ import ply.yacc as yacc
 import node_file
 import genAssembly as ga
 parse = parser.Parser()
-tree = parse.parse_file(file('./test/test1.java'))
+tree = parse.parse_file(file('./test/ackermann.java'))
 t = parser.tac.code
 ga.generate()
 
