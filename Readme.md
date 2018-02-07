@@ -27,11 +27,14 @@ To draw the trees we used pydot. This step also checks for syntax errors
 
 ### Running
 
-Change the filename on line 11 of bin/go.py to point to any java file that you want compile
+Run the following command. It has 3 arguments (in this order)
 
-Then run the following command
+1. -o, if you want to remove jump over jumps in the code
+2. -f the java file name you want to compile 
+3. -h for help 
 ```
-python bin/go.py
+python bin/final.py -f test/ackermann.java 
+python bin/final.py -o 1 -f test/ackermann.java
 ```
 
 This will output assembly code on your terminal window and also store it in output.s. Also, this will produce an executable file output.o
